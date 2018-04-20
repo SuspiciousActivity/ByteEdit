@@ -214,7 +214,9 @@ public class Main extends JFrame {
 					if (node == null) {
 						continue;
 					}
-					classNodes.replace(node.name + ".class", node);
+					if (classNodes.replace(node.name + ".class", node) == null) {
+						classNodes.put(node.name + ".class", node);
+					}
 				}
 			}
 		}, ctrlS, JComponent.WHEN_FOCUSED);

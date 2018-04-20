@@ -313,7 +313,7 @@ public class OpcodesReverse {
 		case 198:
 			return "ifnull";
 		case 199:
-			return "ifnonnul";
+			return "ifnonnull";
 
 		default:
 			return "Unknown Opcode: " + opcode;

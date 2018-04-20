@@ -1,8 +1,6 @@
 package me.ByteEdit.main;
 
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -343,6 +341,8 @@ public class Assembler {
 						if ((methodLabelMap = classLabelMap.get(node.name + "|" + node.desc)) == null) {
 							methodLabelMap = new HashMap<Label, Integer>();
 							classLabelMap.put(node.name + "|" + node.desc, methodLabelMap);
+						} else {
+							methodLabelMap.clear();
 						}
 					} else {
 						s = s.substring(1);
@@ -521,7 +521,23 @@ public class Assembler {
 					if (!asd.startsWith("(")) {
 						arr.add(asd);
 					} else { // anderer typ mit casten
-						arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
+						if (asd.startsWith("(label) ")) {
+							int labelNr = Integer.parseInt(asd.split(" ")[1]);
+							boolean found = false;
+							for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+								if (entry.getValue() == labelNr) {
+									arr.add(new LabelNode(entry.getKey()));
+									found = true;
+								}
+							}
+							if (!found) {
+								Label lb = new Label();
+								labels.put(lb, labelNr);
+								arr.add(new LabelNode(lb));
+							}
+						} else {
+							arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
+						}
 					}
 				}
 				local = new Object[arr.size()];
@@ -540,7 +556,23 @@ public class Assembler {
 					if (!asd.startsWith("(")) {
 						arr.add(asd);
 					} else { // anderer typ mit casten
-						arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
+						if (asd.startsWith("(label) ")) {
+							int labelNr = Integer.parseInt(asd.split(" ")[1]);
+							boolean found = false;
+							for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+								if (entry.getValue() == labelNr) {
+									arr.add(new LabelNode(entry.getKey()));
+									found = true;
+								}
+							}
+							if (!found) {
+								Label l = new Label();
+								labels.put(l, labelNr);
+								arr.add(new LabelNode(l));
+							}
+						} else {
+							arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
+						}
 					}
 				}
 				stack = new Object[arr.size()];
@@ -1076,9 +1108,9 @@ public class Assembler {
 				}
 
 				LabelNode dflt = null;
-				int labelNr = Integer.parseInt(split2[2].substring(9));
+				int dfltLabelNr = Integer.parseInt(split2[2].substring(9));
 				for (Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
+					if (entry.getValue() == dfltLabelNr) {
 						dflt = new LabelNode(entry.getKey());
 					}
 					if (labelMap.containsKey(entry.getValue())) {
@@ -1087,7 +1119,7 @@ public class Assembler {
 				}
 				if (dflt == null) {
 					Label l = new Label();
-					labels.put(l, labelNr);
+					labels.put(l, dfltLabelNr);
 					dflt = new LabelNode(l);
 				}
 
@@ -1098,7 +1130,7 @@ public class Assembler {
 					LabelNode ln;
 					if (entry.getValue() == null) {
 						Label l = new Label();
-						labels.put(l, labelNr);
+						labels.put(l, entry.getKey());
 						ln = new LabelNode(l);
 					} else {
 						ln = entry.getValue();
@@ -1153,7 +1185,7 @@ public class Assembler {
 					LabelNode ln;
 					if (entry.getValue() == null) {
 						Label l = new Label();
-						labels.put(l, labelNr);
+						labels.put(l, entry.getKey());
 						ln = new LabelNode(l);
 					} else {
 						ln = entry.getValue();

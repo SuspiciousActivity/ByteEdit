@@ -323,6 +323,8 @@ public class Disassembler {
 						} else {
 							if (o instanceof String) {
 								arr.add((String) o);
+							} else if (o instanceof LabelNode) {
+								arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 							} else {
 								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
 							}
@@ -341,6 +343,8 @@ public class Disassembler {
 						} else {
 							if (o instanceof String) {
 								arr.add((String) o);
+							} else if (o instanceof LabelNode) {
+								arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 							} else {
 								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
 							}
