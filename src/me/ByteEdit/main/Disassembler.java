@@ -16,6 +16,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
@@ -29,6 +30,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
@@ -39,13 +41,6 @@ public class Disassembler {
 			return "ClassNode is null! This is not a valid java class file!";
 		}
 		try {
-			HashMap<String, HashMap<Label, Integer>> classLabelMap;
-			if ((classLabelMap = Main.labels.get(classNode.name)) == null) {
-				classLabelMap = new HashMap<String, HashMap<Label, Integer>>();
-				Main.labels.put(classNode.name, classLabelMap);
-			} else {
-				classLabelMap.clear();
-			}
 			String s = "";
 			s += "// #Annotations\n";
 			if (classNode.visibleAnnotations != null && !classNode.visibleAnnotations.isEmpty()) {
@@ -104,6 +99,13 @@ public class Disassembler {
 				}
 			}
 			s += "// #Class v:" + classNode.version + "\n";
+			s += "// #OuterClass: " + classNode.outerClass + "\n";
+			s += "// #InnerClasses:\n";
+			if (classNode.innerClasses != null) {
+				for (InnerClassNode icn : classNode.innerClasses) {
+					s += "// " + icn.name + " " + icn.outerName + " " + icn.innerName + " " + icn.access + "\n";
+				}
+			}
 			s += ClassUtil.getAccessFlagsClass(classNode.access) + classNode.name + " ";
 			s += "extends " + classNode.superName + " ";
 			if (classNode.interfaces != null && !classNode.interfaces.isEmpty()) {
@@ -188,14 +190,10 @@ public class Disassembler {
 
 			for (MethodNode mn : classNode.methods) {
 				try {
-					HashMap<Label, Integer> methodLabelMap;
-					if ((methodLabelMap = classLabelMap.get(mn.name + "|" + mn.desc)) == null) {
-						methodLabelMap = new HashMap<Label, Integer>();
-						classLabelMap.put(mn.name + "|" + mn.desc, methodLabelMap);
-					}
 					s += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
 
-					String[] dis = disassembleMethod(classNode.name, mn, methodLabelMap);
+					String[] dis = disassembleMethod(classNode.name, mn);
+					s += dis[2];
 					s += dis[1];
 
 					if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty()) {
@@ -286,19 +284,28 @@ public class Disassembler {
 		}
 	}
 
-	private static String[] disassembleMethod(String className, MethodNode mn, HashMap<Label, Integer> labels) {
+	private static String[] disassembleMethod(String className, MethodNode mn) {
+		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
 		String s = "";
 		String localVarTable = "\t// #LocalVars:\n";
+		String tryCatchTable = "\t// #TryCatch:\n";
 		for (AbstractInsnNode n : mn.instructions.toArray()) {
 			if (n instanceof LabelNode) {
 				labels.put(((LabelNode) n).getLabel(), labels.size() + 1);
 			}
 		}
-		if (mn.localVariables != null)
+		if (mn.localVariables != null) {
 			for (LocalVariableNode lvn : mn.localVariables) {
 				localVarTable += "\t// " + lvn.name + ": " + lvn.desc + " i:" + lvn.index + " s:"
 						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + "\n";
 			}
+		}
+		if (mn.tryCatchBlocks != null) {
+			for (TryCatchBlockNode tcbn : mn.tryCatchBlocks) {
+				tryCatchTable += "\t// " + tcbn.type + " s:" + labels.get(tcbn.start.getLabel()) + " e:"
+						+ labels.get(tcbn.end.getLabel()) + " h:" + labels.get(tcbn.handler.getLabel()) + "\n";
+			}
+		}
 		for (AbstractInsnNode n : mn.instructions.toArray()) {
 			switch (n.getClass().getSimpleName()) {
 			case "FieldInsnNode": {
@@ -520,7 +527,7 @@ public class Disassembler {
 				break;
 			}
 		}
-		return new String[] { s, localVarTable };
+		return new String[] { s, localVarTable, tryCatchTable };
 	}
 
 }

@@ -64,6 +64,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public class Main extends JFrame {
@@ -79,8 +80,6 @@ public class Main extends JFrame {
 
 	public static RSyntaxTextArea textArea;
 	public static SearchBox searchBox;
-	// Class, Method, LabelMap
-	public static HashMap<String, HashMap<String, HashMap<Label, Integer>>> labels = new HashMap<>();
 
 	/**
 	 * Launch the application.
@@ -237,7 +236,6 @@ public class Main extends JFrame {
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && jarFile != null) {
 					try {
-						labels.clear();
 						isChangingFile = true;
 						try {
 							tree.setModel(new ArchiveTreeModel(new JarFile(jarFile)));
@@ -321,7 +319,6 @@ public class Main extends JFrame {
 
 							final File file = files.get(0);
 							if (file.getName().endsWith(".jar")) {
-								labels.clear();
 								jarFile = file;
 								isChangingFile = true;
 								try {

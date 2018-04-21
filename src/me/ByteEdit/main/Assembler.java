@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
@@ -36,6 +37,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
@@ -58,7 +60,19 @@ public class Assembler {
 
 			clazz.version = Integer.parseInt(s.substring(12));
 
-			while (!(s = read.readLine()).startsWith("// #SourceFile: ")) {
+			while ((s = read.readLine()).startsWith("// ")) {
+				if (s.startsWith("// #OuterClass: ")) {
+					clazz.outerClass = s.substring(16).equals("null") ? null : s.substring(16);
+				} else if (s.equals("// #InnerClasses:")) {
+					clazz.innerClasses = new ArrayList<>();
+				} else {
+					String split[] = s.split(" ");
+					clazz.innerClasses.add(new InnerClassNode(split[1], split[2].equals("null") ? null : split[2],
+							split[3].equals("null") ? null : split[3], Integer.parseInt(split[4])));
+				}
+			}
+
+			{
 				s = s.substring(0, s.length() - 2);
 				if (s.contains(" implements ")) {
 					String interfaces = s.substring(s.indexOf(" implements ") + 12);
@@ -108,8 +122,9 @@ public class Assembler {
 						clazz.access ^= ClassUtil.ACC_ABSTRACT;
 					}
 				}
-
 			}
+
+			s = read.readLine();
 
 			clazz.sourceFile = s.substring(16).equals("null") ? null : s.substring(16);
 
@@ -208,20 +223,16 @@ public class Assembler {
 				}
 			}
 
-			HashMap<String, HashMap<Label, Integer>> classLabelMap;
-			if ((classLabelMap = Main.labels.get(clazz.name)) == null) {
-				classLabelMap = new HashMap<String, HashMap<Label, Integer>>();
-				Main.labels.put(clazz.name, classLabelMap);
-			} else {
-				classLabelMap.clear();
-			}
-			HashMap<Label, Integer> methodLabelMap = null;
+			HashMap<Label, Integer> methodLabelMap = new HashMap<Label, Integer>();
 
 			annotationsForNext.clear();
 			MethodNode node = null;
 			String temp = "";
 
 			ArrayList<String> localVarsToParse = new ArrayList<>();
+			ArrayList<String> tryCatchBlocksToParse = new ArrayList<>();
+
+			int stage = 0;
 
 			while ((s = read.readLine()) != null) {
 				if (s.trim().isEmpty() || s.equals("}"))
@@ -240,10 +251,19 @@ public class Assembler {
 						node.maxLocals = Integer.parseInt(s.split(" ")[0]);
 						node.maxStack = Integer.parseInt(s.split(" ")[1].substring(2));
 						localVarsToParse.clear();
+						tryCatchBlocksToParse.clear();
+						stage = 0;
+					} else if (s.equals("// #TryCatch:")) {
+						stage = 1;
 					} else if (s.equals("// #LocalVars:")) {
-					} else if (s.startsWith("// ")) { // LocalVars
+						stage = 2;
+					} else if (s.startsWith("// ")) {
 						s = s.substring(3);
-						localVarsToParse.add(s);
+						if (stage == 1) {
+							tryCatchBlocksToParse.add(s);
+						} else if (stage == 2) {
+							localVarsToParse.add(s);
+						}
 					} else if (s.equals("}")) {
 						if (!annotationsForNext.isEmpty()) {
 							if (node.visibleAnnotations == null) {
@@ -271,6 +291,28 @@ public class Assembler {
 							}
 							node.localVariables.add(new LocalVariableNode(sp[0], sp[1].substring(1, sp[1].length() - 2),
 									null, _start, _end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
+						}
+
+						for (String st : tryCatchBlocksToParse) {
+							String[] sp = st.split(" ");
+							int start = Integer.parseInt(sp[1].substring(2));
+							int end = Integer.parseInt(sp[2].substring(2));
+							int handler = Integer.parseInt(sp[3].substring(2));
+							LabelNode _start = null;
+							LabelNode _end = null;
+							LabelNode _handler = null;
+							for (Entry<Label, Integer> entry : methodLabelMap.entrySet()) {
+								if (entry.getValue() == start) {
+									_start = new LabelNode(entry.getKey());
+								}
+								if (entry.getValue() == end) {
+									_end = new LabelNode(entry.getKey());
+								}
+								if (entry.getValue() == handler) {
+									_handler = new LabelNode(entry.getKey());
+								}
+							}
+							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler, sp[0]));
 						}
 						clazz.methods.add(node);
 					} else if (!s.startsWith("\t")) {
@@ -338,12 +380,7 @@ public class Assembler {
 							}
 						}
 						node.access = access;
-						if ((methodLabelMap = classLabelMap.get(node.name + "|" + node.desc)) == null) {
-							methodLabelMap = new HashMap<Label, Integer>();
-							classLabelMap.put(node.name + "|" + node.desc, methodLabelMap);
-						} else {
-							methodLabelMap.clear();
-						}
+						methodLabelMap.clear();
 					} else {
 						s = s.substring(1);
 						if (!temp.isEmpty()) {
