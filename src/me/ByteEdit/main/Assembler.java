@@ -1162,7 +1162,7 @@ public class Assembler {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
 				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(167, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(168, new LabelNode(entry.getKey()));
 					}
 				}
 				Label l = new Label();
@@ -1170,7 +1170,7 @@ public class Assembler {
 				return new JumpInsnNode(168, new LabelNode(l));
 			}
 			case "ret": {
-				return new VarInsnNode(167, Integer.parseInt(s.split(" ")[1]));
+				return new VarInsnNode(169, Integer.parseInt(s.split(" ")[1]));
 			}
 			case "tableswitch": {
 				String str = s.substring(14, s.length() - 2).replace("\t", "");
