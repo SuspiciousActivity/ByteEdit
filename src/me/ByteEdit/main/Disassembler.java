@@ -98,6 +98,7 @@ public class Disassembler {
 					s += "\n";
 				}
 			}
+			s += "// #Signature: " + classNode.signature + "\n";
 			s += "// #Class v:" + classNode.version + "\n";
 			s += "// #OuterClass: " + classNode.outerClass + "\n";
 			s += "// #InnerClasses:\n";

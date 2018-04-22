@@ -61,7 +61,9 @@ public class Assembler {
 			clazz.version = Integer.parseInt(s.substring(12));
 
 			while ((s = read.readLine()).startsWith("// ")) {
-				if (s.startsWith("// #OuterClass: ")) {
+				if (s.startsWith("// #Signature: ")) {
+					clazz.signature = s.substring(15).equals("null") ? null : s.substring(15);
+				} else if (s.startsWith("// #OuterClass: ")) {
 					clazz.outerClass = s.substring(16).equals("null") ? null : s.substring(16);
 				} else if (s.equals("// #InnerClasses:")) {
 					clazz.innerClasses = new ArrayList<>();
@@ -1155,6 +1157,20 @@ public class Assembler {
 				Label l = new Label();
 				labels.put(l, labelNr);
 				return new JumpInsnNode(167, new LabelNode(l));
+			}
+			case "jsr": {
+				int labelNr = Integer.parseInt(s.split(" ")[1]);
+				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+					if (entry.getValue() == labelNr) {
+						return new JumpInsnNode(167, new LabelNode(entry.getKey()));
+					}
+				}
+				Label l = new Label();
+				labels.put(l, labelNr);
+				return new JumpInsnNode(168, new LabelNode(l));
+			}
+			case "ret": {
+				return new VarInsnNode(167, Integer.parseInt(s.split(" ")[1]));
 			}
 			case "tableswitch": {
 				String str = s.substring(14, s.length() - 2).replace("\t", "");

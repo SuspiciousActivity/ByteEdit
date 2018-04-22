@@ -256,6 +256,10 @@ public class OpcodesReverse {
 			return "if_acmpne";
 		case 167:
 			return "goto";
+		case 168:
+			return "jsr";
+		case 169:
+			return "ret";
 		case 170:
 			return "tableswitch";
 		case 171:
