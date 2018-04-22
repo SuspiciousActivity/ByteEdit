@@ -94,16 +94,18 @@ public class Assembler {
 				case "class":
 					break;
 				case "enum":
-					clazz.access ^= ClassUtil.ACC_ABSTRACT;
 					clazz.access ^= ClassUtil.ACC_ENUM;
 					break;
 				case "interface":
+					clazz.access = 0;
 					clazz.access ^= ClassUtil.ACC_ABSTRACT;
 					clazz.access ^= ClassUtil.ACC_INTERFACE;
 					break;
 				case "@interface":
+					clazz.access = 0;
 					clazz.access ^= ClassUtil.ACC_ABSTRACT;
 					clazz.access ^= ClassUtil.ACC_ANNOTATION;
+					clazz.access ^= ClassUtil.ACC_INTERFACE;
 					break;
 				}
 
@@ -134,6 +136,8 @@ public class Assembler {
 			clazz.fields = new ArrayList<>();
 			clazz.methods = new ArrayList<>();
 
+			String signature = null;
+
 			ArrayList<String> annotationsForNext = new ArrayList<>();
 			while (!(s = read.readLine()).equals("// #Methods")) {
 				s = s.trim();
@@ -142,84 +146,89 @@ public class Assembler {
 				if (s.startsWith("@")) {
 					annotationsForNext.add(s);
 				} else {
-					String[] split = s.split(" ");
-					boolean hasValue = false;
-					if (s.contains(" = ")) {
-						hasValue = true;
-					}
-					Object value = hasValue ? split[split.length - 1] : null;
-					if (hasValue) {
-						split = s.substring(0, s.indexOf(" = ")).split(" ");
-					}
-					String name = split[split.length - 1];
-					String desc = split[split.length - 2];
+					if (s.startsWith("// #Signature: ")) {
+						signature = s.substring(15);
+					} else {
+						String[] split = s.split(" ");
+						boolean hasValue = false;
+						if (s.contains(" = ")) {
+							hasValue = true;
+						}
+						Object value = hasValue ? split[split.length - 1] : null;
+						if (hasValue) {
+							split = s.substring(0, s.indexOf(" = ")).split(" ");
+						}
+						String name = split[split.length - 1];
+						String desc = split[split.length - 2];
 
-					value = getValue((String) value, desc);
+						value = getValue((String) value, desc);
 
-					int access = 0;
+						int access = 0;
 
-					if (split.length > 2) {
-						String cons = consolidateStrings(split, 0, split.length - 2);
-						if (cons.contains("public")) {
-							access ^= ClassUtil.ACC_PUBLIC;
+						if (split.length > 2) {
+							String cons = consolidateStrings(split, 0, split.length - 2);
+							if (cons.contains("public")) {
+								access ^= ClassUtil.ACC_PUBLIC;
+							}
+							if (cons.contains("private")) {
+								access ^= ClassUtil.ACC_PRIVATE;
+							}
+							if (cons.contains("protected")) {
+								access ^= ClassUtil.ACC_PROTECTED;
+							}
+							if (cons.contains("static")) {
+								access ^= ClassUtil.ACC_STATIC;
+							}
+							if (cons.contains("final")) {
+								access ^= ClassUtil.ACC_FINAL;
+							}
+							if (cons.contains("synchronized")) {
+								access ^= ClassUtil.ACC_SYNCHRONIZED;
+							}
+							if (cons.contains("bridge")) {
+								access ^= ClassUtil.ACC_BRIDGE;
+							}
+							if (cons.contains("varargs")) {
+								access ^= ClassUtil.ACC_VARARGS;
+							}
+							if (cons.contains("native")) {
+								access ^= ClassUtil.ACC_NATIVE;
+							}
+							if (cons.contains("interface")) {
+								access ^= ClassUtil.ACC_INTERFACE;
+							}
+							if (cons.contains("abstract")) {
+								access ^= ClassUtil.ACC_ABSTRACT;
+							}
+							if (cons.contains("strictfp")) {
+								access ^= ClassUtil.ACC_STRICTFP;
+							}
+							if (cons.contains("synthetic")) {
+								access ^= ClassUtil.ACC_SYNTHETIC;
+							}
+							if (cons.contains("annotation")) {
+								access ^= ClassUtil.ACC_ANNOTATION;
+							}
+							if (cons.contains("enum")) {
+								access ^= ClassUtil.ACC_ENUM;
+							}
+							if (cons.contains("mandated")) {
+								access ^= ClassUtil.ACC_MANDATED;
+							}
 						}
-						if (cons.contains("private")) {
-							access ^= ClassUtil.ACC_PRIVATE;
+						FieldNode node = new FieldNode(access, name, desc, signature, value);
+						if (!annotationsForNext.isEmpty()) {
+							if (node.visibleAnnotations == null) {
+								node.visibleAnnotations = new ArrayList<>();
+							}
+							for (String anno : annotationsForNext) {
+								node.visibleAnnotations.add(parseAnnotation(anno));
+							}
+							annotationsForNext.clear();
 						}
-						if (cons.contains("protected")) {
-							access ^= ClassUtil.ACC_PROTECTED;
-						}
-						if (cons.contains("static")) {
-							access ^= ClassUtil.ACC_STATIC;
-						}
-						if (cons.contains("final")) {
-							access ^= ClassUtil.ACC_FINAL;
-						}
-						if (cons.contains("synchronized")) {
-							access ^= ClassUtil.ACC_SYNCHRONIZED;
-						}
-						if (cons.contains("bridge")) {
-							access ^= ClassUtil.ACC_BRIDGE;
-						}
-						if (cons.contains("varargs")) {
-							access ^= ClassUtil.ACC_VARARGS;
-						}
-						if (cons.contains("native")) {
-							access ^= ClassUtil.ACC_NATIVE;
-						}
-						if (cons.contains("interface")) {
-							access ^= ClassUtil.ACC_INTERFACE;
-						}
-						if (cons.contains("abstract")) {
-							access ^= ClassUtil.ACC_ABSTRACT;
-						}
-						if (cons.contains("strictfp")) {
-							access ^= ClassUtil.ACC_STRICTFP;
-						}
-						if (cons.contains("synthetic")) {
-							access ^= ClassUtil.ACC_SYNTHETIC;
-						}
-						if (cons.contains("annotation")) {
-							access ^= ClassUtil.ACC_ANNOTATION;
-						}
-						if (cons.contains("enum")) {
-							access ^= ClassUtil.ACC_ENUM;
-						}
-						if (cons.contains("mandated")) {
-							access ^= ClassUtil.ACC_MANDATED;
-						}
+						clazz.fields.add(node);
+						signature = null;
 					}
-					FieldNode node = new FieldNode(access, name, desc, null, value);
-					if (!annotationsForNext.isEmpty()) {
-						if (node.visibleAnnotations == null) {
-							node.visibleAnnotations = new ArrayList<>();
-						}
-						for (String anno : annotationsForNext) {
-							node.visibleAnnotations.add(parseAnnotation(anno));
-						}
-						annotationsForNext.clear();
-					}
-					clazz.fields.add(node);
 				}
 			}
 
@@ -253,6 +262,8 @@ public class Assembler {
 						localVarsToParse.clear();
 						tryCatchBlocksToParse.clear();
 						stage = 0;
+					} else if (s.startsWith("// #Signature: ")) {
+						node.signature = s.substring(15);
 					} else if (s.equals("// #TryCatch:")) {
 						stage = 1;
 					} else if (s.equals("// #LocalVars:")) {
@@ -278,7 +289,8 @@ public class Assembler {
 						for (String st : localVarsToParse) {
 							String[] sp = st.split(":");
 							int start = Integer.parseInt(sp[3].substring(0, sp[3].length() - 2));
-							int end = Integer.parseInt(sp[4]);
+							int end = Integer.parseInt(sp[4].substring(0, sp[4].length() - 4));
+							String signat = sp[5].equals("null") ? null : sp[5];
 							LabelNode _start = null;
 							LabelNode _end = null;
 							for (Entry<Label, Integer> entry : methodLabelMap.entrySet()) {
@@ -290,7 +302,7 @@ public class Assembler {
 								}
 							}
 							node.localVariables.add(new LocalVariableNode(sp[0], sp[1].substring(1, sp[1].length() - 2),
-									null, _start, _end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
+									signat, _start, _end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
 						}
 
 						for (String st : tryCatchBlocksToParse) {
@@ -315,6 +327,7 @@ public class Assembler {
 							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler, sp[0]));
 						}
 						clazz.methods.add(node);
+						// signature = null;
 					} else if (!s.startsWith("\t")) {
 						s = s.substring(0, s.length() - 2);
 						if (s.contains(" throws ")) {
@@ -554,34 +567,38 @@ public class Assembler {
 				local = new Object[0];
 			} else {
 				String l = str.substring(3, str.indexOf("s:") - 2);
-				for (String asd : l.split(", ")) {
-					if (!asd.startsWith("(")) {
-						arr.add(asd);
-					} else { // anderer typ mit casten
-						if (asd.startsWith("(label) ")) {
-							int labelNr = Integer.parseInt(asd.split(" ")[1]);
-							boolean found = false;
-							for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-								if (entry.getValue() == labelNr) {
-									arr.add(new LabelNode(entry.getKey()));
-									found = true;
+				if (l.isEmpty()) {
+					local = new Object[0];
+				} else {
+					for (String asd : l.split(", ")) {
+						if (!asd.startsWith("(")) {
+							arr.add(asd);
+						} else { // anderer typ mit casten
+							if (asd.startsWith("(label) ")) {
+								int labelNr = Integer.parseInt(asd.split(" ")[1]);
+								boolean found = false;
+								for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+									if (entry.getValue() == labelNr) {
+										arr.add(new LabelNode(entry.getKey()));
+										found = true;
+									}
 								}
+								if (!found) {
+									Label lb = new Label();
+									labels.put(lb, labelNr);
+									arr.add(new LabelNode(lb));
+								}
+							} else {
+								arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
 							}
-							if (!found) {
-								Label lb = new Label();
-								labels.put(lb, labelNr);
-								arr.add(new LabelNode(lb));
-							}
-						} else {
-							arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
 						}
 					}
-				}
-				local = new Object[arr.size()];
-				int c = 0;
-				for (Object o : arr) {
-					local[c] = o;
-					c++;
+					local = new Object[arr.size()];
+					int c = 0;
+					for (Object o : arr) {
+						local[c] = o;
+						c++;
+					}
 				}
 			}
 			arr.clear();
@@ -589,34 +606,38 @@ public class Assembler {
 				stack = new Object[0];
 			} else {
 				String st = str.substring(str.indexOf("s:") + 3, str.length() - 1);
-				for (String asd : st.split(", ")) {
-					if (!asd.startsWith("(")) {
-						arr.add(asd);
-					} else { // anderer typ mit casten
-						if (asd.startsWith("(label) ")) {
-							int labelNr = Integer.parseInt(asd.split(" ")[1]);
-							boolean found = false;
-							for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-								if (entry.getValue() == labelNr) {
-									arr.add(new LabelNode(entry.getKey()));
-									found = true;
+				if (st.isEmpty()) {
+					stack = new Object[0];
+				} else {
+					for (String asd : st.split(", ")) {
+						if (!asd.startsWith("(")) {
+							arr.add(asd);
+						} else { // anderer typ mit casten
+							if (asd.startsWith("(label) ")) {
+								int labelNr = Integer.parseInt(asd.split(" ")[1]);
+								boolean found = false;
+								for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+									if (entry.getValue() == labelNr) {
+										arr.add(new LabelNode(entry.getKey()));
+										found = true;
+									}
 								}
+								if (!found) {
+									Label l = new Label();
+									labels.put(l, labelNr);
+									arr.add(new LabelNode(l));
+								}
+							} else {
+								arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
 							}
-							if (!found) {
-								Label l = new Label();
-								labels.put(l, labelNr);
-								arr.add(new LabelNode(l));
-							}
-						} else {
-							arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
 						}
 					}
-				}
-				stack = new Object[arr.size()];
-				int c = 0;
-				for (Object o : arr) {
-					stack[c] = o;
-					c++;
+					stack = new Object[arr.size()];
+					int c = 0;
+					for (Object o : arr) {
+						stack[c] = o;
+						c++;
+					}
 				}
 			}
 			return new FrameNode(Integer.parseInt(str1.split(" ")[0]), local != null ? local.length : 0, local,

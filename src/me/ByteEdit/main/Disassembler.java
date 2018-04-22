@@ -124,6 +124,8 @@ public class Disassembler {
 					+ "\n\n// #Fields\n";
 
 			for (FieldNode fn : classNode.fields) {
+				if (fn.signature != null)
+					s += "\t// #Signature: " + fn.signature + "\n";
 				if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty()) {
 					for (AnnotationNode annotationNode : fn.visibleAnnotations) {
 						s += "\t@" + annotationNode.desc;
@@ -191,6 +193,8 @@ public class Disassembler {
 			for (MethodNode mn : classNode.methods) {
 				try {
 					s += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
+					if (mn.signature != null)
+						s += "\t// #Signature: " + mn.signature + "\n";
 
 					String[] dis = disassembleMethod(classNode.name, mn);
 					s += dis[2];
@@ -297,7 +301,8 @@ public class Disassembler {
 		if (mn.localVariables != null) {
 			for (LocalVariableNode lvn : mn.localVariables) {
 				localVarTable += "\t// " + lvn.name + ": " + lvn.desc + " i:" + lvn.index + " s:"
-						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + "\n";
+						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + " sig:"
+						+ lvn.signature + "\n";
 			}
 		}
 		if (mn.tryCatchBlocks != null) {

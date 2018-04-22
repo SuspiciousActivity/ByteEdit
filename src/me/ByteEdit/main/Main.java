@@ -162,7 +162,7 @@ public class Main extends JFrame {
 		splitPane.setLeftComponent(scrollPane);
 
 		textArea = new RSyntaxTextArea();
-
+		
 		CompletionProvider provider = createCompletionProvider();
 
 		AutoCompletion ac = new AutoCompletion(provider);
@@ -219,7 +219,6 @@ public class Main extends JFrame {
 				}
 			}
 		}, ctrlS, JComponent.WHEN_FOCUSED);
-		textArea.setFont(new Font("Consolas", 0, 10));
 		textArea.setEditable(true);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		textArea.setCodeFoldingEnabled(true);
