@@ -162,7 +162,7 @@ public class Main extends JFrame {
 		splitPane.setLeftComponent(scrollPane);
 
 		textArea = new RSyntaxTextArea();
-		
+
 		CompletionProvider provider = createCompletionProvider();
 
 		AutoCompletion ac = new AutoCompletion(provider);
