@@ -54,56 +54,77 @@ public class ClassUtil {
 	}
 
 	public static String getAccessFlagsFull(int access) {
+		int acc = 0;
 		String s = "";
 		if ((ACC_PUBLIC & access) != 0) {
 			s += "public ";
+			acc ^= ACC_PUBLIC;
 		}
 		if ((ACC_PRIVATE & access) != 0) {
 			s += "private ";
+			acc ^= ACC_PRIVATE;
 		}
 		if ((ACC_PROTECTED & access) != 0) {
 			s += "protected ";
+			acc ^= ACC_PROTECTED;
 		}
 		if ((ACC_STATIC & access) != 0) {
 			s += "static ";
+			acc ^= ACC_STATIC;
 		}
 		if ((ACC_FINAL & access) != 0) {
 			s += "final ";
+			acc ^= ACC_FINAL;
 		}
 		if ((ACC_SYNCHRONIZED & access) != 0) {
 			s += "synchronized ";
+			acc ^= ACC_SYNCHRONIZED;
 		}
 		if ((ACC_VARARGS & access) != 0) {
 			s += "varargs ";
+			acc ^= ACC_VARARGS;
 		}
 		if ((ACC_NATIVE & access) != 0) {
 			s += "native ";
+			acc ^= ACC_NATIVE;
 		}
 		if ((ACC_INTERFACE & access) != 0) {
 			s += "interface ";
+			acc ^= ACC_INTERFACE;
 		}
 		if ((ACC_ABSTRACT & access) != 0) {
 			s += "abstract ";
+			acc ^= ACC_ABSTRACT;
 		}
 		if ((ACC_STRICTFP & access) != 0) {
 			s += "strictfp ";
+			acc ^= ACC_STRICTFP;
 		}
 		if ((ACC_SYNTHETIC & access) != 0) {
 			s += "synthetic ";
+			acc ^= ACC_SYNTHETIC;
 		}
 		if ((ACC_BRIDGE & access) != 0) {
 			s += "bridge ";
+			acc ^= ACC_BRIDGE;
 		}
 		if ((ACC_ANNOTATION & access) != 0) {
 			s += "annotation ";
+			acc ^= ACC_ANNOTATION;
 		}
 		if ((ACC_ENUM & access) != 0) {
 			s += "enum ";
+			acc ^= ACC_ENUM;
 		}
 		if ((ACC_MANDATED & access) != 0) {
 			s += "mandated ";
+			acc ^= ACC_MANDATED;
 		}
-		return s;
+		if (acc == access) {
+			return s;
+		} else {
+			return "0x" + Integer.toHexString(access) + " ";
+		}
 	}
 
 	/**

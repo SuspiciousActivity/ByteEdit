@@ -104,7 +104,8 @@ public class Disassembler {
 			s += "// #InnerClasses:\n";
 			if (classNode.innerClasses != null) {
 				for (InnerClassNode icn : classNode.innerClasses) {
-					s += "// " + icn.name + " " + icn.outerName + " " + icn.innerName + " " + icn.access + "\n";
+					s += "// " + icn.name + " " + icn.outerName + " " + icn.innerName + " 0x"
+							+ Integer.toHexString(icn.access) + "\n";
 				}
 			}
 			s += ClassUtil.getAccessFlagsClass(classNode.access) + classNode.name + " ";

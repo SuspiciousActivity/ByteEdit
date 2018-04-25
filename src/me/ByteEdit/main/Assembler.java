@@ -3,6 +3,7 @@ package me.ByteEdit.main;
 import java.awt.Color;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class Assembler {
 				} else {
 					String split[] = s.split(" ");
 					clazz.innerClasses.add(new InnerClassNode(split[1], split[2].equals("null") ? null : split[2],
-							split[3].equals("null") ? null : split[3], Integer.parseInt(split[4])));
+							split[3].equals("null") ? null : split[3], Integer.parseInt(split[4].substring(2), 16)));
 				}
 			}
 
@@ -345,53 +346,57 @@ public class Assembler {
 						int access = 0;
 						if (split.length > 2) {
 							String cons = consolidateStrings(split, 0, split.length - 2);
-							if (cons.contains("public")) {
-								access ^= ClassUtil.ACC_PUBLIC;
-							}
-							if (cons.contains("private")) {
-								access ^= ClassUtil.ACC_PRIVATE;
-							}
-							if (cons.contains("protected")) {
-								access ^= ClassUtil.ACC_PROTECTED;
-							}
-							if (cons.contains("static")) {
-								access ^= ClassUtil.ACC_STATIC;
-							}
-							if (cons.contains("final")) {
-								access ^= ClassUtil.ACC_FINAL;
-							}
-							if (cons.contains("synchronized")) {
-								access ^= ClassUtil.ACC_SYNCHRONIZED;
-							}
-							if (cons.contains("bridge")) {
-								access ^= ClassUtil.ACC_BRIDGE;
-							}
-							if (cons.contains("varargs")) {
-								access ^= ClassUtil.ACC_VARARGS;
-							}
-							if (cons.contains("native")) {
-								access ^= ClassUtil.ACC_NATIVE;
-							}
-							if (cons.contains("interface")) {
-								access ^= ClassUtil.ACC_INTERFACE;
-							}
-							if (cons.contains("abstract")) {
-								access ^= ClassUtil.ACC_ABSTRACT;
-							}
-							if (cons.contains("strictfp")) {
-								access ^= ClassUtil.ACC_STRICTFP;
-							}
-							if (cons.contains("synthetic")) {
-								access ^= ClassUtil.ACC_SYNTHETIC;
-							}
-							if (cons.contains("annotation")) {
-								access ^= ClassUtil.ACC_ANNOTATION;
-							}
-							if (cons.contains("enum")) {
-								access ^= ClassUtil.ACC_ENUM;
-							}
-							if (cons.contains("mandated")) {
-								access ^= ClassUtil.ACC_MANDATED;
+							if (cons.startsWith("0x")) {
+								access = Integer.parseInt(cons.substring(2), 16);
+							} else {
+								if (cons.contains("public")) {
+									access ^= ClassUtil.ACC_PUBLIC;
+								}
+								if (cons.contains("private")) {
+									access ^= ClassUtil.ACC_PRIVATE;
+								}
+								if (cons.contains("protected")) {
+									access ^= ClassUtil.ACC_PROTECTED;
+								}
+								if (cons.contains("static")) {
+									access ^= ClassUtil.ACC_STATIC;
+								}
+								if (cons.contains("final")) {
+									access ^= ClassUtil.ACC_FINAL;
+								}
+								if (cons.contains("synchronized")) {
+									access ^= ClassUtil.ACC_SYNCHRONIZED;
+								}
+								if (cons.contains("bridge")) {
+									access ^= ClassUtil.ACC_BRIDGE;
+								}
+								if (cons.contains("varargs")) {
+									access ^= ClassUtil.ACC_VARARGS;
+								}
+								if (cons.contains("native")) {
+									access ^= ClassUtil.ACC_NATIVE;
+								}
+								if (cons.contains("interface")) {
+									access ^= ClassUtil.ACC_INTERFACE;
+								}
+								if (cons.contains("abstract")) {
+									access ^= ClassUtil.ACC_ABSTRACT;
+								}
+								if (cons.contains("strictfp")) {
+									access ^= ClassUtil.ACC_STRICTFP;
+								}
+								if (cons.contains("synthetic")) {
+									access ^= ClassUtil.ACC_SYNTHETIC;
+								}
+								if (cons.contains("annotation")) {
+									access ^= ClassUtil.ACC_ANNOTATION;
+								}
+								if (cons.contains("enum")) {
+									access ^= ClassUtil.ACC_ENUM;
+								}
+								if (cons.contains("mandated")) {
+									access ^= ClassUtil.ACC_MANDATED;
+								}
 							}
 						}
 						node.access = access;
