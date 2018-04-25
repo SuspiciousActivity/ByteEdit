@@ -327,7 +327,7 @@ public class Assembler {
 									_handler = new LabelNode(entry.getKey());
 								}
 							}
-							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler, sp[0]));
+							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : sp[0]));
 						}
 						clazz.methods.add(node);
 						// signature = null;
