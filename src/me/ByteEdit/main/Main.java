@@ -124,6 +124,8 @@ public class Main extends JFrame {
 		provider.addCompletion(new ShorthandCompletion(provider, "invif", "invokeinterface desc owner/name"));
 		provider.addCompletion(new ShorthandCompletion(provider, "invst", "invokestatic desc owner/name"));
 		provider.addCompletion(new ShorthandCompletion(provider, "invsp", "invokespecial desc owner/name"));
+		provider.addCompletion(new ShorthandCompletion(provider, "sysout",
+				"getstatic Ljava/io/PrintStream; java/lang/System/out\n\t\tldc \"text\"\n\t\tinvokevirtual (Ljava/lang/String;)V java/io/PrintStream/println"));
 
 		return provider;
 

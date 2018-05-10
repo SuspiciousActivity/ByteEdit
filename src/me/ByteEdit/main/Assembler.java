@@ -3,9 +3,9 @@ package me.ByteEdit.main;
 import java.awt.Color;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -327,7 +327,8 @@ public class Assembler {
 									_handler = new LabelNode(entry.getKey());
 								}
 							}
-							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : sp[0]));
+							node.tryCatchBlocks.add(
+									new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : sp[0]));
 						}
 						clazz.methods.add(node);
 						// signature = null;
@@ -1180,26 +1181,30 @@ public class Assembler {
 			case "tableswitch": {
 				String str = s.substring(14, s.length() - 2).replace("\t", "");
 				String split2[] = str.split("\n");
-				HashMap<Integer, LabelNode> labelMap = new HashMap<>();
+				LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
 
 				for (int i = 4; i < split2.length - 1; i++) {
 					labelMap.put(Integer.parseInt(split2[i]), null);
 				}
 
 				LabelNode dflt = null;
-				int dfltLabelNr = Integer.parseInt(split2[2].substring(9));
-				for (Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == dfltLabelNr) {
-						dflt = new LabelNode(entry.getKey());
+				if (!split2[2].substring(9).equals("null")) {
+					int dfltLabelNr = Integer.parseInt(split2[2].substring(9));
+					for (Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == dfltLabelNr) {
+							dflt = new LabelNode(entry.getKey());
+						}
+						if (labelMap.containsKey(entry.getValue())) {
+							labelMap.replace(entry.getValue(), new LabelNode(entry.getKey()));
+						}
 					}
-					if (labelMap.containsKey(entry.getValue())) {
-						labelMap.replace(entry.getValue(), new LabelNode(entry.getKey()));
+					if (dflt == null) {
+						Label l = new Label();
+						labels.put(l, dfltLabelNr);
+						dflt = new LabelNode(l);
 					}
-				}
-				if (dflt == null) {
-					Label l = new Label();
-					labels.put(l, dfltLabelNr);
-					dflt = new LabelNode(l);
+				} else {
+					dflt = new LabelNode(new Label());
 				}
 
 				LabelNode[] arr = new LabelNode[labelMap.size()];
@@ -1225,8 +1230,8 @@ public class Assembler {
 				String str = s.substring(15, s.length() - 2).replace("\t", "");
 				String split2[] = str.split("\n");
 				ArrayList<Integer> keys = new ArrayList<>();
-				HashMap<Integer, LabelNode> labelMap = new HashMap<>();
-
+				LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
+				
 				int stage = 0;
 				for (int i = 2; i < split2.length; i++) {
 					String spl = split2[i];
@@ -1258,7 +1263,7 @@ public class Assembler {
 				}
 
 				LabelNode[] arr = new LabelNode[labelMap.size()];
-
+				
 				int counter = 0;
 				for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
 					LabelNode ln;
