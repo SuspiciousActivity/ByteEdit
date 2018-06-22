@@ -170,53 +170,57 @@ public class Assembler {
 
 						if (split.length > 2) {
 							String cons = consolidateStrings(split, 0, split.length - 2);
-							if (cons.contains("public")) {
-								access ^= ClassUtil.ACC_PUBLIC;
-							}
-							if (cons.contains("private")) {
-								access ^= ClassUtil.ACC_PRIVATE;
-							}
-							if (cons.contains("protected")) {
-								access ^= ClassUtil.ACC_PROTECTED;
-							}
-							if (cons.contains("static")) {
-								access ^= ClassUtil.ACC_STATIC;
-							}
-							if (cons.contains("final")) {
-								access ^= ClassUtil.ACC_FINAL;
-							}
-							if (cons.contains("synchronized")) {
-								access ^= ClassUtil.ACC_SYNCHRONIZED;
-							}
-							if (cons.contains("bridge")) {
-								access ^= ClassUtil.ACC_BRIDGE;
-							}
-							if (cons.contains("varargs")) {
-								access ^= ClassUtil.ACC_VARARGS;
-							}
-							if (cons.contains("native")) {
-								access ^= ClassUtil.ACC_NATIVE;
-							}
-							if (cons.contains("interface")) {
-								access ^= ClassUtil.ACC_INTERFACE;
-							}
-							if (cons.contains("abstract")) {
-								access ^= ClassUtil.ACC_ABSTRACT;
-							}
-							if (cons.contains("strictfp")) {
-								access ^= ClassUtil.ACC_STRICTFP;
-							}
-							if (cons.contains("synthetic")) {
-								access ^= ClassUtil.ACC_SYNTHETIC;
-							}
-							if (cons.contains("annotation")) {
-								access ^= ClassUtil.ACC_ANNOTATION;
-							}
-							if (cons.contains("enum")) {
-								access ^= ClassUtil.ACC_ENUM;
-							}
-							if (cons.contains("mandated")) {
-								access ^= ClassUtil.ACC_MANDATED;
+							if (cons.startsWith("0x")) {
+								access = Integer.parseInt(cons.substring(2), 16);
+							} else {
+								if (cons.contains("public")) {
+									access ^= ClassUtil.ACC_PUBLIC;
+								}
+								if (cons.contains("private")) {
+									access ^= ClassUtil.ACC_PRIVATE;
+								}
+								if (cons.contains("protected")) {
+									access ^= ClassUtil.ACC_PROTECTED;
+								}
+								if (cons.contains("static")) {
+									access ^= ClassUtil.ACC_STATIC;
+								}
+								if (cons.contains("final")) {
+									access ^= ClassUtil.ACC_FINAL;
+								}
+								if (cons.contains("synchronized")) {
+									access ^= ClassUtil.ACC_SYNCHRONIZED;
+								}
+								if (cons.contains("bridge")) {
+									access ^= ClassUtil.ACC_BRIDGE;
+								}
+								if (cons.contains("varargs")) {
+									access ^= ClassUtil.ACC_VARARGS;
+								}
+								if (cons.contains("native")) {
+									access ^= ClassUtil.ACC_NATIVE;
+								}
+								if (cons.contains("interface")) {
+									access ^= ClassUtil.ACC_INTERFACE;
+								}
+								if (cons.contains("abstract")) {
+									access ^= ClassUtil.ACC_ABSTRACT;
+								}
+								if (cons.contains("strictfp")) {
+									access ^= ClassUtil.ACC_STRICTFP;
+								}
+								if (cons.contains("synthetic")) {
+									access ^= ClassUtil.ACC_SYNTHETIC;
+								}
+								if (cons.contains("annotation")) {
+									access ^= ClassUtil.ACC_ANNOTATION;
+								}
+								if (cons.contains("enum")) {
+									access ^= ClassUtil.ACC_ENUM;
+								}
+								if (cons.contains("mandated")) {
+									access ^= ClassUtil.ACC_MANDATED;
+								}
 							}
 						}
 						FieldNode node = new FieldNode(access, name, desc, signature, value);
@@ -1184,7 +1188,11 @@ public class Assembler {
 				LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
 
 				for (int i = 4; i < split2.length - 1; i++) {
-					labelMap.put(Integer.parseInt(split2[i]), null);
+					if (split2[i].equals("null")) {
+						labelMap.put(-1 - labelMap.size(), null);
+					} else {
+						labelMap.put(Integer.parseInt(split2[i]), null);
+					}
 				}
 
 				LabelNode dflt = null;
@@ -1231,7 +1239,7 @@ public class Assembler {
 				String split2[] = str.split("\n");
 				ArrayList<Integer> keys = new ArrayList<>();
 				LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
-				
+
 				int stage = 0;
 				for (int i = 2; i < split2.length; i++) {
 					String spl = split2[i];
@@ -1242,7 +1250,11 @@ public class Assembler {
 					} else if (stage == 0) {
 						keys.add(Integer.parseInt(spl));
 					} else if (stage == 2) {
-						labelMap.put(Integer.parseInt(spl), null);
+						if (spl.equals("null")) {
+							labelMap.put(-1 - labelMap.size(), null);
+						} else {
+							labelMap.put(Integer.parseInt(spl), null);
+						}
 					}
 				}
 
@@ -1263,7 +1275,7 @@ public class Assembler {
 				}
 
 				LabelNode[] arr = new LabelNode[labelMap.size()];
-				
+
 				int counter = 0;
 				for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
 					LabelNode ln;
@@ -1330,25 +1342,24 @@ public class Assembler {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
 				return new MethodInsnNode(182, target.substring(0, index), target.substring(index + 1), split[1],
-						split.length == 4);
+						false);
 			}
 			case "invokespecial": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
 				return new MethodInsnNode(183, target.substring(0, index), target.substring(index + 1), split[1],
-						split.length == 4);
+						false);
 			}
 			case "invokestatic": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
 				return new MethodInsnNode(184, target.substring(0, index), target.substring(index + 1), split[1],
-						split.length == 4);
+						false);
 			}
 			case "invokeinterface": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(185, target.substring(0, index), target.substring(index + 1), split[1],
-						split.length == 4);
+				return new MethodInsnNode(185, target.substring(0, index), target.substring(index + 1), split[1], true);
 			}
 			case "invokedynamic": {
 				String str = s.substring(16, s.length() - 2).replace("", "");

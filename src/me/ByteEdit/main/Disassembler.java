@@ -421,7 +421,7 @@ public class Disassembler {
 			case "MethodInsnNode": {
 				MethodInsnNode node = (MethodInsnNode) n;
 				s += "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + node.desc + " " + node.owner + "/"
-						+ node.name + (node.itf ? " true" : "") + "\n";
+						+ node.name + "\n";
 				break;
 			}
 			case "TypeInsnNode": {
