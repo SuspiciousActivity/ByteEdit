@@ -115,6 +115,7 @@ public class Main extends JFrame {
 		provider.addCompletion(new BasicCompletion(provider, "strictfp"));
 		provider.addCompletion(new BasicCompletion(provider, "throws"));
 		provider.addCompletion(new BasicCompletion(provider, "synthetic"));
+		provider.addCompletion(new BasicCompletion(provider, "bridge"));
 		provider.addCompletion(new BasicCompletion(provider, "label"));
 		provider.addCompletion(new BasicCompletion(provider, "line"));
 		provider.addCompletion(new BasicCompletion(provider, "extends"));

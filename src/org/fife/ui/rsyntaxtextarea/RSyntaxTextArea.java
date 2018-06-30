@@ -321,7 +321,7 @@ public class RSyntaxTextArea extends RTextArea implements SyntaxConstants {
 
 	private int rhsCorrection;
 
-	private FoldManager foldManager;
+	public FoldManager foldManager;
 
 	/** Whether "focusable" tool tips are used instead of standard ones. */
 	private boolean useFocusableTips;
