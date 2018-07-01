@@ -62,6 +62,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class Main extends JFrame {
 
@@ -76,6 +77,8 @@ public class Main extends JFrame {
 
 	public static RSyntaxTextArea textArea;
 	public static SearchBox searchBox;
+
+	public static JTree tree;
 
 	/**
 	 * Launch the application.
@@ -127,6 +130,10 @@ public class Main extends JFrame {
 		provider.addCompletion(new ShorthandCompletion(provider, "invsp", "invokespecial desc owner/name"));
 		provider.addCompletion(new ShorthandCompletion(provider, "sysout",
 				"getstatic Ljava/io/PrintStream; java/lang/System/out\n\t\tldc \"text\"\n\t\tinvokevirtual (Ljava/lang/String;)V java/io/PrintStream/println"));
+		provider.addCompletion(new ShorthandCompletion(provider, "clazz",
+				"// #Annotations\n// #Class v:52\n// #Signature: null\n// #OuterClass: null\n// #InnerClasses:\npublic class Main extends java/lang/Object {\n// #SourceFile: Main.java\n\n// #Fields\n\n// #Methods\n\n}\n"));
+		provider.addCompletion(new ShorthandCompletion(provider, "method",
+				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}"));
 
 		return provider;
 
@@ -228,7 +235,7 @@ public class Main extends JFrame {
 			e2.printStackTrace();
 		}
 
-		JTree tree = new JTree(new DefaultTreeModel(null));
+		tree = new JTree(new DefaultTreeModel(null));
 		tree.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -388,6 +395,22 @@ public class Main extends JFrame {
 	public void save(File jar, Collection<ClassNode> classes) {
 		try {
 			final JarOutputStream output = new JarOutputStream(new FileOutputStream(jar));
+			boolean refreshTree = false;
+			if (tree.getModel().getClass().equals(DefaultTreeModel.class)) {
+				refreshTree = true;
+				int acc = ClassUtil.ACC_PUBLIC | ClassUtil.ACC_STATIC;
+				String name = "";
+				for (ClassNode e : classes) {
+					for (MethodNode mn : e.methods) {
+						if (mn.name.equals("main") && mn.desc.equals("([Ljava/lang/String;)V") && mn.access == acc) {
+							name = e.name.replace("/", ".");
+							break;
+						}
+					}
+				}
+				String val = "Manifest-Version: 1.0\n" + "Class-Path: .\n" + "Main-Class: " + name + "\n\n";
+				OTHER_FILES.put("META-INF/MANIFEST.MF", val.getBytes());
+			}
 			for (Entry<String, byte[]> entry : OTHER_FILES.entrySet()) {
 				JarEntry ent = new JarEntry(entry.getKey());
 				output.putNextEntry(ent);
@@ -403,6 +426,16 @@ public class Main extends JFrame {
 			}
 			output.finish();
 			output.close();
+			if (refreshTree) {
+				isChangingFile = true;
+				jarFile = jar;
+				try {
+					tree.setModel(new ArchiveTreeModel(new JarFile(jarFile)));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				isChangingFile = false;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
