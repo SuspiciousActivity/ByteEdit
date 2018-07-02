@@ -516,14 +516,14 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"return"				{ addToken(Token.RESERVED_WORD_2); }
 
 	/* Data types. */
-	"boolean" |
-	"byte" |
-	"char" |
-	"double" |
-	"float" |
-	"int" |
-	"long" |
-	"short"					{ addToken(Token.DATA_TYPE); }
+	"Z" |
+	"B" |
+	"C" |
+	"D" |
+	"F" |
+	"I" |
+	"J" |
+	"S"					{ addToken(Token.DATA_TYPE); }
 
 	/* Booleans. */
 	{BooleanLiteral}			{ addToken(Token.LITERAL_BOOLEAN); }

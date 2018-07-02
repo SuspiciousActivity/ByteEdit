@@ -377,7 +377,7 @@ public class Main extends JFrame {
 		fileChooser.setFileSelectionMode(0);
 		fileChooser.setAcceptAllFileFilterUsed(false);
 		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Jar File", "jar"));
-		final int action = fileChooser.showOpenDialog(Main.this);
+		final int action = fileChooser.showSaveDialog(Main.this);
 		if (action == 0) {
 			final File file = fileChooser.getSelectedFile();
 			if (file.exists()) {
@@ -447,7 +447,6 @@ public class Main extends JFrame {
 			super(new DefaultMutableTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
 					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
 							- 1]));
-
 			try {
 				ArrayList<String> paths = new ArrayList<>();
 				classNodes.clear();
@@ -460,6 +459,9 @@ public class Main extends JFrame {
 						if (next.getName().contains("/")
 								? (!next.getName().split("/")[next.getName().split("/").length - 1].contains("$"))
 								: (!next.getName().contains("$"))) {
+							paths.add(next.getName());
+						} else if (next.getName().startsWith("$") || next.getName().contains("$$")
+								|| next.getName().endsWith("$")) { // obfuscated with $
 							paths.add(next.getName());
 						}
 						ClassReader reader;
