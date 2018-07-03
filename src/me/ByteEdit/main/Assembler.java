@@ -706,7 +706,8 @@ public class Assembler {
 						Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class, int.class,
 								int.class);
 						constr.setAccessible(true);
-						val = constr.newInstance(new Object[] { Integer.parseInt(split2[0].substring(7)),
+						String type = split2[0].substring(7);
+						val = constr.newInstance(new Object[] { ClassUtil.getIDFromClassNameForType(type),
 								split2[3].substring(6, split2[3].length() - 1).toCharArray(),
 								Integer.parseInt(split2[1].substring(5)), Integer.parseInt(split2[2].substring(5)) });
 					} else if (str.startsWith("\"") && str.endsWith("\"")) {
@@ -1422,7 +1423,7 @@ public class Assembler {
 				return new TypeInsnNode(187, split[1]);
 			}
 			case "newarray": {
-				return new IntInsnNode(188, Integer.parseInt(split[1]));
+				return new IntInsnNode(188, ClassUtil.getArrayIDByType(split[1]));
 			}
 			case "anewarray": {
 				return new TypeInsnNode(189, split[1]);

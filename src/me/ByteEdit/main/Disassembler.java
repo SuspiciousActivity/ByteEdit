@@ -401,8 +401,8 @@ public class Disassembler {
 							buf = (char[]) f_buf.get(type);
 						} catch (Exception e) {
 						}
-						s += "\t\t\t\tType: [\n\t\t\t\t\tsort: " + type.getSort() + "\n\t\t\t\t\toff: " + off
-								+ "\n\t\t\t\t\tlen: " + len + "\n\t\t\t\t\tbuf: "
+						s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type)
+								+ "\n\t\t\t\t\toff: " + off + "\n\t\t\t\t\tlen: " + len + "\n\t\t\t\t\tbuf: "
 								+ ClassUtil.getDecompiledValue(new String(buf), "");
 						s += "\n\t\t\t\t]\n";
 					} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
@@ -463,9 +463,9 @@ public class Disassembler {
 						buf = (char[]) f_buf.get(type);
 					} catch (Exception e) {
 					}
-					s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\tsort: "
-							+ type.getSort() + "\n\t\t\toff: " + off + "\n\t\t\tlen: " + len + "\n\t\t\tbuf: "
-							+ ClassUtil.getDecompiledValue(new String(buf), "");
+					s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
+							+ ClassUtil.getClassNameFromType(type) + "\n\t\t\toff: " + off + "\n\t\t\tlen: " + len
+							+ "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(new String(buf), "");
 					s += "\n\t\t]\n";
 					break;
 				}
@@ -489,7 +489,12 @@ public class Disassembler {
 			}
 			case "IntInsnNode": {
 				IntInsnNode node = (IntInsnNode) n;
-				s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
+				if (n.getOpcode() == 188) {
+					s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
+							+ ClassUtil.getArrayTypeByID(node.operand) + "\n";
+				} else {
+					s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
+				}
 				break;
 			}
 			case "JumpInsnNode": {

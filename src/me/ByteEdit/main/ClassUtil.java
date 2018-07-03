@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.objectweb.asm.Type;
 
 public class ClassUtil {
 
@@ -25,6 +26,130 @@ public class ClassUtil {
 	public static final int ACC_ANNOTATION = 0x2000;
 	public static final int ACC_ENUM = 0x4000;
 	public static final int ACC_MANDATED = 0x8000;
+
+	public static int getIDFromClassNameForType(String s) {
+		s = s.toUpperCase();
+		switch (s) {
+		case "V": {
+			return 0;
+		}
+		case "Z": {
+			return 1;
+		}
+		case "C": {
+			return 2;
+		}
+		case "B": {
+			return 3;
+		}
+		case "S": {
+			return 4;
+		}
+		case "I": {
+			return 5;
+		}
+		case "F": {
+			return 6;
+		}
+		case "J": {
+			return 7;
+		}
+		case "D": {
+			return 8;
+		}
+		case "NAME": {
+			return 10;
+		}
+		default: {
+			return Integer.parseInt(s);
+		}
+		}
+	}
+
+	public static String getClassNameFromType(Type type) {
+		switch (type.getSort()) {
+		case 0: {
+			return "V";
+		}
+		case 1: {
+			return "Z";
+		}
+		case 2: {
+			return "C";
+		}
+		case 3: {
+			return "B";
+		}
+		case 4: {
+			return "S";
+		}
+		case 5: {
+			return "I";
+		}
+		case 6: {
+			return "F";
+		}
+		case 7: {
+			return "J";
+		}
+		case 8: {
+			return "D";
+		}
+		case 9: {
+			return getClassNameFromType(type.getElementType());
+		}
+		case 10: {
+			return "Name";
+		}
+		}
+		return Integer.toString(type.getSort());
+	}
+
+	public static String getArrayTypeByID(int id) {
+		switch (id) {
+		case 4:
+			return "Z";
+		case 5:
+			return "C";
+		case 6:
+			return "F";
+		case 7:
+			return "D";
+		case 8:
+			return "B";
+		case 9:
+			return "S";
+		case 10:
+			return "I";
+		case 11:
+			return "J";
+		default:
+			return Integer.toString(id);
+		}
+	}
+
+	public static int getArrayIDByType(String type) {
+		switch (type) {
+		case "Z":
+			return 4;
+		case "C":
+			return 5;
+		case "F":
+			return 6;
+		case "D":
+			return 7;
+		case "B":
+			return 8;
+		case "S":
+			return 9;
+		case "I":
+			return 10;
+		case "J":
+			return 11;
+		default:
+			return Integer.parseInt(type);
+		}
+	}
 
 	public static String getAccessFlagsClass(int access) {
 		String s = "";

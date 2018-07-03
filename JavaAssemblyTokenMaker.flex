@@ -516,6 +516,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"return"				{ addToken(Token.RESERVED_WORD_2); }
 
 	/* Data types. */
+	"V" |
 	"Z" |
 	"B" |
 	"C" |
