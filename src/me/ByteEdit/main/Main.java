@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
@@ -77,6 +78,7 @@ public class Main extends JFrame {
 
 	public static RSyntaxTextArea textArea;
 	public static SearchBox searchBox;
+	public static OptionBox optionBox;
 
 	public static JTree tree;
 
@@ -145,9 +147,11 @@ public class Main extends JFrame {
 	public Main() {
 		INSTANCE = this;
 		searchBox = new SearchBox();
+		optionBox = new OptionBox();
 		setTitle("ByteEdit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 813, 474);
+		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 407),
+				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 237), 814, 474);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -225,6 +229,13 @@ public class Main extends JFrame {
 				}
 			}
 		}, ctrlS, JComponent.WHEN_FOCUSED);
+		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+		textArea.registerKeyboardAction(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				optionBox.setVisible(true);
+			}
+		}, ctrlO, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		textArea.setEditable(true);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		textArea.setCodeFoldingEnabled(true);
@@ -417,8 +428,15 @@ public class Main extends JFrame {
 				output.write(entry.getValue());
 				output.closeEntry();
 			}
+			int computeFlags = 0;
+			if (optionBox.chckbxComputeFrames.isSelected()) {
+				computeFlags |= ClassWriter.COMPUTE_FRAMES;
+			}
+			if (optionBox.chckbxComputeMax.isSelected()) {
+				computeFlags |= ClassWriter.COMPUTE_MAXS;
+			}
 			for (ClassNode element : classes) {
-				ClassWriter writer = new ClassWriter(0);
+				ClassWriter writer = new ClassWriter(computeFlags);
 				element.accept(writer);
 				output.putNextEntry(new JarEntry(element.name.replaceAll("\\.", "/") + ".class"));
 				output.write(writer.toByteArray());

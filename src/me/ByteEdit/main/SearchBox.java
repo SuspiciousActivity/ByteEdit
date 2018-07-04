@@ -1,5 +1,6 @@
 package me.ByteEdit.main;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -35,7 +36,8 @@ public class SearchBox extends JFrame {
 		setResizable(false);
 		setTitle("Find/Replace");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(100, 100, 256, 263);
+		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 128),
+				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 181), 256, 262);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
