@@ -942,7 +942,7 @@ public class Assembler {
 				return new InsnNode(131);
 			}
 			case "iinc": {
-				return new IincInsnNode(Integer.parseInt(split[1]), Integer.parseInt(split[3]));
+				return new IincInsnNode(Integer.parseInt(split[1]), Integer.parseInt(split[2]));
 			}
 			case "i2l": {
 				return new InsnNode(133);

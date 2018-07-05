@@ -530,7 +530,7 @@ public class Disassembler {
 			}
 			case "IincInsnNode": {
 				IincInsnNode node = (IincInsnNode) n;
-				s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " -> " + node.incr + "\n";
+				s += "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " " + node.incr + "\n";
 				break;
 			}
 			default:

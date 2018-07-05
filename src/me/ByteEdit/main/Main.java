@@ -261,6 +261,7 @@ public class Main extends JFrame {
 						isChangingFile = false;
 					} catch (Throwable t) {
 						t.printStackTrace();
+						showError(t);
 					}
 				}
 			}
@@ -351,6 +352,7 @@ public class Main extends JFrame {
 					return;
 				} catch (Throwable t) {
 					t.printStackTrace();
+					showError(t);
 				}
 				dtde.rejectDrop();
 
@@ -454,9 +456,21 @@ public class Main extends JFrame {
 				}
 				isChangingFile = false;
 			}
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
+			showError(e);
 		}
+	}
+
+	public void showError(Throwable e) {
+		String s = e.toString() + "\n";
+		StackTraceElement[] stackTrace = e.getStackTrace();
+		for (StackTraceElement ste : stackTrace) {
+			if (ste.getClassName().startsWith("java"))
+				break;
+			s += "\tat " + ste + "\n";
+		}
+		JOptionPane.showMessageDialog(this, s, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
 
 	class ArchiveTreeModel extends DefaultTreeModel {
@@ -513,10 +527,11 @@ public class Main extends JFrame {
 						currentNode = nextNode;
 					}
 				}
-			} catch (IOException e) {
+			} catch (Throwable e) {
 				classNodes.clear();
 				OTHER_FILES.clear();
 				e.printStackTrace();
+				showError(e);
 			}
 		}
 
