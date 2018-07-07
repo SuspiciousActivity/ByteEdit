@@ -107,35 +107,58 @@ public class Main extends JFrame {
 		for (int i = 0; i < 200; i++) {
 			String s = OpcodesReverse.reverseOpcode(i);
 			if (!s.startsWith("Unknown "))
-				provider.addCompletion(new BasicCompletion(provider, s));
+				provider.addCompletion(
+						new BasicCompletion(provider, s, null, OpcodesReverse.generateCompletionDesc(s)));
 		}
 
-		provider.addCompletion(new BasicCompletion(provider, "public"));
-		provider.addCompletion(new BasicCompletion(provider, "private"));
-		provider.addCompletion(new BasicCompletion(provider, "protected"));
-		provider.addCompletion(new BasicCompletion(provider, "final"));
-		provider.addCompletion(new BasicCompletion(provider, "class"));
-		provider.addCompletion(new BasicCompletion(provider, "enum"));
-		provider.addCompletion(new BasicCompletion(provider, "static"));
-		provider.addCompletion(new BasicCompletion(provider, "strictfp"));
-		provider.addCompletion(new BasicCompletion(provider, "throws"));
-		provider.addCompletion(new BasicCompletion(provider, "synthetic"));
-		provider.addCompletion(new BasicCompletion(provider, "bridge"));
-		provider.addCompletion(new BasicCompletion(provider, "label"));
-		provider.addCompletion(new BasicCompletion(provider, "line"));
-		provider.addCompletion(new BasicCompletion(provider, "extends"));
-		provider.addCompletion(new BasicCompletion(provider, "implements"));
+		provider.addCompletion(
+				new BasicCompletion(provider, "public", null, OpcodesReverse.generateCompletionDesc("public")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "private", null, OpcodesReverse.generateCompletionDesc("private")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "protected", null, OpcodesReverse.generateCompletionDesc("protected")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "final", null, OpcodesReverse.generateCompletionDesc("final")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "class", null, OpcodesReverse.generateCompletionDesc("class")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "enum", null, OpcodesReverse.generateCompletionDesc("enum")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "static", null, OpcodesReverse.generateCompletionDesc("static")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "strictfp", null, OpcodesReverse.generateCompletionDesc("strictfp")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "throws", null, OpcodesReverse.generateCompletionDesc("throws")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "synthetic", null, OpcodesReverse.generateCompletionDesc("synthetic")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "bridge", null, OpcodesReverse.generateCompletionDesc("bridge")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "label", null, OpcodesReverse.generateCompletionDesc("label")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "line", null, OpcodesReverse.generateCompletionDesc("line")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "extends", null, OpcodesReverse.generateCompletionDesc("extends")));
+		provider.addCompletion(
+				new BasicCompletion(provider, "implements", null, OpcodesReverse.generateCompletionDesc("implements")));
 
-		provider.addCompletion(new ShorthandCompletion(provider, "invvi", "invokevirtual desc owner/name"));
-		provider.addCompletion(new ShorthandCompletion(provider, "invif", "invokeinterface desc owner/name"));
-		provider.addCompletion(new ShorthandCompletion(provider, "invst", "invokestatic desc owner/name"));
-		provider.addCompletion(new ShorthandCompletion(provider, "invsp", "invokespecial desc owner/name"));
+		provider.addCompletion(new ShorthandCompletion(provider, "invvi", "invokevirtual desc owner/name", null,
+				"<html><b><u>invvi</u></b><br>Creates an example invokevirtual</html>"));
+		provider.addCompletion(new ShorthandCompletion(provider, "invif", "invokeinterface desc owner/name", null,
+				"<html><b><u>invif</u></b><br>Creates an example invokeinterface</html>"));
+		provider.addCompletion(new ShorthandCompletion(provider, "invst", "invokestatic desc owner/name", null,
+				"<html><b><u>invst</u></b><br>Creates an example invokestatic</html>"));
+		provider.addCompletion(new ShorthandCompletion(provider, "invsp", "invokespecial desc owner/name", null,
+				"<html><b><u>invsp</u></b><br>Creates an example invokespecial</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "sysout",
-				"getstatic Ljava/io/PrintStream; java/lang/System/out\n\t\tldc \"text\"\n\t\tinvokevirtual (Ljava/lang/String;)V java/io/PrintStream/println"));
+				"getstatic Ljava/io/PrintStream; java/lang/System/out\n\t\tldc \"text\"\n\t\tinvokevirtual (Ljava/lang/String;)V java/io/PrintStream/println",
+				null, "<html><b><u>sysout</u></b><br>Writes a System.out.println(\"text\"); as bytecode</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "clazz",
-				"// #Annotations\n// #Class v:52\n// #Signature: null\n// #OuterClass: null\n// #InnerClasses:\npublic class Main extends java/lang/Object {\n// #SourceFile: Main.java\n\n// #Fields\n\n// #Methods\n\n}\n"));
+				"// #Annotations\n// #Class v:52\n// #Signature: null\n// #OuterClass: null\n// #InnerClasses:\npublic class Main extends java/lang/Object {\n// #SourceFile: Main.java\n\n// #Fields\n\n// #Methods\n\n}\n",
+				null, "<html><b><u>clazz</u></b><br>Creates an example class</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "method",
-				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}"));
+				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}",
+				null, "<html><b><u>method</u></b><br>Creates an example method</html>"));
 
 		return provider;
 
@@ -176,6 +199,7 @@ public class Main extends JFrame {
 		CompletionProvider provider = createCompletionProvider();
 
 		AutoCompletion ac = new AutoCompletion(provider);
+		ac.setShowDescWindow(true);
 		ac.install(textArea);
 
 		textArea.addKeyListener(new KeyAdapter() {
