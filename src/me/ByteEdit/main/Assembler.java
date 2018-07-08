@@ -43,7 +43,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class Assembler {
-
+	
 	public static ClassNode assemble(String input) {
 		Main.textArea.removeAllLineHighlights();
 		CustomBufferedReader read = null;
@@ -51,16 +51,13 @@ public class Assembler {
 			ClassNode clazz = new ClassNode();
 			read = new CustomBufferedReader(new StringReader(input));
 			String s;
-
 			while (!(s = read.readLine()).startsWith("// #Class v:")) {
 				if (clazz.visibleAnnotations == null) {
 					clazz.visibleAnnotations = new ArrayList<>();
 				}
 				clazz.visibleAnnotations.add(parseAnnotation(s));
 			}
-
 			clazz.version = Integer.parseInt(s.substring(12));
-
 			while ((s = read.readLine()).startsWith("// ")) {
 				if (s.startsWith("// #Signature: ")) {
 					clazz.signature = s.substring(15).equals("null") ? null : s.substring(15);
@@ -74,7 +71,6 @@ public class Assembler {
 							split[3].equals("null") ? null : split[3], Integer.parseInt(split[4].substring(2), 16)));
 				}
 			}
-
 			{
 				s = s.substring(0, s.length() - 2);
 				if (s.contains(" implements ")) {
@@ -87,31 +83,27 @@ public class Assembler {
 				}
 				clazz.superName = s.substring(s.indexOf(" extends ") + 9);
 				s = s.substring(0, s.indexOf(" extends "));
-
 				String[] split = s.split(" ");
 				clazz.name = split[split.length - 1];
-
 				clazz.access = ClassUtil.ACC_SUPER;
-
 				switch (split[split.length - 2]) {
-				case "class":
-					break;
-				case "enum":
-					clazz.access ^= ClassUtil.ACC_ENUM;
-					break;
-				case "interface":
-					clazz.access = 0;
-					clazz.access ^= ClassUtil.ACC_ABSTRACT;
-					clazz.access ^= ClassUtil.ACC_INTERFACE;
-					break;
-				case "@interface":
-					clazz.access = 0;
-					clazz.access ^= ClassUtil.ACC_ABSTRACT;
-					clazz.access ^= ClassUtil.ACC_ANNOTATION;
-					clazz.access ^= ClassUtil.ACC_INTERFACE;
-					break;
+					case "class":
+						break;
+					case "enum":
+						clazz.access ^= ClassUtil.ACC_ENUM;
+						break;
+					case "interface":
+						clazz.access = 0;
+						clazz.access ^= ClassUtil.ACC_ABSTRACT;
+						clazz.access ^= ClassUtil.ACC_INTERFACE;
+						break;
+					case "@interface":
+						clazz.access = 0;
+						clazz.access ^= ClassUtil.ACC_ABSTRACT;
+						clazz.access ^= ClassUtil.ACC_ANNOTATION;
+						clazz.access ^= ClassUtil.ACC_INTERFACE;
+						break;
 				}
-
 				if (split.length > 2) {
 					String cons = consolidateStrings(split, 0, split.length - 2);
 					if (cons.contains("public")) {
@@ -128,19 +120,12 @@ public class Assembler {
 					}
 				}
 			}
-
 			s = read.readLine();
-
 			clazz.sourceFile = s.substring(16).equals("null") ? null : s.substring(16);
-
-			while (!(s = read.readLine()).equals("// #Fields")) {
-			}
-
+			while (!(s = read.readLine()).equals("// #Fields")) {}
 			clazz.fields = new ArrayList<>();
 			clazz.methods = new ArrayList<>();
-
 			String signature = null;
-
 			ArrayList<String> annotationsForNext = new ArrayList<>();
 			while (!(s = read.readLine()).equals("// #Methods")) {
 				s = s.trim();
@@ -163,11 +148,8 @@ public class Assembler {
 						}
 						String name = split[split.length - 1];
 						String desc = split[split.length - 2];
-
 						value = getValue((String) value, desc);
-
 						int access = 0;
-
 						if (split.length > 2) {
 							String cons = consolidateStrings(split, 0, split.length - 2);
 							if (cons.startsWith("0x")) {
@@ -238,18 +220,13 @@ public class Assembler {
 					}
 				}
 			}
-
 			HashMap<Label, Integer> methodLabelMap = new HashMap<Label, Integer>();
-
 			annotationsForNext.clear();
 			MethodNode node = null;
 			String temp = "";
-
 			ArrayList<String> localVarsToParse = new ArrayList<>();
 			ArrayList<String> tryCatchBlocksToParse = new ArrayList<>();
-
 			int stage = 0;
-
 			while ((s = read.readLine()) != null) {
 				if (s.trim().isEmpty() || s.equals("}"))
 					continue;
@@ -292,7 +269,6 @@ public class Assembler {
 							}
 							annotationsForNext.clear();
 						}
-
 						for (String st : localVarsToParse) {
 							String[] sp = st.split(":");
 							int start = Integer.parseInt(sp[3].substring(0, sp[3].length() - 2));
@@ -308,10 +284,9 @@ public class Assembler {
 									_end = new LabelNode(entry.getKey());
 								}
 							}
-							node.localVariables.add(new LocalVariableNode(sp[0], sp[1].substring(1, sp[1].length() - 2),
-									signat, _start, _end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
+							node.localVariables.add(new LocalVariableNode(sp[0], sp[1].substring(1, sp[1].length() - 2), signat, _start,
+									_end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
 						}
-
 						for (String st : tryCatchBlocksToParse) {
 							String[] sp = st.split(" ");
 							int start = Integer.parseInt(sp[1].substring(2));
@@ -331,8 +306,7 @@ public class Assembler {
 									_handler = new LabelNode(entry.getKey());
 								}
 							}
-							node.tryCatchBlocks.add(
-									new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : sp[0]));
+							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : sp[0]));
 						}
 						clazz.methods.add(node);
 						// signature = null;
@@ -426,7 +400,6 @@ public class Assembler {
 					}
 				}
 			}
-
 			return clazz;
 		} catch (Throwable e) {
 			System.err.println("Error at line: " + read.currentLine);
@@ -440,12 +413,11 @@ public class Assembler {
 		} finally {
 			try {
 				read.close();
-			} catch (Exception e) {
-			}
+			} catch (Exception e) {}
 		}
 	}
-
-	public static AnnotationNode parseAnnotation(String s) {
+	
+	private static AnnotationNode parseAnnotation(String s) {
 		s = s.substring(1);
 		String[] split = s.split(" ");
 		AnnotationNode node = new AnnotationNode(split[0]);
@@ -455,9 +427,7 @@ public class Assembler {
 			}
 			s = consolidateStrings(split, 1);
 			s = s.substring(1, s.length() - 1);
-
 			split = s.split("\\], ");
-
 			for (int i = 0; i < split.length; i++) {
 				String[] split2 = split[i].split(" = \\[");
 				node.values.add(split2[0]);
@@ -470,8 +440,7 @@ public class Assembler {
 					for (String rofl : split3) {
 						if (!rofl.startsWith("(")) {
 							int index = rofl.indexOf(";");
-							list.add(new String[] { rofl.substring(0, index) + ";",
-									rofl.substring(index).substring(2) });
+							list.add(new String[] { rofl.substring(0, index) + ";", rofl.substring(index).substring(2) });
 						} else { // anderer typ mit casten
 							list.add(ClassUtil.getCastedValue(rofl.split(" ")[1], rofl.split("\\) ")[0].substring(1)));
 						}
@@ -479,19 +448,17 @@ public class Assembler {
 				} else {
 					if (!value.startsWith("(")) {
 						int index = value.indexOf(";");
-						node.values.add(
-								new String[] { value.substring(0, index) + ";", value.substring(index).substring(2) });
+						node.values.add(new String[] { value.substring(0, index) + ";", value.substring(index).substring(2) });
 					} else { // anderer typ mit casten
-						node.values.add(
-								ClassUtil.getCastedValue(value.split(" ")[1], value.split("\\) ")[0].substring(1)));
+						node.values.add(ClassUtil.getCastedValue(value.split(" ")[1], value.split("\\) ")[0].substring(1)));
 					}
 				}
 			}
 		}
 		return node;
 	}
-
-	public static String consolidateStrings(String[] args, int start) {
+	
+	private static String consolidateStrings(String[] args, int start) {
 		if (args.length == 0) {
 			return null;
 		}
@@ -503,8 +470,8 @@ public class Assembler {
 		}
 		return ret;
 	}
-
-	public static String consolidateStrings(String[] args, int start, int end) {
+	
+	private static String consolidateStrings(String[] args, int start, int end) {
 		if (end == 0) {
 			return null;
 		}
@@ -516,38 +483,37 @@ public class Assembler {
 		}
 		return ret;
 	}
-
-	public static Object getValue(String s, String to) {
+	
+	private static Object getValue(String s, String to) {
 		if (s == null) {
 			return null;
 		}
 		switch (to) {
-		case "B":
-			return Byte.parseByte(s);
-		case "Z":
-			return Boolean.parseBoolean(s);
-		case "I":
-			return Integer.parseInt(s);
-		case "J":
-			return Long.parseLong(s.substring(0, s.length() - 1));
-		case "C":
-			return (char) Integer.parseInt(s);
-		case "D":
-			return Double.parseDouble(s);
-		case "F":
-			return Float.parseFloat(s.substring(0, s.length() - 1));
-		case "S":
-			return Short.parseShort(s);
-		case "Ljava/lang/String;":
-			return StringEscapeUtils.unescapeJava(s.substring(1, s.length() - 1)).replace("\\n", "\n").replace("\\r",
-					"\r");
-		default: {
-			return null;
-		}
+			case "B":
+				return Byte.parseByte(s);
+			case "Z":
+				return Boolean.parseBoolean(s);
+			case "I":
+				return Integer.parseInt(s);
+			case "J":
+				return Long.parseLong(s.substring(0, s.length() - 1));
+			case "C":
+				return (char) Integer.parseInt(s);
+			case "D":
+				return Double.parseDouble(s);
+			case "F":
+				return Float.parseFloat(s.substring(0, s.length() - 1));
+			case "S":
+				return Short.parseShort(s);
+			case "Ljava/lang/String;":
+				return StringEscapeUtils.unescapeJava(s.substring(1, s.length() - 1)).replace("\\n", "\n").replace("\\r", "\r");
+			default: {
+				return null;
+			}
 		}
 	}
-
-	public static AbstractInsnNode getNode(String s, HashMap<Label, Integer> labels) throws Exception {
+	
+	private static AbstractInsnNode getNode(String s, HashMap<Label, Integer> labels) throws Exception {
 		if (s.startsWith("// label ")) {
 			int labelNr = Integer.parseInt(s.substring(9));
 			for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
@@ -658,549 +624,603 @@ public class Assembler {
 			String[] split = s.split(" ");
 			String command = split[0];
 			switch (command) {
-			case "nop":
-				return new InsnNode(0);
-			case "aconst_null":
-				return new InsnNode(1);
-			case "iconst_m1":
-				return new InsnNode(2);
-			case "iconst_0":
-				return new InsnNode(3);
-			case "iconst_1":
-				return new InsnNode(4);
-			case "iconst_2":
-				return new InsnNode(5);
-			case "iconst_3":
-				return new InsnNode(6);
-			case "iconst_4":
-				return new InsnNode(7);
-			case "iconst_5":
-				return new InsnNode(8);
-			case "lconst_0":
-				return new InsnNode(9);
-			case "lconst_1":
-				return new InsnNode(10);
-			case "fconst_0":
-				return new InsnNode(11);
-			case "fconst_1":
-				return new InsnNode(12);
-			case "fconst_2":
-				return new InsnNode(13);
-			case "dconst_0":
-				return new InsnNode(14);
-			case "dconst_1":
-				return new InsnNode(15);
-			case "bipush": {
-				return new IntInsnNode(16, Integer.parseInt(split[1]));
-			}
-			case "sipush": {
-				return new IntInsnNode(17, Integer.parseInt(split[1]));
-			}
-			case "ldc": {
-				String str = consolidateStrings(split, 1);
-				Object val;
-				try {
-					if (str.startsWith("Type: ")) {
-						str = str.substring(8, str.length() - 2);
-						String[] split2 = str.split("\n\t");
-						Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class, int.class,
-								int.class);
-						constr.setAccessible(true);
-						String type = split2[0].substring(7);
-						val = constr.newInstance(new Object[] { ClassUtil.getIDFromClassNameForType(type),
-								split2[3].substring(6, split2[3].length() - 1).toCharArray(),
-								Integer.parseInt(split2[1].substring(5)), Integer.parseInt(split2[2].substring(5)) });
-					} else if (str.startsWith("\"") && str.endsWith("\"")) {
-						val = StringEscapeUtils.unescapeJava(str.substring(1, str.length() - 1)).replace("\\n", "\n")
-								.replace("\\r", "\r");
-					} else if (str.endsWith("l")) {
-						val = Long.parseLong(str.substring(0, str.length() - 1));
-					} else if (str.endsWith("f")) {
-						val = Float.parseFloat(str.substring(0, str.length() - 1));
-					} else if (str.contains(".")) {
-						val = Double.parseDouble(str);
+				case "nop":
+					return new InsnNode(0);
+				case "aconst_null":
+					return new InsnNode(1);
+				case "iconst_m1":
+					return new InsnNode(2);
+				case "iconst_0":
+					return new InsnNode(3);
+				case "iconst_1":
+					return new InsnNode(4);
+				case "iconst_2":
+					return new InsnNode(5);
+				case "iconst_3":
+					return new InsnNode(6);
+				case "iconst_4":
+					return new InsnNode(7);
+				case "iconst_5":
+					return new InsnNode(8);
+				case "lconst_0":
+					return new InsnNode(9);
+				case "lconst_1":
+					return new InsnNode(10);
+				case "fconst_0":
+					return new InsnNode(11);
+				case "fconst_1":
+					return new InsnNode(12);
+				case "fconst_2":
+					return new InsnNode(13);
+				case "dconst_0":
+					return new InsnNode(14);
+				case "dconst_1":
+					return new InsnNode(15);
+				case "bipush": {
+					return new IntInsnNode(16, Integer.parseInt(split[1]));
+				}
+				case "sipush": {
+					return new IntInsnNode(17, Integer.parseInt(split[1]));
+				}
+				case "ldc": {
+					String str = consolidateStrings(split, 1);
+					Object val;
+					try {
+						if (str.startsWith("Type: ")) {
+							str = str.substring(8, str.length() - 2);
+							String[] split2 = str.split("\n\t");
+							Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class, int.class, int.class);
+							constr.setAccessible(true);
+							String type = split2[0].substring(7);
+							val = constr.newInstance(new Object[] { ClassUtil.getIDFromClassNameForType(type),
+									split2[3].substring(6, split2[3].length() - 1).toCharArray(), Integer.parseInt(split2[1].substring(5)),
+									Integer.parseInt(split2[2].substring(5)) });
+						} else if (str.startsWith("\"") && str.endsWith("\"")) {
+							val = StringEscapeUtils.unescapeJava(str.substring(1, str.length() - 1)).replace("\\n", "\n").replace("\\r",
+									"\r");
+						} else if (str.endsWith("l")) {
+							val = Long.parseLong(str.substring(0, str.length() - 1));
+						} else if (str.endsWith("f")) {
+							val = Float.parseFloat(str.substring(0, str.length() - 1));
+						} else if (str.contains(".")) {
+							val = Double.parseDouble(str);
+						} else {
+							val = Integer.parseInt(str);
+						}
+					} catch (Exception e) {
+						val = null;
+						throw e;
+					}
+					return new LdcInsnNode(val);
+				}
+				case "iload": {
+					return new VarInsnNode(21, Integer.parseInt(split[1]));
+				}
+				case "lload": {
+					return new VarInsnNode(22, Integer.parseInt(split[1]));
+				}
+				case "fload": {
+					return new VarInsnNode(23, Integer.parseInt(split[1]));
+				}
+				case "dload": {
+					return new VarInsnNode(24, Integer.parseInt(split[1]));
+				}
+				case "aload": {
+					return new VarInsnNode(25, Integer.parseInt(split[1]));
+				}
+				case "iaload": {
+					return new InsnNode(46);
+				}
+				case "laload": {
+					return new InsnNode(47);
+				}
+				case "faload": {
+					return new InsnNode(48);
+				}
+				case "daload": {
+					return new InsnNode(49);
+				}
+				case "aaload": {
+					return new InsnNode(50);
+				}
+				case "baload": {
+					return new InsnNode(51);
+				}
+				case "caload": {
+					return new InsnNode(52);
+				}
+				case "saload": {
+					return new InsnNode(53);
+				}
+				case "istore": {
+					return new VarInsnNode(54, Integer.parseInt(split[1]));
+				}
+				case "lstore": {
+					return new VarInsnNode(55, Integer.parseInt(split[1]));
+				}
+				case "fstore": {
+					return new VarInsnNode(56, Integer.parseInt(split[1]));
+				}
+				case "dstore": {
+					return new VarInsnNode(57, Integer.parseInt(split[1]));
+				}
+				case "astore": {
+					return new VarInsnNode(58, Integer.parseInt(split[1]));
+				}
+				case "iastore": {
+					return new InsnNode(79);
+				}
+				case "lastore": {
+					return new InsnNode(80);
+				}
+				case "fastore": {
+					return new InsnNode(81);
+				}
+				case "dastore": {
+					return new InsnNode(82);
+				}
+				case "aastore": {
+					return new InsnNode(83);
+				}
+				case "bastore": {
+					return new InsnNode(84);
+				}
+				case "castore": {
+					return new InsnNode(85);
+				}
+				case "sastore": {
+					return new InsnNode(86);
+				}
+				case "pop": {
+					return new InsnNode(87);
+				}
+				case "pop2": {
+					return new InsnNode(88);
+				}
+				case "dup": {
+					return new InsnNode(89);
+				}
+				case "dup_x1": {
+					return new InsnNode(90);
+				}
+				case "dup_x2": {
+					return new InsnNode(91);
+				}
+				case "dup2": {
+					return new InsnNode(92);
+				}
+				case "dup2_x1": {
+					return new InsnNode(93);
+				}
+				case "dup2_x2": {
+					return new InsnNode(94);
+				}
+				case "swap": {
+					return new InsnNode(95);
+				}
+				case "iadd": {
+					return new InsnNode(96);
+				}
+				case "ladd": {
+					return new InsnNode(97);
+				}
+				case "fadd": {
+					return new InsnNode(98);
+				}
+				case "dadd": {
+					return new InsnNode(99);
+				}
+				case "isub": {
+					return new InsnNode(100);
+				}
+				case "lsub": {
+					return new InsnNode(101);
+				}
+				case "fsub": {
+					return new InsnNode(102);
+				}
+				case "dsub": {
+					return new InsnNode(103);
+				}
+				case "imul": {
+					return new InsnNode(104);
+				}
+				case "lmul": {
+					return new InsnNode(105);
+				}
+				case "fmul": {
+					return new InsnNode(106);
+				}
+				case "dmul": {
+					return new InsnNode(107);
+				}
+				case "idiv": {
+					return new InsnNode(108);
+				}
+				case "ldiv": {
+					return new InsnNode(109);
+				}
+				case "fdiv": {
+					return new InsnNode(110);
+				}
+				case "ddiv": {
+					return new InsnNode(111);
+				}
+				case "irem": {
+					return new InsnNode(112);
+				}
+				case "lrem": {
+					return new InsnNode(113);
+				}
+				case "frem": {
+					return new InsnNode(114);
+				}
+				case "drem": {
+					return new InsnNode(115);
+				}
+				case "ineg": {
+					return new InsnNode(116);
+				}
+				case "lneg": {
+					return new InsnNode(117);
+				}
+				case "fneg": {
+					return new InsnNode(118);
+				}
+				case "dneg": {
+					return new InsnNode(119);
+				}
+				case "ishl": {
+					return new InsnNode(120);
+				}
+				case "lshl": {
+					return new InsnNode(121);
+				}
+				case "ishr": {
+					return new InsnNode(122);
+				}
+				case "lshr": {
+					return new InsnNode(123);
+				}
+				case "iushr": {
+					return new InsnNode(124);
+				}
+				case "lushr": {
+					return new InsnNode(125);
+				}
+				case "iand": {
+					return new InsnNode(126);
+				}
+				case "land": {
+					return new InsnNode(127);
+				}
+				case "ior": {
+					return new InsnNode(128);
+				}
+				case "lor": {
+					return new InsnNode(129);
+				}
+				case "ixor": {
+					return new InsnNode(130);
+				}
+				case "lxor": {
+					return new InsnNode(131);
+				}
+				case "iinc": {
+					return new IincInsnNode(Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+				}
+				case "i2l": {
+					return new InsnNode(133);
+				}
+				case "i2f": {
+					return new InsnNode(134);
+				}
+				case "i2d": {
+					return new InsnNode(135);
+				}
+				case "l2i": {
+					return new InsnNode(136);
+				}
+				case "l2f": {
+					return new InsnNode(137);
+				}
+				case "l2d": {
+					return new InsnNode(138);
+				}
+				case "f2i": {
+					return new InsnNode(139);
+				}
+				case "f2l": {
+					return new InsnNode(140);
+				}
+				case "f2d": {
+					return new InsnNode(141);
+				}
+				case "d2i": {
+					return new InsnNode(142);
+				}
+				case "d2l": {
+					return new InsnNode(143);
+				}
+				case "d2f": {
+					return new InsnNode(144);
+				}
+				case "i2b": {
+					return new InsnNode(145);
+				}
+				case "i2c": {
+					return new InsnNode(146);
+				}
+				case "i2s": {
+					return new InsnNode(147);
+				}
+				case "lcmp": {
+					return new InsnNode(148);
+				}
+				case "fcmpl": {
+					return new InsnNode(149);
+				}
+				case "fcmpg": {
+					return new InsnNode(150);
+				}
+				case "dcmpl": {
+					return new InsnNode(151);
+				}
+				case "dcmpg": {
+					return new InsnNode(152);
+				}
+				case "ifeq": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(153, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(153, new LabelNode(l));
+				}
+				case "ifne": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(154, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(154, new LabelNode(l));
+				}
+				case "iflt": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(155, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(155, new LabelNode(l));
+				}
+				case "ifge": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(156, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(156, new LabelNode(l));
+				}
+				case "ifgt": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(157, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(157, new LabelNode(l));
+				}
+				case "ifle": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(158, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(158, new LabelNode(l));
+				}
+				case "if_icmpeq": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(159, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(159, new LabelNode(l));
+				}
+				case "if_icmpne": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(160, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(160, new LabelNode(l));
+				}
+				case "if_icmplt": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(161, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(161, new LabelNode(l));
+				}
+				case "if_icmpge": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(162, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(162, new LabelNode(l));
+				}
+				case "if_icmpgt": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(163, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(163, new LabelNode(l));
+				}
+				case "if_icmple": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(164, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(164, new LabelNode(l));
+				}
+				case "if_acmpeq": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(165, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(165, new LabelNode(l));
+				}
+				case "if_acmpne": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(166, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(166, new LabelNode(l));
+				}
+				case "goto": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(167, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(167, new LabelNode(l));
+				}
+				case "jsr": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(168, new LabelNode(entry.getKey()));
+						}
+					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(168, new LabelNode(l));
+				}
+				case "ret": {
+					return new VarInsnNode(169, Integer.parseInt(s.split(" ")[1]));
+				}
+				case "tableswitch": {
+					String str = s.substring(14, s.length() - 2).replace("\t", "");
+					String split2[] = str.split("\n");
+					LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
+					for (int i = 4; i < split2.length - 1; i++) {
+						if (split2[i].equals("null")) {
+							labelMap.put(-1 - labelMap.size(), null);
+						} else {
+							labelMap.put(Integer.parseInt(split2[i]), null);
+						}
+					}
+					LabelNode dflt = null;
+					if (!split2[2].substring(9).equals("null")) {
+						int dfltLabelNr = Integer.parseInt(split2[2].substring(9));
+						for (Entry<Label, Integer> entry : labels.entrySet()) {
+							if (entry.getValue() == dfltLabelNr) {
+								dflt = new LabelNode(entry.getKey());
+							}
+							if (labelMap.containsKey(entry.getValue())) {
+								labelMap.replace(entry.getValue(), new LabelNode(entry.getKey()));
+							}
+						}
+						if (dflt == null) {
+							Label l = new Label();
+							labels.put(l, dfltLabelNr);
+							dflt = new LabelNode(l);
+						}
 					} else {
-						val = Integer.parseInt(str);
+						dflt = new LabelNode(new Label());
 					}
-				} catch (Exception e) {
-					val = null;
-					throw e;
-				}
-				return new LdcInsnNode(val);
-			}
-			case "iload": {
-				return new VarInsnNode(21, Integer.parseInt(split[1]));
-			}
-			case "lload": {
-				return new VarInsnNode(22, Integer.parseInt(split[1]));
-			}
-			case "fload": {
-				return new VarInsnNode(23, Integer.parseInt(split[1]));
-			}
-			case "dload": {
-				return new VarInsnNode(24, Integer.parseInt(split[1]));
-			}
-			case "aload": {
-				return new VarInsnNode(25, Integer.parseInt(split[1]));
-			}
-			case "iaload": {
-				return new InsnNode(46);
-			}
-			case "laload": {
-				return new InsnNode(47);
-			}
-			case "faload": {
-				return new InsnNode(48);
-			}
-			case "daload": {
-				return new InsnNode(49);
-			}
-			case "aaload": {
-				return new InsnNode(50);
-			}
-			case "baload": {
-				return new InsnNode(51);
-			}
-			case "caload": {
-				return new InsnNode(52);
-			}
-			case "saload": {
-				return new InsnNode(53);
-			}
-			case "istore": {
-				return new VarInsnNode(54, Integer.parseInt(split[1]));
-			}
-			case "lstore": {
-				return new VarInsnNode(55, Integer.parseInt(split[1]));
-			}
-			case "fstore": {
-				return new VarInsnNode(56, Integer.parseInt(split[1]));
-			}
-			case "dstore": {
-				return new VarInsnNode(57, Integer.parseInt(split[1]));
-			}
-			case "astore": {
-				return new VarInsnNode(58, Integer.parseInt(split[1]));
-			}
-			case "iastore": {
-				return new InsnNode(79);
-			}
-			case "lastore": {
-				return new InsnNode(80);
-			}
-			case "fastore": {
-				return new InsnNode(81);
-			}
-			case "dastore": {
-				return new InsnNode(82);
-			}
-			case "aastore": {
-				return new InsnNode(83);
-			}
-			case "bastore": {
-				return new InsnNode(84);
-			}
-			case "castore": {
-				return new InsnNode(85);
-			}
-			case "sastore": {
-				return new InsnNode(86);
-			}
-			case "pop": {
-				return new InsnNode(87);
-			}
-			case "pop2": {
-				return new InsnNode(88);
-			}
-			case "dup": {
-				return new InsnNode(89);
-			}
-			case "dup_x1": {
-				return new InsnNode(90);
-			}
-			case "dup_x2": {
-				return new InsnNode(91);
-			}
-			case "dup2": {
-				return new InsnNode(92);
-			}
-			case "dup2_x1": {
-				return new InsnNode(93);
-			}
-			case "dup2_x2": {
-				return new InsnNode(94);
-			}
-			case "swap": {
-				return new InsnNode(95);
-			}
-			case "iadd": {
-				return new InsnNode(96);
-			}
-			case "ladd": {
-				return new InsnNode(97);
-			}
-			case "fadd": {
-				return new InsnNode(98);
-			}
-			case "dadd": {
-				return new InsnNode(99);
-			}
-			case "isub": {
-				return new InsnNode(100);
-			}
-			case "lsub": {
-				return new InsnNode(101);
-			}
-			case "fsub": {
-				return new InsnNode(102);
-			}
-			case "dsub": {
-				return new InsnNode(103);
-			}
-			case "imul": {
-				return new InsnNode(104);
-			}
-			case "lmul": {
-				return new InsnNode(105);
-			}
-			case "fmul": {
-				return new InsnNode(106);
-			}
-			case "dmul": {
-				return new InsnNode(107);
-			}
-			case "idiv": {
-				return new InsnNode(108);
-			}
-			case "ldiv": {
-				return new InsnNode(109);
-			}
-			case "fdiv": {
-				return new InsnNode(110);
-			}
-			case "ddiv": {
-				return new InsnNode(111);
-			}
-			case "irem": {
-				return new InsnNode(112);
-			}
-			case "lrem": {
-				return new InsnNode(113);
-			}
-			case "frem": {
-				return new InsnNode(114);
-			}
-			case "drem": {
-				return new InsnNode(115);
-			}
-			case "ineg": {
-				return new InsnNode(116);
-			}
-			case "lneg": {
-				return new InsnNode(117);
-			}
-			case "fneg": {
-				return new InsnNode(118);
-			}
-			case "dneg": {
-				return new InsnNode(119);
-			}
-			case "ishl": {
-				return new InsnNode(120);
-			}
-			case "lshl": {
-				return new InsnNode(121);
-			}
-			case "ishr": {
-				return new InsnNode(122);
-			}
-			case "lshr": {
-				return new InsnNode(123);
-			}
-			case "iushr": {
-				return new InsnNode(124);
-			}
-			case "lushr": {
-				return new InsnNode(125);
-			}
-			case "iand": {
-				return new InsnNode(126);
-			}
-			case "land": {
-				return new InsnNode(127);
-			}
-			case "ior": {
-				return new InsnNode(128);
-			}
-			case "lor": {
-				return new InsnNode(129);
-			}
-			case "ixor": {
-				return new InsnNode(130);
-			}
-			case "lxor": {
-				return new InsnNode(131);
-			}
-			case "iinc": {
-				return new IincInsnNode(Integer.parseInt(split[1]), Integer.parseInt(split[2]));
-			}
-			case "i2l": {
-				return new InsnNode(133);
-			}
-			case "i2f": {
-				return new InsnNode(134);
-			}
-			case "i2d": {
-				return new InsnNode(135);
-			}
-			case "l2i": {
-				return new InsnNode(136);
-			}
-			case "l2f": {
-				return new InsnNode(137);
-			}
-			case "l2d": {
-				return new InsnNode(138);
-			}
-			case "f2i": {
-				return new InsnNode(139);
-			}
-			case "f2l": {
-				return new InsnNode(140);
-			}
-			case "f2d": {
-				return new InsnNode(141);
-			}
-			case "d2i": {
-				return new InsnNode(142);
-			}
-			case "d2l": {
-				return new InsnNode(143);
-			}
-			case "d2f": {
-				return new InsnNode(144);
-			}
-			case "i2b": {
-				return new InsnNode(145);
-			}
-			case "i2c": {
-				return new InsnNode(146);
-			}
-			case "i2s": {
-				return new InsnNode(147);
-			}
-			case "lcmp": {
-				return new InsnNode(148);
-			}
-			case "fcmpl": {
-				return new InsnNode(149);
-			}
-			case "fcmpg": {
-				return new InsnNode(150);
-			}
-			case "dcmpl": {
-				return new InsnNode(151);
-			}
-			case "dcmpg": {
-				return new InsnNode(152);
-			}
-			case "ifeq": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(153, new LabelNode(entry.getKey()));
+					LabelNode[] arr = new LabelNode[labelMap.size()];
+					int counter = 0;
+					for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
+						LabelNode ln;
+						if (entry.getValue() == null) {
+							Label l = new Label();
+							labels.put(l, entry.getKey());
+							ln = new LabelNode(l);
+						} else {
+							ln = entry.getValue();
+						}
+						arr[counter] = ln;
+						counter++;
 					}
+					return new TableSwitchInsnNode(Integer.parseInt(split2[0].substring(5)), Integer.parseInt(split2[1].substring(5)), dflt,
+							arr);
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(153, new LabelNode(l));
-			}
-			case "ifne": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(154, new LabelNode(entry.getKey()));
+				case "lookupswitch": {
+					String str = s.substring(15, s.length() - 2).replace("\t", "");
+					String split2[] = str.split("\n");
+					ArrayList<Integer> keys = new ArrayList<>();
+					LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
+					int stage = 0;
+					for (int i = 2; i < split2.length; i++) {
+						String spl = split2[i];
+						if (spl.equals("]")) {
+							stage = 1;
+						} else if (spl.equals("labels: [")) {
+							stage = 2;
+						} else if (stage == 0) {
+							keys.add(Integer.parseInt(spl));
+						} else if (stage == 2) {
+							if (spl.equals("null")) {
+								labelMap.put(-1 - labelMap.size(), null);
+							} else {
+								labelMap.put(Integer.parseInt(spl), null);
+							}
+						}
 					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(154, new LabelNode(l));
-			}
-			case "iflt": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(155, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(155, new LabelNode(l));
-			}
-			case "ifge": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(156, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(156, new LabelNode(l));
-			}
-			case "ifgt": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(157, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(157, new LabelNode(l));
-			}
-			case "ifle": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(158, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(158, new LabelNode(l));
-			}
-			case "if_icmpeq": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(159, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(159, new LabelNode(l));
-			}
-			case "if_icmpne": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(160, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(160, new LabelNode(l));
-			}
-			case "if_icmplt": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(161, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(161, new LabelNode(l));
-			}
-			case "if_icmpge": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(162, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(162, new LabelNode(l));
-			}
-			case "if_icmpgt": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(163, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(163, new LabelNode(l));
-			}
-			case "if_icmple": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(164, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(164, new LabelNode(l));
-			}
-			case "if_acmpeq": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(165, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(165, new LabelNode(l));
-			}
-			case "if_acmpne": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(166, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(166, new LabelNode(l));
-			}
-			case "goto": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(167, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(167, new LabelNode(l));
-			}
-			case "jsr": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(168, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(168, new LabelNode(l));
-			}
-			case "ret": {
-				return new VarInsnNode(169, Integer.parseInt(s.split(" ")[1]));
-			}
-			case "tableswitch": {
-				String str = s.substring(14, s.length() - 2).replace("\t", "");
-				String split2[] = str.split("\n");
-				LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
-
-				for (int i = 4; i < split2.length - 1; i++) {
-					if (split2[i].equals("null")) {
-						labelMap.put(-1 - labelMap.size(), null);
-					} else {
-						labelMap.put(Integer.parseInt(split2[i]), null);
-					}
-				}
-
-				LabelNode dflt = null;
-				if (!split2[2].substring(9).equals("null")) {
-					int dfltLabelNr = Integer.parseInt(split2[2].substring(9));
+					LabelNode dflt = null;
+					int labelNr = Integer.parseInt(split2[0].substring(9));
 					for (Entry<Label, Integer> entry : labels.entrySet()) {
-						if (entry.getValue() == dfltLabelNr) {
+						if (entry.getValue() == labelNr) {
 							dflt = new LabelNode(entry.getKey());
 						}
 						if (labelMap.containsKey(entry.getValue())) {
@@ -1209,270 +1229,194 @@ public class Assembler {
 					}
 					if (dflt == null) {
 						Label l = new Label();
-						labels.put(l, dfltLabelNr);
+						labels.put(l, labelNr);
 						dflt = new LabelNode(l);
 					}
-				} else {
-					dflt = new LabelNode(new Label());
-				}
-
-				LabelNode[] arr = new LabelNode[labelMap.size()];
-
-				int counter = 0;
-				for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
-					LabelNode ln;
-					if (entry.getValue() == null) {
-						Label l = new Label();
-						labels.put(l, entry.getKey());
-						ln = new LabelNode(l);
-					} else {
-						ln = entry.getValue();
-					}
-					arr[counter] = ln;
-					counter++;
-				}
-
-				return new TableSwitchInsnNode(Integer.parseInt(split2[0].substring(5)),
-						Integer.parseInt(split2[1].substring(5)), dflt, arr);
-			}
-			case "lookupswitch": {
-				String str = s.substring(15, s.length() - 2).replace("\t", "");
-				String split2[] = str.split("\n");
-				ArrayList<Integer> keys = new ArrayList<>();
-				LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
-
-				int stage = 0;
-				for (int i = 2; i < split2.length; i++) {
-					String spl = split2[i];
-					if (spl.equals("]")) {
-						stage = 1;
-					} else if (spl.equals("labels: [")) {
-						stage = 2;
-					} else if (stage == 0) {
-						keys.add(Integer.parseInt(spl));
-					} else if (stage == 2) {
-						if (spl.equals("null")) {
-							labelMap.put(-1 - labelMap.size(), null);
+					LabelNode[] arr = new LabelNode[labelMap.size()];
+					int counter = 0;
+					for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
+						LabelNode ln;
+						if (entry.getValue() == null) {
+							Label l = new Label();
+							labels.put(l, entry.getKey());
+							ln = new LabelNode(l);
 						} else {
-							labelMap.put(Integer.parseInt(spl), null);
+							ln = entry.getValue();
+						}
+						arr[counter] = ln;
+						counter++;
+					}
+					int[] _keys = new int[keys.size()];
+					counter = 0;
+					for (int i : keys) {
+						_keys[counter] = i;
+						counter++;
+					}
+					return new LookupSwitchInsnNode(dflt, _keys, arr);
+				}
+				case "ireturn": {
+					return new InsnNode(172);
+				}
+				case "lreturn": {
+					return new InsnNode(173);
+				}
+				case "freturn": {
+					return new InsnNode(174);
+				}
+				case "dreturn": {
+					return new InsnNode(175);
+				}
+				case "areturn": {
+					return new InsnNode(176);
+				}
+				case "return": {
+					return new InsnNode(177);
+				}
+				case "getstatic": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new FieldInsnNode(178, target.substring(0, index), target.substring(index + 1), split[1]);
+				}
+				case "putstatic": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new FieldInsnNode(179, target.substring(0, index), target.substring(index + 1), split[1]);
+				}
+				case "getfield": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new FieldInsnNode(180, target.substring(0, index), target.substring(index + 1), split[1]);
+				}
+				case "putfield": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new FieldInsnNode(181, target.substring(0, index), target.substring(index + 1), split[1]);
+				}
+				case "invokevirtual": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new MethodInsnNode(182, target.substring(0, index), target.substring(index + 1), split[1], false);
+				}
+				case "invokespecial": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new MethodInsnNode(183, target.substring(0, index), target.substring(index + 1), split[1], false);
+				}
+				case "invokestatic": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new MethodInsnNode(184, target.substring(0, index), target.substring(index + 1), split[1], false);
+				}
+				case "invokeinterface": {
+					String target = split[2];
+					int index = target.lastIndexOf("/");
+					return new MethodInsnNode(185, target.substring(0, index), target.substring(index + 1), split[1], true);
+				}
+				case "invokedynamic": {
+					String str = s.substring(16, s.length() - 2).replace("", "");
+					String sp[] = str.split("\n\t");
+					ArrayList<Object> args = new ArrayList<>();
+					ArrayList<String> vals = new ArrayList<>();
+					int stage = 0;
+					for (int i = 10; i < sp.length - 1; i++) {
+						String st = sp[i].substring(1);
+						if (st.equals("]")) {
+							if (stage == 1) {
+								try {
+									Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class, int.class,
+											int.class);
+									constr.setAccessible(true);
+									args.add(constr.newInstance(new Object[] { Integer.parseInt(vals.get(0).substring(6)),
+											vals.get(3).substring(6, vals.get(3).length() - 1).toCharArray(),
+											Integer.parseInt(vals.get(1).substring(5)), Integer.parseInt(vals.get(2).substring(5)) }));
+								} catch (Exception e) {
+									throw e;
+								}
+							} else if (stage == 2) {
+								args.add(new Handle(Integer.parseInt(vals.get(4).substring(5)), vals.get(1).substring(7),
+										vals.get(0).substring(6), vals.get(2).substring(6),
+										Boolean.parseBoolean(vals.get(3).substring(13))));
+								vals.clear();
+							}
+							stage = 0;
+						} else if (st.equals("Type: [")) {
+							stage = 1;
+						} else if (stage == 1) {
+							st = st.substring(1);
+							vals.add(st);
+						} else if (st.equals("Handle: [")) {
+							vals.clear();
+							stage = 2;
+						} else if (stage == 2) {
+							st = st.substring(1);
+							vals.add(st);
 						}
 					}
-				}
-
-				LabelNode dflt = null;
-				int labelNr = Integer.parseInt(split2[0].substring(9));
-				for (Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						dflt = new LabelNode(entry.getKey());
+					Object[] _args = new Object[args.size()];
+					stage = 0;
+					for (Object o : args) {
+						_args[stage] = o;
+						stage++;
 					}
-					if (labelMap.containsKey(entry.getValue())) {
-						labelMap.replace(entry.getValue(), new LabelNode(entry.getKey()));
-					}
+					return new InvokeDynamicInsnNode(sp[0].substring(7), sp[1].substring(6),
+							new Handle(Integer.parseInt(sp[7].substring(6)), sp[4].substring(8), sp[3].substring(7), sp[5].substring(7),
+									Boolean.parseBoolean(sp[6].substring(14))),
+							_args);
 				}
-				if (dflt == null) {
+				case "new": {
+					return new TypeInsnNode(187, split[1]);
+				}
+				case "newarray": {
+					return new IntInsnNode(188, ClassUtil.getArrayIDByType(split[1]));
+				}
+				case "anewarray": {
+					return new TypeInsnNode(189, split[1]);
+				}
+				case "arraylength": {
+					return new InsnNode(190);
+				}
+				case "athrow": {
+					return new InsnNode(191);
+				}
+				case "checkcast": {
+					return new TypeInsnNode(192, split[1]);
+				}
+				case "instanceof": {
+					return new TypeInsnNode(193, split[1]);
+				}
+				case "monitorenter": {
+					return new InsnNode(194);
+				}
+				case "monitorexit": {
+					return new InsnNode(195);
+				}
+				case "multianewarray": {
+					return new MultiANewArrayInsnNode(split[1], Integer.parseInt(split[2]));
+				}
+				case "ifnull": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(198, new LabelNode(entry.getKey()));
+						}
+					}
 					Label l = new Label();
 					labels.put(l, labelNr);
-					dflt = new LabelNode(l);
+					return new JumpInsnNode(198, new LabelNode(l));
 				}
-
-				LabelNode[] arr = new LabelNode[labelMap.size()];
-
-				int counter = 0;
-				for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
-					LabelNode ln;
-					if (entry.getValue() == null) {
-						Label l = new Label();
-						labels.put(l, entry.getKey());
-						ln = new LabelNode(l);
-					} else {
-						ln = entry.getValue();
-					}
-					arr[counter] = ln;
-					counter++;
-				}
-
-				int[] _keys = new int[keys.size()];
-				counter = 0;
-
-				for (int i : keys) {
-					_keys[counter] = i;
-					counter++;
-				}
-
-				return new LookupSwitchInsnNode(dflt, _keys, arr);
-			}
-			case "ireturn": {
-				return new InsnNode(172);
-			}
-			case "lreturn": {
-				return new InsnNode(173);
-			}
-			case "freturn": {
-				return new InsnNode(174);
-			}
-			case "dreturn": {
-				return new InsnNode(175);
-			}
-			case "areturn": {
-				return new InsnNode(176);
-			}
-			case "return": {
-				return new InsnNode(177);
-			}
-			case "getstatic": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(178, target.substring(0, index), target.substring(index + 1), split[1]);
-			}
-			case "putstatic": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(179, target.substring(0, index), target.substring(index + 1), split[1]);
-			}
-			case "getfield": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(180, target.substring(0, index), target.substring(index + 1), split[1]);
-			}
-			case "putfield": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(181, target.substring(0, index), target.substring(index + 1), split[1]);
-			}
-			case "invokevirtual": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(182, target.substring(0, index), target.substring(index + 1), split[1],
-						false);
-			}
-			case "invokespecial": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(183, target.substring(0, index), target.substring(index + 1), split[1],
-						false);
-			}
-			case "invokestatic": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(184, target.substring(0, index), target.substring(index + 1), split[1],
-						false);
-			}
-			case "invokeinterface": {
-				String target = split[2];
-				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(185, target.substring(0, index), target.substring(index + 1), split[1], true);
-			}
-			case "invokedynamic": {
-				String str = s.substring(16, s.length() - 2).replace("", "");
-				String sp[] = str.split("\n\t");
-				ArrayList<Object> args = new ArrayList<>();
-
-				ArrayList<String> vals = new ArrayList<>();
-
-				int stage = 0;
-				for (int i = 10; i < sp.length - 1; i++) {
-					String st = sp[i].substring(1);
-					if (st.equals("]")) {
-						if (stage == 1) {
-							try {
-								Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class,
-										int.class, int.class);
-								constr.setAccessible(true);
-								args.add(constr.newInstance(new Object[] { Integer.parseInt(vals.get(0).substring(6)),
-										vals.get(3).substring(6, vals.get(3).length() - 1).toCharArray(),
-										Integer.parseInt(vals.get(1).substring(5)),
-										Integer.parseInt(vals.get(2).substring(5)) }));
-							} catch (Exception e) {
-								throw e;
-							}
-						} else if (stage == 2) {
-							args.add(new Handle(Integer.parseInt(vals.get(4).substring(5)), vals.get(1).substring(7),
-									vals.get(0).substring(6), vals.get(2).substring(6),
-									Boolean.parseBoolean(vals.get(3).substring(13))));
-							vals.clear();
+				case "ifnonnull": {
+					int labelNr = Integer.parseInt(s.split(" ")[1]);
+					for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							return new JumpInsnNode(199, new LabelNode(entry.getKey()));
 						}
-						stage = 0;
-					} else if (st.equals("Type: [")) {
-						stage = 1;
-					} else if (stage == 1) {
-						st = st.substring(1);
-						vals.add(st);
-					} else if (st.equals("Handle: [")) {
-						vals.clear();
-						stage = 2;
-					} else if (stage == 2) {
-						st = st.substring(1);
-						vals.add(st);
 					}
+					Label l = new Label();
+					labels.put(l, labelNr);
+					return new JumpInsnNode(199, new LabelNode(l));
 				}
-
-				Object[] _args = new Object[args.size()];
-
-				stage = 0;
-				for (Object o : args) {
-					_args[stage] = o;
-					stage++;
-				}
-
-				return new InvokeDynamicInsnNode(sp[0].substring(7), sp[1].substring(6),
-						new Handle(Integer.parseInt(sp[7].substring(6)), sp[4].substring(8), sp[3].substring(7),
-								sp[5].substring(7), Boolean.parseBoolean(sp[6].substring(14))),
-						_args);
-			}
-			case "new": {
-				return new TypeInsnNode(187, split[1]);
-			}
-			case "newarray": {
-				return new IntInsnNode(188, ClassUtil.getArrayIDByType(split[1]));
-			}
-			case "anewarray": {
-				return new TypeInsnNode(189, split[1]);
-			}
-			case "arraylength": {
-				return new InsnNode(190);
-			}
-			case "athrow": {
-				return new InsnNode(191);
-			}
-			case "checkcast": {
-				return new TypeInsnNode(192, split[1]);
-			}
-			case "instanceof": {
-				return new TypeInsnNode(193, split[1]);
-			}
-			case "monitorenter": {
-				return new InsnNode(194);
-			}
-			case "monitorexit": {
-				return new InsnNode(195);
-			}
-			case "multianewarray": {
-				return new MultiANewArrayInsnNode(split[1], Integer.parseInt(split[2]));
-			}
-			case "ifnull": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(198, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(198, new LabelNode(l));
-			}
-			case "ifnonnull": {
-				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
-					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(199, new LabelNode(entry.getKey()));
-					}
-				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(199, new LabelNode(l));
-			}
-			default:
-				throw new IllegalArgumentException("Illegal Instruction: " + s);
+				default:
+					throw new IllegalArgumentException("Illegal Instruction: " + s);
 			}
 		}
 	}

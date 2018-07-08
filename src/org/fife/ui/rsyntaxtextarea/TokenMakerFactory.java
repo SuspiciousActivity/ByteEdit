@@ -1,9 +1,7 @@
 /*
  * 12/12/2008
- *
  * TokenMakerFactory.java - A factory for TokenMakers.
- *
- * This library is distributed under a modified BSD license.  See the included
+ * This library is distributed under a modified BSD license. See the included
  * RSyntaxTextArea.License.txt file for details.
  */
 package org.fife.ui.rsyntaxtextarea;
@@ -20,18 +18,18 @@ import org.fife.ui.rsyntaxtextarea.modes.PlainTextTokenMaker;
  * @version 1.0
  */
 public abstract class TokenMakerFactory {
-
+	
 	/**
-	 * If this system property is set, a custom <code>TokenMakerFactory</code> of
+	 * If this system property is set, a custom <code>TokenMakerFactory</code>
+	 * of
 	 * the specified class will be used as the default token maker factory.
 	 */
 	public static final String PROPERTY_DEFAULT_TOKEN_MAKER_FACTORY = "TokenMakerFactory";
-
 	/**
 	 * The singleton default <code>TokenMakerFactory</code> instance.
 	 */
 	private static TokenMakerFactory DEFAULT_INSTANCE;
-
+	
 	/**
 	 * Returns the default <code>TokenMakerFactory</code> instance. This is the
 	 * factory used by all {@link RSyntaxDocument}s by default.
@@ -61,7 +59,7 @@ public abstract class TokenMakerFactory {
 		}
 		return DEFAULT_INSTANCE;
 	}
-
+	
 	/**
 	 * Returns a {@link TokenMaker} for the specified key.
 	 *
@@ -77,26 +75,28 @@ public abstract class TokenMakerFactory {
 		}
 		return tm;
 	}
-
+	
 	/**
 	 * Returns a {@link TokenMaker} for the specified key.
 	 *
 	 * @param key
 	 *            The key.
-	 * @return The corresponding <code>TokenMaker</code>, or <code>null</code> if
+	 * @return The corresponding <code>TokenMaker</code>, or <code>null</code>
+	 *         if
 	 *         none matches the specified key.
 	 */
 	protected abstract TokenMaker getTokenMakerImpl(String key);
-
+	
 	/**
 	 * Returns the set of keys that this factory maps to token makers.
 	 *
 	 * @return The set of keys.
 	 */
 	public abstract Set<String> keySet();
-
+	
 	/**
-	 * Sets the default <code>TokenMakerFactory</code> instance. This is the factory
+	 * Sets the default <code>TokenMakerFactory</code> instance. This is the
+	 * factory
 	 * used by all future {@link RSyntaxDocument}s by default.
 	 * <code>RSyntaxDocument</code>s that have already been created are not
 	 * affected.
@@ -113,5 +113,4 @@ public abstract class TokenMakerFactory {
 		}
 		DEFAULT_INSTANCE = tmf;
 	}
-
 }

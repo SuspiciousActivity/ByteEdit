@@ -1,17 +1,15 @@
 /*
  * 12/14/2010
- *
  * ParameterChoicesProvider.java - Provides completions for a
  * ParameterizedCompletion's parameters.
- * 
- * This library is distributed under a modified BSD license.  See the included
+ * This library is distributed under a modified BSD license. See the included
  * AutoComplete.License.txt file for details.
  */
 package org.fife.ui.autocomplete;
 
 import java.util.List;
-import javax.swing.text.JTextComponent;
 
+import javax.swing.text.JTextComponent;
 
 /**
  * Provides completions for a {@link ParameterizedCompletion}'s parameters.
@@ -23,18 +21,16 @@ import javax.swing.text.JTextComponent;
  * @version 1.0
  */
 public interface ParameterChoicesProvider {
-
-
+	
 	/**
 	 * Returns a list of choices for a specific parameter.
 	 *
-	 * @param tc The text component.
-	 * @param param The currently focused parameter.
-	 * @return The list of parameters.  This may be <code>null</code> for
+	 * @param tc
+	 *            The text component.
+	 * @param param
+	 *            The currently focused parameter.
+	 * @return The list of parameters. This may be <code>null</code> for
 	 *         "no parameters," but might also be an empty list.
 	 */
-	public List<Completion> getParameterChoices(JTextComponent tc,
-								ParameterizedCompletion.Parameter param);
-
-
+	public List<Completion> getParameterChoices(JTextComponent tc, ParameterizedCompletion.Parameter param);
 }

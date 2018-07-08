@@ -1,17 +1,14 @@
 /*
  * 02/16/2012
- *
  * Copyright (C) 2013 Robert Futrell
  * robert_futrell at users.sourceforge.net
  * http://fifesoft.com/rsyntaxtextarea
- *
- * This library is distributed under a modified BSD license.  See the included
+ * This library is distributed under a modified BSD license. See the included
  * RSyntaxTextArea.License.txt file for details.
  */
 package org.fife.ui.rsyntaxtextarea;
 
 import javax.swing.event.HyperlinkEvent;
-
 
 /**
  * A link generator result that selects a region of text in the text area.
@@ -23,22 +20,19 @@ import javax.swing.event.HyperlinkEvent;
  * @see LinkGenerator
  */
 public class SelectRegionLinkGeneratorResult implements LinkGeneratorResult {
-
+	
 	private RSyntaxTextArea textArea;
 	private int sourceOffset;
 	private int selStart;
 	private int selEnd;
-
-
-	public SelectRegionLinkGeneratorResult(RSyntaxTextArea textArea,
-			int sourceOffset, int selStart, int selEnd) {
+	
+	public SelectRegionLinkGeneratorResult(RSyntaxTextArea textArea, int sourceOffset, int selStart, int selEnd) {
 		this.textArea = textArea;
 		this.sourceOffset = sourceOffset;
 		this.selStart = selStart;
 		this.selEnd = selEnd;
 	}
-
-
+	
 	/**
 	 * Selects the text in the text area.
 	 */
@@ -47,8 +41,7 @@ public class SelectRegionLinkGeneratorResult implements LinkGeneratorResult {
 		textArea.select(selStart, selEnd);
 		return null;
 	}
-
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -56,6 +49,4 @@ public class SelectRegionLinkGeneratorResult implements LinkGeneratorResult {
 	public int getSourceOffset() {
 		return sourceOffset;
 	}
-
-
 }

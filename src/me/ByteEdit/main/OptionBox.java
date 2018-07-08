@@ -1,27 +1,26 @@
 package me.ByteEdit.main;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JCheckBox;
 
 public class OptionBox extends JFrame {
-
+	
 	private JPanel contentPane;
 	public JCheckBox chckbxComputeFrames;
 	public JCheckBox chckbxComputeMax;
-
+	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			
 			public void run() {
 				try {
 					OptionBox frame = new OptionBox();
@@ -32,7 +31,7 @@ public class OptionBox extends JFrame {
 			}
 		});
 	}
-
+	
 	/**
 	 * Create the frame.
 	 */
@@ -51,11 +50,9 @@ public class OptionBox extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
 		chckbxComputeFrames = new JCheckBox("Compute Frames");
 		chckbxComputeFrames.setBounds(6, 7, 138, 23);
 		contentPane.add(chckbxComputeFrames);
-		
 		chckbxComputeMax = new JCheckBox("Compute Max");
 		chckbxComputeMax.setBounds(6, 33, 138, 23);
 		contentPane.add(chckbxComputeMax);

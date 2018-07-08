@@ -7,7 +7,7 @@ import java.io.Reader;
 public class CustomBufferedReader extends BufferedReader {
 	
 	public int currentLine = 0;
-
+	
 	public CustomBufferedReader(Reader in) {
 		super(in);
 	}
@@ -17,5 +17,4 @@ public class CustomBufferedReader extends BufferedReader {
 		currentLine++;
 		return super.readLine();
 	}
-
 }

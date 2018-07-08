@@ -59,6 +59,8 @@ import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
+import org.fife.ui.rsyntaxtextarea.folding.CurlyFoldParser;
+import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -66,27 +68,25 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public class Main extends JFrame {
-
+	
 	public static Main INSTANCE;
-
 	private JPanel contentPane;
 	private boolean isChangingFile;
 	private static File jarFile;
 	public static HashMap<String, byte[]> OTHER_FILES = new HashMap<>();
 	public static HashMap<String, ClassNode> classNodes = new HashMap<>();
 	public static String currentNodeName;
-
 	public static RSyntaxTextArea textArea;
 	public static SearchBox searchBox;
 	public static OptionBox optionBox;
-
 	public static JTree tree;
-
+	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			
 			public void run() {
 				try {
 					Main frame = new Main();
@@ -97,51 +97,32 @@ public class Main extends JFrame {
 			}
 		});
 	}
-
+	
 	/**
 	 * Create a simple provider that adds some Java-related completions.
 	 */
 	private CompletionProvider createCompletionProvider() {
 		DefaultCompletionProvider provider = new DefaultCompletionProvider();
-
 		for (int i = 0; i < 200; i++) {
 			String s = OpcodesReverse.reverseOpcode(i);
 			if (!s.startsWith("Unknown "))
-				provider.addCompletion(
-						new BasicCompletion(provider, s, null, OpcodesReverse.generateCompletionDesc(s)));
+				provider.addCompletion(new BasicCompletion(provider, s, null, OpcodesReverse.generateCompletionDesc(s)));
 		}
-
-		provider.addCompletion(
-				new BasicCompletion(provider, "public", null, OpcodesReverse.generateCompletionDesc("public")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "private", null, OpcodesReverse.generateCompletionDesc("private")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "protected", null, OpcodesReverse.generateCompletionDesc("protected")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "final", null, OpcodesReverse.generateCompletionDesc("final")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "class", null, OpcodesReverse.generateCompletionDesc("class")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "enum", null, OpcodesReverse.generateCompletionDesc("enum")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "static", null, OpcodesReverse.generateCompletionDesc("static")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "strictfp", null, OpcodesReverse.generateCompletionDesc("strictfp")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "throws", null, OpcodesReverse.generateCompletionDesc("throws")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "synthetic", null, OpcodesReverse.generateCompletionDesc("synthetic")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "bridge", null, OpcodesReverse.generateCompletionDesc("bridge")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "label", null, OpcodesReverse.generateCompletionDesc("label")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "line", null, OpcodesReverse.generateCompletionDesc("line")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "extends", null, OpcodesReverse.generateCompletionDesc("extends")));
-		provider.addCompletion(
-				new BasicCompletion(provider, "implements", null, OpcodesReverse.generateCompletionDesc("implements")));
-
+		provider.addCompletion(new BasicCompletion(provider, "public", null, OpcodesReverse.generateCompletionDesc("public")));
+		provider.addCompletion(new BasicCompletion(provider, "private", null, OpcodesReverse.generateCompletionDesc("private")));
+		provider.addCompletion(new BasicCompletion(provider, "protected", null, OpcodesReverse.generateCompletionDesc("protected")));
+		provider.addCompletion(new BasicCompletion(provider, "final", null, OpcodesReverse.generateCompletionDesc("final")));
+		provider.addCompletion(new BasicCompletion(provider, "class", null, OpcodesReverse.generateCompletionDesc("class")));
+		provider.addCompletion(new BasicCompletion(provider, "enum", null, OpcodesReverse.generateCompletionDesc("enum")));
+		provider.addCompletion(new BasicCompletion(provider, "static", null, OpcodesReverse.generateCompletionDesc("static")));
+		provider.addCompletion(new BasicCompletion(provider, "strictfp", null, OpcodesReverse.generateCompletionDesc("strictfp")));
+		provider.addCompletion(new BasicCompletion(provider, "throws", null, OpcodesReverse.generateCompletionDesc("throws")));
+		provider.addCompletion(new BasicCompletion(provider, "synthetic", null, OpcodesReverse.generateCompletionDesc("synthetic")));
+		provider.addCompletion(new BasicCompletion(provider, "bridge", null, OpcodesReverse.generateCompletionDesc("bridge")));
+		provider.addCompletion(new BasicCompletion(provider, "label", null, OpcodesReverse.generateCompletionDesc("label")));
+		provider.addCompletion(new BasicCompletion(provider, "line", null, OpcodesReverse.generateCompletionDesc("line")));
+		provider.addCompletion(new BasicCompletion(provider, "extends", null, OpcodesReverse.generateCompletionDesc("extends")));
+		provider.addCompletion(new BasicCompletion(provider, "implements", null, OpcodesReverse.generateCompletionDesc("implements")));
 		provider.addCompletion(new ShorthandCompletion(provider, "invvi", "invokevirtual desc owner/name", null,
 				"<html><b><u>invvi</u></b><br>Creates an example invokevirtual</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "invif", "invokeinterface desc owner/name", null,
@@ -157,13 +138,11 @@ public class Main extends JFrame {
 				"// #Annotations\n// #Class v:52\n// #Signature: null\n// #OuterClass: null\n// #InnerClasses:\npublic class Main extends java/lang/Object {\n// #SourceFile: Main.java\n\n// #Fields\n\n// #Methods\n\n}\n",
 				null, "<html><b><u>clazz</u></b><br>Creates an example class</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "method",
-				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}",
-				null, "<html><b><u>method</u></b><br>Creates an example method</html>"));
-
+				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}", null,
+				"<html><b><u>method</u></b><br>Creates an example method</html>"));
 		return provider;
-
 	}
-
+	
 	/**
 	 * Create the frame.
 	 */
@@ -185,24 +164,21 @@ public class Main extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new GridLayout(0, 1, 0, 0));
-
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setBackground(Color.GRAY);
 		splitPane.setResizeWeight(0.2);
 		contentPane.add(splitPane);
-
 		JScrollPane scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
-
 		textArea = new RSyntaxTextArea();
-
 		CompletionProvider provider = createCompletionProvider();
-
 		AutoCompletion ac = new AutoCompletion(provider);
 		ac.setShowDescWindow(true);
 		ac.install(textArea);
-
+		FoldParserManager.get().addFoldParserMapping(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE, new CurlyFoldParser(false, true));
+		textArea.setCodeFoldingEnabled(true);
 		textArea.addKeyListener(new KeyAdapter() {
+			
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && currentNodeName != null) {
@@ -221,13 +197,13 @@ public class Main extends JFrame {
 						}
 						textArea.setText(dis);
 						textArea.setCaretPosition(prev);
-					} catch (Exception e2) {
-					}
+					} catch (Exception e2) {}
 				}
 			}
 		});
 		KeyStroke ctrlF = KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK);
 		textArea.registerKeyboardAction(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchBox.setVisible(true);
@@ -237,6 +213,7 @@ public class Main extends JFrame {
 		}, ctrlF, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
 		textArea.registerKeyboardAction(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String txt = textArea.getText();
@@ -255,6 +232,7 @@ public class Main extends JFrame {
 		}, ctrlS, JComponent.WHEN_FOCUSED);
 		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
 		textArea.registerKeyboardAction(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				optionBox.setVisible(true);
@@ -269,9 +247,9 @@ public class Main extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
-
 		tree = new JTree(new DefaultTreeModel(null));
 		tree.addKeyListener(new KeyAdapter() {
+			
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && jarFile != null) {
@@ -291,6 +269,7 @@ public class Main extends JFrame {
 			}
 		});
 		tree.registerKeyboardAction(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				save();
@@ -307,6 +286,7 @@ public class Main extends JFrame {
 		}
 		scrollPane.setViewportView(tree);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			
 			public void valueChanged(TreeSelectionEvent e) {
 				if (!isChangingFile) {
 					String s = "";
@@ -317,8 +297,7 @@ public class Main extends JFrame {
 							b = true;
 							continue;
 						}
-						s += (s.isEmpty() || s.replace("/", "").isEmpty() ? "" : "/")
-								+ (path.toString().isEmpty() ? "/" : path.toString());
+						s += (s.isEmpty() || s.replace("/", "").isEmpty() ? "" : "/") + (path.toString().isEmpty() ? "/" : path.toString());
 					}
 					if (s.endsWith(".class")) {
 						currentNodeName = s;
@@ -339,15 +318,15 @@ public class Main extends JFrame {
 				}
 			}
 		});
-
-		RTextScrollPane scrollPane_1 = new RTextScrollPane();
-		scrollPane_1.setLineNumbersEnabled(true);
-		scrollPane_1.setFoldIndicatorEnabled(true);
+		RTextScrollPane scrollPane_TextArea = new RTextScrollPane();
 		textArea.setBackground(Color.LIGHT_GRAY);
-		scrollPane_1.setViewportView(textArea);
-		splitPane.setRightComponent(scrollPane_1);
+		scrollPane_TextArea.setViewportView(textArea);
+		scrollPane_TextArea.setLineNumbersEnabled(true);
+		scrollPane_TextArea.setFoldIndicatorEnabled(true);
+		scrollPane_TextArea.getGutter().setBackground(Color.LIGHT_GRAY);
+		splitPane.setRightComponent(scrollPane_TextArea);
 		new DropTarget(tree, new DropTargetListener() {
-
+			
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
@@ -357,7 +336,6 @@ public class Main extends JFrame {
 						if (flavors[i].isFlavorJavaFileListType()) {
 							dtde.acceptDrop(dtde.getDropAction());
 							java.util.List<File> files = (java.util.List<File>) tr.getTransferData(flavors[i]);
-
 							final File file = files.get(0);
 							if (file.getName().endsWith(".jar")) {
 								jarFile = file;
@@ -369,7 +347,6 @@ public class Main extends JFrame {
 								}
 								isChangingFile = false;
 							}
-
 							dtde.dropComplete(true);
 						}
 					}
@@ -379,30 +356,25 @@ public class Main extends JFrame {
 					showError(t);
 				}
 				dtde.rejectDrop();
-
 			}
-
+			
 			@Override
-			public void dragEnter(DropTargetDragEvent dtde) {
-			}
-
+			public void dragEnter(DropTargetDragEvent dtde) {}
+			
 			@Override
-			public void dragOver(DropTargetDragEvent dtde) {
-			}
-
+			public void dragOver(DropTargetDragEvent dtde) {}
+			
 			@Override
-			public void dropActionChanged(DropTargetDragEvent dtde) {
-			}
-
+			public void dropActionChanged(DropTargetDragEvent dtde) {}
+			
 			@Override
-			public void dragExit(DropTargetEvent dte) {
-			}
-
+			public void dragExit(DropTargetEvent dte) {}
 		});
 	}
-
+	
 	public void save() {
 		final JFileChooser fileChooser = new JFileChooser() {
+			
 			@Override
 			protected JDialog createDialog(final Component parent) throws HeadlessException {
 				final JDialog dialog = super.createDialog(parent);
@@ -418,8 +390,8 @@ public class Main extends JFrame {
 		if (action == 0) {
 			final File file = fileChooser.getSelectedFile();
 			if (file.exists()) {
-				int dialogResult = JOptionPane.showConfirmDialog(null, "This file already exists! Overwrite it?",
-						"Warning", JOptionPane.YES_NO_OPTION);
+				int dialogResult = JOptionPane.showConfirmDialog(null, "This file already exists! Overwrite it?", "Warning",
+						JOptionPane.YES_NO_OPTION);
 				if (dialogResult == JOptionPane.YES_OPTION) {
 					save(file, classNodes.values());
 				}
@@ -428,7 +400,7 @@ public class Main extends JFrame {
 			}
 		}
 	}
-
+	
 	public void save(File jar, Collection<ClassNode> classes) {
 		try {
 			final JarOutputStream output = new JarOutputStream(new FileOutputStream(jar));
@@ -485,7 +457,7 @@ public class Main extends JFrame {
 			showError(e);
 		}
 	}
-
+	
 	public void showError(Throwable e) {
 		String s = e.toString() + "\n";
 		StackTraceElement[] stackTrace = e.getStackTrace();
@@ -496,13 +468,15 @@ public class Main extends JFrame {
 		}
 		JOptionPane.showMessageDialog(this, s, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
-
+	
 	class ArchiveTreeModel extends DefaultTreeModel {
-
+		
 		public ArchiveTreeModel(JarFile jar) {
-			super(new DefaultMutableTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
-					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
-							- 1]));
+			super(new DefaultMutableTreeNode(
+					jar.getName()
+							.split(File.separator.equals("\\") ? "\\\\"
+									: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
+											- 1]));
 			try {
 				ArrayList<String> paths = new ArrayList<>();
 				classNodes.clear();
@@ -512,12 +486,12 @@ public class Main extends JFrame {
 					JarEntry next = enumeration.nextElement();
 					byte[] data = IOUtils.toByteArray(jar.getInputStream(next));
 					if (next.getName().endsWith(".class")) {
-						if (next.getName().contains("/")
-								? (!next.getName().split("/")[next.getName().split("/").length - 1].contains("$"))
+						if (next.getName().contains("/") ? (!next.getName().split("/")[next.getName().split("/").length - 1].contains("$"))
 								: (!next.getName().contains("$"))) {
 							paths.add(next.getName());
-						} else if (next.getName().startsWith("$") || next.getName().contains("$$")
-								|| next.getName().endsWith("$")) { // obfuscated with $
+						} else if (next.getName().startsWith("$") || next.getName().contains("$$") || next.getName().endsWith("$")) { // obfuscated
+																																		// with
+																																		// $
 							paths.add(next.getName());
 						}
 						ClassReader reader;
@@ -538,9 +512,7 @@ public class Main extends JFrame {
 				Collections.sort(paths);
 				for (String s : paths) {
 					String[] elements = s.split("/");
-
 					DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getRoot();
-
 					for (int i = 0; i < elements.length; i++) {
 						String token = elements[i];
 						DefaultMutableTreeNode nextNode = findNode(currentNode, token);
@@ -558,7 +530,7 @@ public class Main extends JFrame {
 				showError(e);
 			}
 		}
-
+		
 		private DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name) {
 			Enumeration<?> e = parent.children();
 			while (e.hasMoreElements()) {

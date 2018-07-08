@@ -1,9 +1,7 @@
 /*
  * 11/13/2008
- *
  * FileFileLocation.java - The location of a local file.
- *
- * This library is distributed under a modified BSD license.  See the included
+ * This library is distributed under a modified BSD license. See the included
  * RSyntaxTextArea.License.txt file for details.
  */
 package org.fife.ui.rsyntaxtextarea;
@@ -15,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
 /**
  * The location of a local file.
  *
@@ -23,17 +20,17 @@ import java.io.OutputStream;
  * @version 1.0
  */
 class FileFileLocation extends FileLocation {
-
+	
 	/**
-	 * The file.  This may or may not actually exist.
+	 * The file. This may or may not actually exist.
 	 */
 	private File file;
-
-
+	
 	/**
 	 * Constructor.
 	 *
-	 * @param file The local file.
+	 * @param file
+	 *            The local file.
 	 */
 	FileFileLocation(File file) {
 		try {
@@ -43,8 +40,7 @@ class FileFileLocation extends FileLocation {
 			this.file = file;
 		}
 	}
-
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -52,8 +48,7 @@ class FileFileLocation extends FileLocation {
 	protected long getActualLastModified() {
 		return file.lastModified();
 	}
-
-
+	
 	/**
 	 * Returns the full path to the file.
 	 *
@@ -64,8 +59,7 @@ class FileFileLocation extends FileLocation {
 	public String getFileFullPath() {
 		return file.getAbsolutePath();
 	}
-
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -73,8 +67,7 @@ class FileFileLocation extends FileLocation {
 	public String getFileName() {
 		return file.getName();
 	}
-
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -82,8 +75,7 @@ class FileFileLocation extends FileLocation {
 	protected InputStream getInputStream() throws IOException {
 		return new FileInputStream(file);
 	}
-
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -91,8 +83,7 @@ class FileFileLocation extends FileLocation {
 	protected OutputStream getOutputStream() throws IOException {
 		return new FileOutputStream(file);
 	}
-
-
+	
 	/**
 	 * Always returns <code>true</code>.
 	 *
@@ -103,8 +94,7 @@ class FileFileLocation extends FileLocation {
 	public boolean isLocal() {
 		return true;
 	}
-
-
+	
 	/**
 	 * Since file locations of this type are guaranteed to be local, this
 	 * method returns whether the file exists.
@@ -116,6 +106,4 @@ class FileFileLocation extends FileLocation {
 	public boolean isLocalAndExists() {
 		return file.exists();
 	}
-
-
 }

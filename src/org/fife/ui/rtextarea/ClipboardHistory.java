@@ -1,9 +1,7 @@
 /*
  * 08/29/2014
- *
  * ClipboardHistory.java - A history of text added to the clipboard.
- *
- * This library is distributed under a modified BSD license.  See the included
+ * This library is distributed under a modified BSD license. See the included
  * RSyntaxTextArea.License.txt file for details.
  */
 package org.fife.ui.rtextarea;
@@ -12,14 +10,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
- * Listens for cuts and copies from instances of {@link RTextArea}.  This is
- * used for the "clipboard history" shortcut (Ctrl+Shift+V by default).<p>
+ * Listens for cuts and copies from instances of {@link RTextArea}. This is
+ * used for the "clipboard history" shortcut (Ctrl+Shift+V by default).
+ * <p>
  *
  * Note that this class does not listen for all events on the system clipboard,
- * because that functionality is pretty fragile.  See
- * <a href="http://stackoverflow.com/questions/5484927/listen-to-clipboard-changes-check-ownership">
+ * because that functionality is pretty fragile. See
+ * <a href=
+ * "http://stackoverflow.com/questions/5484927/listen-to-clipboard-changes-check-ownership">
  * http://stackoverflow.com/questions/5484927/listen-to-clipboard-changes-check-ownership</a>
  * for more information.
  *
@@ -27,36 +26,32 @@ import java.util.List;
  * @version 1.0
  */
 public final class ClipboardHistory {
-
+	
 	private static ClipboardHistory instance;
-
 	private List<String> history;
 	private int maxSize;
-
 	private static final int DEFAULT_MAX_SIZE = 12;
-
-
+	
 	private ClipboardHistory() {
 		history = new ArrayList<String>();
 		maxSize = DEFAULT_MAX_SIZE;
 	}
-
-
+	
 	/**
 	 * Adds an entry to the clipboard history.
 	 *
-	 * @param str The text to add.
+	 * @param str
+	 *            The text to add.
 	 * @see #getHistory()
 	 */
 	public void add(String str) {
 		int size = history.size();
-		if (size==0) {
+		if (size == 0) {
 			history.add(str);
-		}
-		else {
+		} else {
 			int index = history.indexOf(str);
-			if (index!=size-1) {
-				if (index>-1) {
+			if (index != size - 1) {
+				if (index > -1) {
 					history.remove(index);
 				}
 				history.add(str);
@@ -64,24 +59,23 @@ public final class ClipboardHistory {
 			trim();
 		}
 	}
-
-
+	
 	/**
 	 * Returns the singleton instance of this class, lazily creating it if
-	 * necessary.<p>
+	 * necessary.
+	 * <p>
 	 *
 	 * This method should only be called on the EDT.
 	 *
 	 * @return The singleton instance of this class.
 	 */
 	public static ClipboardHistory get() {
-		if (instance==null) {
+		if (instance == null) {
 			instance = new ClipboardHistory();
 		}
 		return instance;
 	}
-
-
+	
 	/**
 	 * Returns the clipboard history, in most-recently-used order.
 	 *
@@ -92,8 +86,7 @@ public final class ClipboardHistory {
 		Collections.reverse(copy);
 		return copy;
 	}
-
-
+	
 	/**
 	 * Returns the maximum number of clipboard values remembered.
 	 *
@@ -103,34 +96,32 @@ public final class ClipboardHistory {
 	public int getMaxSize() {
 		return maxSize;
 	}
-
-
+	
 	/**
 	 * Sets the maximum number of clipboard values remembered.
 	 *
-	 * @param maxSize The maximum number of clipboard values to remember.
-	 * @throws IllegalArgumentException If <code>maxSize</code> is not greater
-	 *         than zero.
+	 * @param maxSize
+	 *            The maximum number of clipboard values to remember.
+	 * @throws IllegalArgumentException
+	 *             If <code>maxSize</code> is not greater
+	 *             than zero.
 	 * @see #getMaxSize()
 	 */
 	public void setMaxSize(int maxSize) {
-		if (maxSize<=0) {
+		if (maxSize <= 0) {
 			throw new IllegalArgumentException("Maximum size must be >= 0");
 		}
 		this.maxSize = maxSize;
 		trim();
 	}
-
-
+	
 	/**
 	 * Ensures the remembered set of strings is not larger than the maximum
 	 * allowed size.
 	 */
 	private void trim() {
-		while (history.size()>maxSize) {
+		while (history.size() > maxSize) {
 			history.remove(0);
 		}
 	}
-
-
 }

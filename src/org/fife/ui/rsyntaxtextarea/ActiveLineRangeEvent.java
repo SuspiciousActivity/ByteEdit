@@ -1,16 +1,13 @@
 /*
  * 02/06/2011
- *
  * ActiveLineRangeEvent.java - Notifies listeners of an "active line range"
  * change in an RSyntaxTextArea.
- *
- * This library is distributed under a modified BSD license.  See the included
+ * This library is distributed under a modified BSD license. See the included
  * RSyntaxTextArea.License.txt file for details.
  */
 package org.fife.ui.rsyntaxtextarea;
 
 import java.util.EventObject;
-
 
 /**
  * The event fired by {@link RSyntaxTextArea}s when the active line range
@@ -20,27 +17,28 @@ import java.util.EventObject;
  * @version 1.0
  */
 public class ActiveLineRangeEvent extends EventObject {
-
+	
 	private int min;
 	private int max;
-
-
+	
 	/**
 	 * Constructor.
 	 *
-	 * @param source The text area.
-	 * @param min The first line in the active line range, or
-	 *        <code>-1</code> if the line range is being cleared.
-	 * @param max The last line in the active line range, or
-	 *        <code>-1</code> if the line range is being cleared.
+	 * @param source
+	 *            The text area.
+	 * @param min
+	 *            The first line in the active line range, or
+	 *            <code>-1</code> if the line range is being cleared.
+	 * @param max
+	 *            The last line in the active line range, or
+	 *            <code>-1</code> if the line range is being cleared.
 	 */
 	public ActiveLineRangeEvent(RSyntaxTextArea source, int min, int max) {
 		super(source);
 		this.min = min;
 		this.max = max;
 	}
-
-
+	
 	/**
 	 * Returns the last line in the active line range.
 	 *
@@ -51,8 +49,7 @@ public class ActiveLineRangeEvent extends EventObject {
 	public int getMax() {
 		return max;
 	}
-
-
+	
 	/**
 	 * Returns the first line in the active line range.
 	 *
@@ -63,6 +60,4 @@ public class ActiveLineRangeEvent extends EventObject {
 	public int getMin() {
 		return min;
 	}
-
-
 }
