@@ -748,7 +748,8 @@ public class AutoCompletion {
 		}
 		final List<Completion> completions = provider.getCompletions(textComponent);
 		int count = completions == null ? 0 : completions.size();
-		if (count > 1 || (count == 1 && (isPopupVisible() || textLen == 0)) || (count == 1 && !getAutoCompleteSingleChoices())) {
+		if (count > 1 || (count == 1 && (isPopupVisible() || text.equals(completions.get(0).getInputText())))
+				|| (count == 1 && (isPopupVisible() || textLen == 0)) || (count == 1 && !getAutoCompleteSingleChoices())) {
 			if (popupWindow == null) {
 				popupWindow = new AutoCompletePopupWindow(parentWindow, this);
 				popupWindowListener.install(popupWindow);

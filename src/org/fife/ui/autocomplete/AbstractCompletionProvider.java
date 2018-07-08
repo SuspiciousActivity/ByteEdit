@@ -154,9 +154,11 @@ public abstract class AbstractCompletionProvider extends CompletionProviderBase 
 		String text = getAlreadyEnteredText(comp);
 		if (text != null) {
 			int index = Collections.binarySearch(completions, text, comparator);
+			boolean exactMatch = false;
 			if (index < 0) { // No exact match
 				index = -index - 1;
 			} else {
+				exactMatch = true;
 				// If there are several overloads for the function being
 				// completed, Collections.binarySearch() will return the index
 				// of one of those overloads, but we must return all of them,
@@ -174,6 +176,13 @@ public abstract class AbstractCompletionProvider extends CompletionProviderBase 
 					index++;
 				} else {
 					break;
+				}
+			}
+			if (!exactMatch) {
+				for (Completion c : completions) {
+					if (c.getInputText().contains(text) && !retVal.contains(c)) {
+						retVal.add(c);
+					}
 				}
 			}
 		}
