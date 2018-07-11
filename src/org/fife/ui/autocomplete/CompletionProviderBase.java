@@ -99,6 +99,17 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 		if (/* sortByRelevance */true) {
 			Collections.sort(completions, sortByRelevanceComparator);
 		}
+		// ensure that an exact match always stays at the first position
+		int indexOfMatch = -1;
+		for (int i = 0; i < completions.size(); i++) {
+			if (completions.get(i).getInputText().startsWith(comp.getText())) {
+				indexOfMatch = i;
+				break;
+			}
+		}
+		if (indexOfMatch != -1) {
+			completions.add(0, completions.remove(indexOfMatch));
+		}
 		return completions;
 	}
 	
