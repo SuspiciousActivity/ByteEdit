@@ -8,4 +8,6 @@ To open up a file, drag it onto the left side. To save a class, press CTRL + S o
 
 To search/replace in a file, press CTRL + F.
 
+To open a class, press CTRL + T.
+
 To change settings like auto-computation of stack frames and max locals/stack press CTRL + O.

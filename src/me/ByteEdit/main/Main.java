@@ -78,6 +78,7 @@ public class Main extends JFrame {
 	public static String currentNodeName;
 	public static RSyntaxTextArea textArea;
 	public static SearchBox searchBox;
+	public static TypeOpenBox typeOpenBox;
 	public static OptionBox optionBox;
 	public static JTree tree;
 	
@@ -149,6 +150,7 @@ public class Main extends JFrame {
 	public Main() {
 		INSTANCE = this;
 		searchBox = new SearchBox();
+		typeOpenBox = new TypeOpenBox();
 		optionBox = new OptionBox();
 		setTitle("ByteEdit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -211,6 +213,16 @@ public class Main extends JFrame {
 				searchBox.txtFind.select(0, searchBox.txtFind.getText().length());
 			}
 		}, ctrlF, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		KeyStroke ctrlT = KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK);
+		textArea.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				typeOpenBox.setVisible(true);
+				typeOpenBox.txtSearch.requestFocusInWindow();
+				typeOpenBox.txtSearch.select(0, typeOpenBox.txtSearch.getText().length());
+			}
+		}, ctrlT, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
 		textArea.registerKeyboardAction(new ActionListener() {
 			
@@ -299,22 +311,7 @@ public class Main extends JFrame {
 						}
 						s += (s.isEmpty() || s.replace("/", "").isEmpty() ? "" : "/") + (path.toString().isEmpty() ? "/" : path.toString());
 					}
-					if (s.endsWith(".class")) {
-						currentNodeName = s;
-						ClassNode classNode = classNodes.get(s);
-						String dis = Disassembler.disassemble(classNode);
-						String substr = s.substring(0, s.length() - 6);
-						for (String key : Main.classNodes.keySet()) {
-							if (key.contains("$")) {
-								String[] split = key.split("\\$");
-								if (split[0].equals(substr)) {
-									dis += "\n" + Disassembler.disassemble(classNodes.get(key));
-								}
-							}
-						}
-						textArea.setText(dis);
-						textArea.setCaretPosition(0);
-					}
+					selectFile(s);
 				}
 			}
 		});
@@ -370,6 +367,25 @@ public class Main extends JFrame {
 			@Override
 			public void dragExit(DropTargetEvent dte) {}
 		});
+	}
+	
+	public static void selectFile(String s) {
+		if (s.endsWith(".class")) {
+			currentNodeName = s;
+			ClassNode classNode = classNodes.get(s);
+			String dis = Disassembler.disassemble(classNode);
+			String substr = s.substring(0, s.length() - 6);
+			for (String key : Main.classNodes.keySet()) {
+				if (key.contains("$")) {
+					String[] split = key.split("\\$");
+					if (split[0].equals(substr)) {
+						dis += "\n" + Disassembler.disassemble(classNodes.get(key));
+					}
+				}
+			}
+			textArea.setText(dis);
+			textArea.setCaretPosition(0);
+		}
 	}
 	
 	public void save() {

@@ -100,6 +100,8 @@ public class Disassembler {
 			}
 			s += "// #Class v:" + classNode.version + "\n";
 			s += "// #Signature: " + classNode.signature + "\n";
+			s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null" : (classNode.outerMethod + " " + classNode.outerMethodDesc))
+					+ "\n";
 			s += "// #OuterClass: " + classNode.outerClass + "\n";
 			s += "// #InnerClasses:\n";
 			if (classNode.innerClasses != null) {

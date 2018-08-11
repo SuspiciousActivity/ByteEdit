@@ -63,6 +63,12 @@ public class Assembler {
 					clazz.signature = s.substring(15).equals("null") ? null : s.substring(15);
 				} else if (s.startsWith("// #OuterClass: ")) {
 					clazz.outerClass = s.substring(16).equals("null") ? null : s.substring(16);
+				} else if (s.startsWith("// #OuterMethod: ")) {
+					String[] split = s.split(" ");
+					if (split.length > 3) {
+						clazz.outerMethod = split[2];
+						clazz.outerMethodDesc = split[3];
+					}
 				} else if (s.equals("// #InnerClasses:")) {
 					clazz.innerClasses = new ArrayList<>();
 				} else {
