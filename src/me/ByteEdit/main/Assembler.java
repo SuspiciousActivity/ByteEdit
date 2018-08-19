@@ -444,15 +444,22 @@ public class Assembler {
 					String split3[] = value.substring(2, value.length() - 2).split(", ");
 					List<Object> list = new ArrayList<>();
 					for (String rofl : split3) {
-						if (!rofl.startsWith("(")) {
+						if (rofl.startsWith("\"")) {
+							int index = rofl.lastIndexOf("\"");
+							list.add(rofl.substring(1, index));
+						} else if (!rofl.startsWith("(")) {
 							int index = rofl.indexOf(";");
 							list.add(new String[] { rofl.substring(0, index) + ";", rofl.substring(index).substring(2) });
 						} else { // anderer typ mit casten
 							list.add(ClassUtil.getCastedValue(rofl.split(" ")[1], rofl.split("\\) ")[0].substring(1)));
 						}
 					}
+					node.values.add(list);
 				} else {
-					if (!value.startsWith("(")) {
+					if (value.startsWith("\"")) {
+						int index = value.lastIndexOf("\"");
+						node.values.add(value.substring(1, index));
+					} else if (!value.startsWith("(")) {
 						int index = value.indexOf(";");
 						node.values.add(new String[] { value.substring(0, index) + ";", value.substring(index).substring(2) });
 					} else { // anderer typ mit casten

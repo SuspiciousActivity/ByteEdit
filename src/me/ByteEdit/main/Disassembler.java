@@ -71,15 +71,19 @@ public class Disassembler {
 									List list = (List) o;
 									s += "{ ";
 									for (Object obj : list) {
-										String[] arr = (String[]) obj;
-										boolean w8ing = false;
-										for (String rofl : arr) {
-											if (!w8ing) {
-												s += rofl + "/";
-												w8ing = true;
-											} else {
-												s += rofl;
+										if (obj instanceof String[]) {
+											String[] arr = (String[]) obj;
+											boolean w8ing = false;
+											for (String rofl : arr) {
+												if (!w8ing) {
+													s += rofl + "/";
+													w8ing = true;
+												} else {
+													s += rofl;
+												}
 											}
+										} else {
+											s += "\"" + obj + "\"";
 										}
 										s += ", ";
 									}
@@ -155,15 +159,19 @@ public class Disassembler {
 										List list = (List) o;
 										s += "{ ";
 										for (Object obj : list) {
-											String[] arr = (String[]) obj;
-											boolean w8ing = false;
-											for (String rofl : arr) {
-												if (!w8ing) {
-													s += rofl + "/";
-													w8ing = true;
-												} else {
-													s += rofl;
+											if (obj instanceof String[]) {
+												String[] arr = (String[]) obj;
+												boolean w8ing = false;
+												for (String rofl : arr) {
+													if (!w8ing) {
+														s += rofl + "/";
+														w8ing = true;
+													} else {
+														s += rofl;
+													}
 												}
+											} else {
+												s += "\"" + obj + "\"";
 											}
 											s += ", ";
 										}
@@ -225,15 +233,19 @@ public class Disassembler {
 											List list = (List) o;
 											s += "{ ";
 											for (Object obj : list) {
-												String[] arr = (String[]) obj;
-												boolean w8ing = false;
-												for (String rofl : arr) {
-													if (!w8ing) {
-														s += rofl + "/";
-														w8ing = true;
-													} else {
-														s += rofl;
+												if (obj instanceof String[]) {
+													String[] arr = (String[]) obj;
+													boolean w8ing = false;
+													for (String rofl : arr) {
+														if (!w8ing) {
+															s += rofl + "/";
+															w8ing = true;
+														} else {
+															s += rofl;
+														}
 													}
+												} else {
+													s += "\"" + obj + "\"";
 												}
 												s += ", ";
 											}
