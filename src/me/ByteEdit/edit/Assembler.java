@@ -1,6 +1,5 @@
-package me.ByteEdit.main;
+package me.ByteEdit.edit;
 
-import java.awt.Color;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -42,10 +41,14 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import me.ByteEdit.main.Main;
+import me.ByteEdit.utils.ClassUtil;
+import me.ByteEdit.utils.CustomBufferedReader;
+
 public class Assembler {
 	
 	public static ClassNode assemble(String input) {
-		Main.textArea.removeAllLineHighlights();
+		Main.txtByteEditView.removeAllLineHighlights();
 		CustomBufferedReader read = null;
 		try {
 			ClassNode clazz = new ClassNode();
@@ -80,15 +83,15 @@ public class Assembler {
 			{
 				s = s.substring(0, s.length() - 2);
 				if (s.contains(" implements ")) {
-					String interfaces = s.substring(s.indexOf(" implements ") + 12);
+					String interfaces = s.substring(s.lastIndexOf(" implements ") + 12);
 					clazz.interfaces = new ArrayList<>();
 					for (String interf : interfaces.split(", ")) {
 						clazz.interfaces.add(interf);
 					}
-					s = s.substring(0, s.indexOf(" implements "));
+					s = s.substring(0, s.lastIndexOf(" implements "));
 				}
-				clazz.superName = s.substring(s.indexOf(" extends ") + 9);
-				s = s.substring(0, s.indexOf(" extends "));
+				clazz.superName = s.substring(s.lastIndexOf(" extends ") + 9);
+				s = s.substring(0, s.lastIndexOf(" extends "));
 				String[] split = s.split(" ");
 				clazz.name = split[split.length - 1];
 				clazz.access = ClassUtil.ACC_SUPER;
@@ -319,11 +322,11 @@ public class Assembler {
 					} else if (!s.startsWith("\t")) {
 						s = s.substring(0, s.length() - 2);
 						if (s.contains(" throws ")) {
-							String exceptions = s.substring(s.indexOf(" throws ") + 8);
+							String exceptions = s.substring(s.lastIndexOf(" throws ") + 8);
 							for (String excp : exceptions.split(", ")) {
 								node.exceptions.add(excp);
 							}
-							s = s.substring(0, s.indexOf(" throws "));
+							s = s.substring(0, s.lastIndexOf(" throws "));
 						}
 						String[] split = s.split(" ");
 						node.desc = split[split.length - 1];
@@ -410,7 +413,8 @@ public class Assembler {
 		} catch (Throwable e) {
 			System.err.println("Error at line: " + read.currentLine);
 			try {
-				Main.textArea.addLineHighlight(read.currentLine, Color.RED.darker());
+				Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(read.currentLine));
+				Main.showError(e.getMessage());
 			} catch (BadLocationException e1) {
 				System.err.println("Can't show line!");
 			}

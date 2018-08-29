@@ -1,4 +1,4 @@
-package me.ByteEdit.main;
+package me.ByteEdit.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

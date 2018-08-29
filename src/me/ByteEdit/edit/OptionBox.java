@@ -1,4 +1,4 @@
-package me.ByteEdit.main;
+package me.ByteEdit.edit;
 
 import java.awt.EventQueue;
 import java.awt.Toolkit;

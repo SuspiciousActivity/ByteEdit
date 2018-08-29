@@ -1,4 +1,4 @@
-package me.ByteEdit.main;
+package me.ByteEdit.edit;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -16,6 +16,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+
+import me.ByteEdit.main.Main;
 
 public class SearchBox extends JFrame {
 	
@@ -106,20 +108,20 @@ public class SearchBox extends JFrame {
 	}
 	
 	public void find() {
-		int startPos = Main.textArea.getCaretPosition();
+		int startPos = Main.txtByteEditView.getCaretPosition();
 		String toFind = txtFind.getText();
-		String txt = chckbxCaseSensitive.isSelected() ? Main.textArea.getText().substring(startPos)
-				: Main.textArea.getText().substring(startPos).toLowerCase();
+		String txt = chckbxCaseSensitive.isSelected() ? Main.txtByteEditView.getText().substring(startPos)
+				: Main.txtByteEditView.getText().substring(startPos).toLowerCase();
 		int index = txt.indexOf(chckbxCaseSensitive.isSelected() ? toFind : toFind.toLowerCase());
 		if (index == -1) {
-			txt = chckbxCaseSensitive.isSelected() ? Main.textArea.getText() : Main.textArea.getText().toLowerCase();
+			txt = chckbxCaseSensitive.isSelected() ? Main.txtByteEditView.getText() : Main.txtByteEditView.getText().toLowerCase();
 			index = txt.indexOf(chckbxCaseSensitive.isSelected() ? toFind : toFind.toLowerCase());
 			startPos = 0;
 			if (index == -1) {
 				return;
 			}
 		}
-		Main.textArea.select(startPos + index, startPos + index + toFind.length());
+		Main.txtByteEditView.select(startPos + index, startPos + index + toFind.length());
 	}
 	
 	public void replaceFind() {
@@ -128,22 +130,22 @@ public class SearchBox extends JFrame {
 	}
 	
 	public void replace() {
-		String txt = Main.textArea.getText();
-		int startPos = Main.textArea.getSelectionStart();
-		Main.textArea.replaceSelection(txtReplace.getText());
-		Main.textArea.select(startPos, startPos + txtReplace.getText().length());
+		String txt = Main.txtByteEditView.getText();
+		int startPos = Main.txtByteEditView.getSelectionStart();
+		Main.txtByteEditView.replaceSelection(txtReplace.getText());
+		Main.txtByteEditView.select(startPos, startPos + txtReplace.getText().length());
 	}
 	
 	public void replaceAll() {
 		String toFind = txtFind.getText();
 		String toReplace = txtReplace.getText();
-		String txt = Main.textArea.getText();
-		int prev = Main.textArea.getCaretPosition();
+		String txt = Main.txtByteEditView.getText();
+		int prev = Main.txtByteEditView.getCaretPosition();
 		if (chckbxCaseSensitive.isSelected()) {
-			Main.textArea.replaceRange(txt.replace(toFind, toReplace), 0, txt.length());
+			Main.txtByteEditView.replaceRange(txt.replace(toFind, toReplace), 0, txt.length());
 		} else {
-			Main.textArea.replaceRange(txt.replaceAll("(?i)" + Pattern.quote(toFind), toReplace), 0, txt.length());
+			Main.txtByteEditView.replaceRange(txt.replaceAll("(?i)" + Pattern.quote(toFind), toReplace), 0, txt.length());
 		}
-		Main.textArea.setCaretPosition(prev);
+		Main.txtByteEditView.setCaretPosition(prev);
 	}
 }

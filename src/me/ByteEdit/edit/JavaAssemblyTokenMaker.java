@@ -5,7 +5,7 @@
  * This library is distributed under a modified BSD license. See the included
  * RSyntaxTextArea.License.txt file for details.
  */
-package me.ByteEdit.main;
+package me.ByteEdit.edit;
 
 import java.io.IOException;
 import java.io.Reader;

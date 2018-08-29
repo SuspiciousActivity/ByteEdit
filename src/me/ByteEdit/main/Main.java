@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -46,6 +47,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -67,6 +69,15 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import me.ByteEdit.edit.Assembler;
+import me.ByteEdit.edit.Disassembler;
+import me.ByteEdit.edit.Disassembler.DisassembleTuple;
+import me.ByteEdit.edit.OptionBox;
+import me.ByteEdit.edit.SearchBox;
+import me.ByteEdit.edit.TypeOpenBox;
+import me.ByteEdit.utils.ClassUtil;
+import me.ByteEdit.utils.OpcodesReverse;
+
 public class Main extends JFrame {
 	
 	public static Main INSTANCE;
@@ -76,11 +87,13 @@ public class Main extends JFrame {
 	public static HashMap<String, byte[]> OTHER_FILES = new HashMap<>();
 	public static HashMap<String, ClassNode> classNodes = new HashMap<>();
 	public static String currentNodeName;
-	public static RSyntaxTextArea textArea;
+	public static RSyntaxTextArea txtByteEditView;
 	public static SearchBox searchBox;
 	public static TypeOpenBox typeOpenBox;
 	public static OptionBox optionBox;
 	public static JTree tree;
+	public static RTextScrollPane scrollPane_ByteEdit;
+	public static Theme theme;
 	
 	/**
 	 * Launch the application.
@@ -172,90 +185,12 @@ public class Main extends JFrame {
 		contentPane.add(splitPane);
 		JScrollPane scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
-		textArea = new RSyntaxTextArea();
 		CompletionProvider provider = createCompletionProvider();
 		AutoCompletion ac = new AutoCompletion(provider);
 		ac.setShowDescWindow(true);
-		ac.install(textArea);
 		FoldParserManager.get().addFoldParserMapping(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE, new CurlyFoldParser(false, true));
-		textArea.setCodeFoldingEnabled(true);
-		textArea.addKeyListener(new KeyAdapter() {
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (e.getKeyCode() == 116 && currentNodeName != null) {
-					try {
-						ClassNode classNode = classNodes.get(currentNodeName);
-						int prev = textArea.getCaretPosition();
-						String dis = Disassembler.disassemble(classNode);
-						String substr = currentNodeName.substring(0, currentNodeName.length() - 6);
-						for (String key : Main.classNodes.keySet()) {
-							if (key.contains("$")) {
-								String[] split = key.split("\\$");
-								if (split[0].equals(substr)) {
-									dis += "\n" + Disassembler.disassemble(classNodes.get(key));
-								}
-							}
-						}
-						textArea.setText(dis);
-						textArea.setCaretPosition(prev);
-					} catch (Exception e2) {}
-				}
-			}
-		});
-		KeyStroke ctrlF = KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK);
-		textArea.registerKeyboardAction(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				searchBox.setVisible(true);
-				searchBox.txtFind.requestFocusInWindow();
-				searchBox.txtFind.select(0, searchBox.txtFind.getText().length());
-			}
-		}, ctrlF, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		KeyStroke ctrlT = KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK);
-		textArea.registerKeyboardAction(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				typeOpenBox.setVisible(true);
-				typeOpenBox.txtSearch.requestFocusInWindow();
-				typeOpenBox.txtSearch.select(0, typeOpenBox.txtSearch.getText().length());
-			}
-		}, ctrlT, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
-		textArea.registerKeyboardAction(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String txt = textArea.getText();
-				for (String s : txt.split("\\/\\/ #Annotations\n")) {
-					if (s.isEmpty())
-						continue;
-					ClassNode node = Assembler.assemble(s);
-					if (node == null) {
-						continue;
-					}
-					if (classNodes.replace(node.name + ".class", node) == null) {
-						classNodes.put(node.name + ".class", node);
-					}
-				}
-			}
-		}, ctrlS, JComponent.WHEN_FOCUSED);
-		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
-		textArea.registerKeyboardAction(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				optionBox.setVisible(true);
-			}
-		}, ctrlO, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		textArea.setEditable(true);
-		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
-		textArea.setCodeFoldingEnabled(true);
 		try {
 			Theme theme = Theme.load(getClass().getClassLoader().getResourceAsStream("org/fife/eclipse.xml"));
-			theme.apply(textArea);
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
@@ -280,13 +215,6 @@ public class Main extends JFrame {
 				}
 			}
 		});
-		tree.registerKeyboardAction(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				save();
-			}
-		}, ctrlS, JComponent.WHEN_FOCUSED);
 		tree.setFont(new Font("Verdana", Font.PLAIN, 11));
 		tree.setBackground(Color.LIGHT_GRAY);
 		if (tree.getCellRenderer() instanceof DefaultTreeCellRenderer) {
@@ -315,13 +243,6 @@ public class Main extends JFrame {
 				}
 			}
 		});
-		RTextScrollPane scrollPane_TextArea = new RTextScrollPane();
-		textArea.setBackground(Color.LIGHT_GRAY);
-		scrollPane_TextArea.setViewportView(textArea);
-		scrollPane_TextArea.setLineNumbersEnabled(true);
-		scrollPane_TextArea.setFoldIndicatorEnabled(true);
-		scrollPane_TextArea.getGutter().setBackground(Color.LIGHT_GRAY);
-		splitPane.setRightComponent(scrollPane_TextArea);
 		new DropTarget(tree, new DropTargetListener() {
 			
 			@Override
@@ -367,25 +288,194 @@ public class Main extends JFrame {
 			@Override
 			public void dragExit(DropTargetEvent dte) {}
 		});
+		
+		txtByteEditView = new RSyntaxTextArea();
+		ac.install(txtByteEditView);
+		txtByteEditView.setCodeFoldingEnabled(true);
+		txtByteEditView.addKeyListener(new KeyAdapter() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == 116 && currentNodeName != null) {
+					try {
+						ClassNode classNode = classNodes.get(currentNodeName);
+						int prev = txtByteEditView.getCaretPosition();
+						String dis = Disassembler.disassemble(classNode);
+						String substr = currentNodeName.substring(0, currentNodeName.length() - 6);
+						for (String key : Main.classNodes.keySet()) {
+							if (key.contains("$")) {
+								String[] split = key.split("\\$");
+								if (split[0].equals(substr)) {
+									dis += "\n" + Disassembler.disassemble(classNodes.get(key));
+								}
+							}
+						}
+						txtByteEditView.setText(dis);
+						txtByteEditView.setCaretPosition(prev);
+					} catch (Exception e2) {}
+				}
+			}
+		});
+		KeyStroke ctrlF = KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlT = KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlG = KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+		// global
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				searchBox.setVisible(true);
+				searchBox.txtFind.requestFocusInWindow();
+				searchBox.txtFind.select(0, searchBox.txtFind.getText().length());
+			}
+		}, ctrlF, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				typeOpenBox.setVisible(true);
+				typeOpenBox.txtSearch.requestFocusInWindow();
+				typeOpenBox.txtSearch.select(0, typeOpenBox.txtSearch.getText().length());
+			}
+		}, ctrlT, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				optionBox.setVisible(true);
+			}
+		}, ctrlO, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		// specific
+		tree.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				save();
+			}
+		}, ctrlS, JComponent.WHEN_FOCUSED);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveCurrentClassNode();
+			}
+		}, ctrlS, JComponent.WHEN_FOCUSED);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					goToSelected();
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}, ctrlG, JComponent.WHEN_FOCUSED);
+		txtByteEditView.setEditable(true);
+		txtByteEditView.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
+		txtByteEditView.setCodeFoldingEnabled(true);
+		scrollPane_ByteEdit = new RTextScrollPane();
+		try {
+			theme = Theme.load(getClass().getClassLoader().getResourceAsStream("org/fife/eclipse.xml"));
+			theme.apply(txtByteEditView);
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		
+		splitPane.setRightComponent(scrollPane_ByteEdit);
+		txtByteEditView.setBackground(Color.LIGHT_GRAY);
+		scrollPane_ByteEdit.setViewportView(txtByteEditView);
+		scrollPane_ByteEdit.setLineNumbersEnabled(true);
+		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
+		scrollPane_ByteEdit.getGutter().setBackground(Color.LIGHT_GRAY);
 	}
 	
-	public static void selectFile(String s) {
+	private final Pattern jumpableInstructionPattern = Pattern.compile("^\t\t(?!//|\t+).+ .+");
+	
+	public void goToSelected() throws BadLocationException {
+		int lineStart = txtByteEditView.getLineStartOffsetOfCurrentLine();
+		int lineEnd = txtByteEditView.getLineEndOffsetOfCurrentLine() - 1;
+		String line = txtByteEditView.getText(lineStart, lineEnd - lineStart);
+		if (!jumpableInstructionPattern.matcher(line).matches()) {
+			return;
+		}
+		line = line.substring(2);
+		if (line.startsWith("invoke")) {
+			String[] split = line.split(" ");
+			String desc = split[1];
+			String className = split[2];
+			String[] nameSplit = className.split("/");
+			String methodName = nameSplit[nameSplit.length - 1];
+			className = className.substring(0, className.length() - methodName.length() - 1);
+			ClassNode classNode = classNodes.get(className + ".class");
+			if (classNode == null) {
+				return;
+			}
+			for (MethodNode mn : classNode.methods) {
+				if (mn.name.equals(methodName) && mn.desc.equals(desc)) {
+					while (classNode.outerClass != null) {
+						classNode = classNodes.get(classNode.outerClass + ".class");
+					}
+					int lineFound = selectFileWithSearch(classNode.name + ".class", mn);
+					if (lineFound != -1) {
+						Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
+					}
+					break;
+				}
+			}
+		}
+	}
+	
+	private void saveCurrentClassNode() {
+		String txt = txtByteEditView.getText();
+		for (String s : txt.split("\\/\\/ #Annotations\n")) {
+			if (s.isEmpty())
+				continue;
+			ClassNode node = Assembler.assemble(s);
+			if (node == null) {
+				continue;
+			}
+			if (classNodes.replace(node.name + ".class", node) == null) {
+				classNodes.put(node.name + ".class", node);
+			}
+		}
+	}
+	
+	public static int selectFileWithSearch(String s, MethodNode methodToFind) {
 		if (s.endsWith(".class")) {
 			currentNodeName = s;
+			int lineFound = -1;
 			ClassNode classNode = classNodes.get(s);
-			String dis = Disassembler.disassemble(classNode);
+			String dis = "";
+			DisassembleTuple tuple = Disassembler.disassemble(classNode, methodToFind);
+			if (tuple.getLine() != -1) {
+				lineFound = dis.split("\\n").length + tuple.getLine() - 1;
+			}
+			dis += tuple.getDisassembly();
 			String substr = s.substring(0, s.length() - 6);
 			for (String key : Main.classNodes.keySet()) {
 				if (key.contains("$")) {
 					String[] split = key.split("\\$");
 					if (split[0].equals(substr)) {
-						dis += "\n" + Disassembler.disassemble(classNodes.get(key));
+						tuple = Disassembler.disassemble(classNodes.get(key), methodToFind);
+						if (tuple.getLine() != -1) {
+							lineFound = dis.split("\\n").length + tuple.getLine() + 1;
+						}
+						dis += "\n" + tuple.getDisassembly();
 					}
 				}
 			}
-			textArea.setText(dis);
-			textArea.setCaretPosition(0);
+			txtByteEditView.setText(dis);
+			txtByteEditView.setCaretPosition(0);
+			return lineFound;
 		}
+		return -1;
+	}
+	
+	public static int selectFile(String s) {
+		return selectFileWithSearch(s, null);
 	}
 	
 	public void save() {
@@ -474,7 +564,7 @@ public class Main extends JFrame {
 		}
 	}
 	
-	public void showError(Throwable e) {
+	public static void showError(Throwable e) {
 		String s = e.toString() + "\n";
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		for (StackTraceElement ste : stackTrace) {
@@ -482,7 +572,10 @@ public class Main extends JFrame {
 				break;
 			s += "\tat " + ste + "\n";
 		}
-		JOptionPane.showMessageDialog(this, s, "Error!", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public static void showError(String s) {
+		JOptionPane.showMessageDialog(INSTANCE, s, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	class ArchiveTreeModel extends DefaultTreeModel {

@@ -1,4 +1,4 @@
-package me.ByteEdit.main;
+package me.ByteEdit.edit;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -17,6 +17,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import me.ByteEdit.main.Main;
 
 public class TypeOpenBox extends JFrame {
 	

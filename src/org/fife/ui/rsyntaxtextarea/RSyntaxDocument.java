@@ -22,7 +22,7 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
 import org.fife.ui.rtextarea.RDocument;
 import org.fife.util.DynamicIntArray;
 
-import me.ByteEdit.main.JavaAssemblyTokenMaker;
+import me.ByteEdit.edit.JavaAssemblyTokenMaker;
 
 /**
  * The document used by {@link org.fife.ui.rsyntaxtextarea.RSyntaxTextArea}.

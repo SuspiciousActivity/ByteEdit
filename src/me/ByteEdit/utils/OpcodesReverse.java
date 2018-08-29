@@ -1,4 +1,4 @@
-package me.ByteEdit.main;
+package me.ByteEdit.utils;
 
 public class OpcodesReverse {
 	
