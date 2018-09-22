@@ -224,7 +224,7 @@ public class Disassembler {
 						s += "\n";
 					}
 				}
-				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access) + fn.desc + " " + fn.name;
+				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + fn.desc + " " + fn.name;
 				if (fn.value != null) {
 					s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc);
 				}
@@ -535,6 +535,7 @@ public class Disassembler {
 				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min + "\n\t\t\tmax: " + node.max
 						+ "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel()) + "\n\t\t\tlabels: [\n";
 				for (LabelNode l : node.labels) {
+					// System.out.println(l + ", " + l.getLabel());
 					s += "\t\t\t\t" + labels.get(l.getLabel()) + "\n";
 				}
 				s += "\t\t\t]\n\t\t]\n";

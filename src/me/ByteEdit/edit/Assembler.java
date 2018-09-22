@@ -2,12 +2,14 @@ package me.ByteEdit.edit;
 
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 import javax.swing.text.BadLocationException;
 
@@ -44,6 +46,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import me.ByteEdit.main.Main;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.CustomBufferedReader;
+import me.ByteEdit.utils.SwitchIntContainer;
 
 public class Assembler {
 	
@@ -185,7 +188,7 @@ public class Assembler {
 								if (cons.contains("bridge")) {
 									access ^= ClassUtil.ACC_BRIDGE;
 								}
-								if (cons.contains("varargs")) {
+								if (cons.contains("transient")) {
 									access ^= ClassUtil.ACC_VARARGS;
 								}
 								if (cons.contains("native")) {
@@ -1168,12 +1171,13 @@ public class Assembler {
 				case "tableswitch": {
 					String str = s.substring(14, s.length() - 2).replace("\t", "");
 					String split2[] = str.split("\n");
-					LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
+					LinkedHashMap<SwitchIntContainer, LabelNode> labelMap = new LinkedHashMap<>();
+					HashMap<BigInteger, LabelNode> labelIDs = new HashMap<>();
 					for (int i = 4; i < split2.length - 1; i++) {
 						if (split2[i].equals("null")) {
-							labelMap.put(-1 - labelMap.size(), null);
+							labelMap.put(new SwitchIntContainer(-1 - labelMap.size()), null);
 						} else {
-							labelMap.put(Integer.parseInt(split2[i]), null);
+							labelMap.put(new SwitchIntContainer(Integer.parseInt(split2[i])), null);
 						}
 					}
 					LabelNode dflt = null;
@@ -1182,29 +1186,38 @@ public class Assembler {
 						for (Entry<Label, Integer> entry : labels.entrySet()) {
 							if (entry.getValue() == dfltLabelNr) {
 								dflt = new LabelNode(entry.getKey());
+								labelIDs.put(BigInteger.valueOf(dfltLabelNr), dflt);
 							}
-							if (labelMap.containsKey(entry.getValue())) {
-								labelMap.replace(entry.getValue(), new LabelNode(entry.getKey()));
-							}
+							labelMap.replaceAll(new BiFunction<SwitchIntContainer, LabelNode, LabelNode>() {
+								
+								@Override
+								public LabelNode apply(SwitchIntContainer t, LabelNode u) {
+									if (entry.getValue().intValue() == t.getId()) {
+										return new LabelNode(entry.getKey());
+									}
+									return u;
+								}
+								
+							});
 						}
 						if (dflt == null) {
 							Label l = new Label();
 							labels.put(l, dfltLabelNr);
 							dflt = new LabelNode(l);
+							labelIDs.put(BigInteger.valueOf(dfltLabelNr), dflt);
 						}
 					} else {
 						dflt = new LabelNode(new Label());
 					}
 					LabelNode[] arr = new LabelNode[labelMap.size()];
 					int counter = 0;
-					for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
+					for (Entry<SwitchIntContainer, LabelNode> entry : labelMap.entrySet()) {
 						LabelNode ln;
-						if (entry.getValue() == null) {
+						if (((ln = labelIDs.get(BigInteger.valueOf(entry.getKey().getId()))) == null)) {
 							Label l = new Label();
-							labels.put(l, entry.getKey());
+							labels.put(l, entry.getKey().getId());
 							ln = new LabelNode(l);
-						} else {
-							ln = entry.getValue();
+							labelIDs.put(BigInteger.valueOf(entry.getKey().getId()), ln);
 						}
 						arr[counter] = ln;
 						counter++;
@@ -1216,7 +1229,8 @@ public class Assembler {
 					String str = s.substring(15, s.length() - 2).replace("\t", "");
 					String split2[] = str.split("\n");
 					ArrayList<Integer> keys = new ArrayList<>();
-					LinkedHashMap<Integer, LabelNode> labelMap = new LinkedHashMap<>();
+					LinkedHashMap<SwitchIntContainer, LabelNode> labelMap = new LinkedHashMap<>();
+					HashMap<BigInteger, LabelNode> labelIDs = new HashMap<>();
 					int stage = 0;
 					for (int i = 2; i < split2.length; i++) {
 						String spl = split2[i];
@@ -1228,9 +1242,9 @@ public class Assembler {
 							keys.add(Integer.parseInt(spl));
 						} else if (stage == 2) {
 							if (spl.equals("null")) {
-								labelMap.put(-1 - labelMap.size(), null);
+								labelMap.put(new SwitchIntContainer(-1 - labelMap.size()), null);
 							} else {
-								labelMap.put(Integer.parseInt(spl), null);
+								labelMap.put(new SwitchIntContainer(Integer.parseInt(spl)), null);
 							}
 						}
 					}
@@ -1239,26 +1253,35 @@ public class Assembler {
 					for (Entry<Label, Integer> entry : labels.entrySet()) {
 						if (entry.getValue() == labelNr) {
 							dflt = new LabelNode(entry.getKey());
+							labelIDs.put(BigInteger.valueOf(labelNr), dflt);
 						}
-						if (labelMap.containsKey(entry.getValue())) {
-							labelMap.replace(entry.getValue(), new LabelNode(entry.getKey()));
-						}
+						labelMap.replaceAll(new BiFunction<SwitchIntContainer, LabelNode, LabelNode>() {
+							
+							@Override
+							public LabelNode apply(SwitchIntContainer t, LabelNode u) {
+								if (entry.getValue().intValue() == t.getId()) {
+									return new LabelNode(entry.getKey());
+								}
+								return u;
+							}
+							
+						});
 					}
 					if (dflt == null) {
 						Label l = new Label();
 						labels.put(l, labelNr);
 						dflt = new LabelNode(l);
+						labelIDs.put(BigInteger.valueOf(labelNr), dflt);
 					}
 					LabelNode[] arr = new LabelNode[labelMap.size()];
 					int counter = 0;
-					for (Entry<Integer, LabelNode> entry : labelMap.entrySet()) {
+					for (Entry<SwitchIntContainer, LabelNode> entry : labelMap.entrySet()) {
 						LabelNode ln;
-						if (entry.getValue() == null) {
+						if (((ln = labelIDs.get(BigInteger.valueOf(entry.getKey().getId()))) == null)) {
 							Label l = new Label();
-							labels.put(l, entry.getKey());
+							labels.put(l, entry.getKey().getId());
 							ln = new LabelNode(l);
-						} else {
-							ln = entry.getValue();
+							labelIDs.put(BigInteger.valueOf(entry.getKey().getId()), ln);
 						}
 						arr[counter] = ln;
 						counter++;

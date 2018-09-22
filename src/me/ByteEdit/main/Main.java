@@ -478,8 +478,10 @@ public class Main extends JFrame {
 		return selectFileWithSearch(s, null);
 	}
 	
+	public static File saveFolder = null;
+	
 	public void save() {
-		final JFileChooser fileChooser = new JFileChooser() {
+		final JFileChooser fileChooser = new JFileChooser(saveFolder) {
 			
 			@Override
 			protected JDialog createDialog(final Component parent) throws HeadlessException {
@@ -495,6 +497,7 @@ public class Main extends JFrame {
 		final int action = fileChooser.showSaveDialog(Main.this);
 		if (action == 0) {
 			final File file = fileChooser.getSelectedFile();
+			saveFolder = file.getParentFile();
 			if (file.exists()) {
 				int dialogResult = JOptionPane.showConfirmDialog(null, "This file already exists! Overwrite it?", "Warning",
 						JOptionPane.YES_NO_OPTION);
