@@ -37,6 +37,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
+import me.ByteEdit.utils.UnicodeUtils;
 
 public class Disassembler {
 	
@@ -79,7 +80,7 @@ public class Disassembler {
 			s += "// #Annotations\n";
 			if (classNode.visibleAnnotations != null && !classNode.visibleAnnotations.isEmpty()) {
 				for (AnnotationNode annotationNode : classNode.visibleAnnotations) {
-					s += "@" + annotationNode.desc;
+					s += "@" + UnicodeUtils.escape(annotationNode.desc);
 					if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
 						s += " (";
 						boolean valBefore = true;
@@ -94,10 +95,10 @@ public class Disassembler {
 									boolean w8ing = false;
 									for (String rofl : arr) {
 										if (!w8ing) {
-											s += rofl + "/";
+											s += UnicodeUtils.escape(rofl) + "/";
 											w8ing = true;
 										} else {
-											s += rofl + "]";
+											s += UnicodeUtils.escape(rofl) + "]";
 										}
 									}
 									s += ", ";
@@ -110,10 +111,10 @@ public class Disassembler {
 											boolean w8ing = false;
 											for (String rofl : arr) {
 												if (!w8ing) {
-													s += rofl + "/";
+													s += UnicodeUtils.escape(rofl) + "/";
 													w8ing = true;
 												} else {
-													s += rofl;
+													s += UnicodeUtils.escape(rofl);
 												}
 											}
 										} else {
@@ -137,37 +138,39 @@ public class Disassembler {
 				}
 			}
 			s += "// #Class v:" + classNode.version + "\n";
-			s += "// #Signature: " + classNode.signature + "\n";
-			s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null" : (classNode.outerMethod + " " + classNode.outerMethodDesc))
-					+ "\n";
-			s += "// #OuterClass: " + classNode.outerClass + "\n";
+			s += "// #Signature: " + UnicodeUtils.escape(classNode.signature) + "\n";
+			s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null"
+					: (UnicodeUtils.escape(classNode.outerMethod) + " " + UnicodeUtils.escape(classNode.outerMethodDesc))) + "\n";
+			s += "// #OuterClass: " + UnicodeUtils.escape(classNode.outerClass) + "\n";
 			s += "// #InnerClasses:\n";
 			if (classNode.innerClasses != null) {
 				for (InnerClassNode icn : classNode.innerClasses) {
-					s += "// " + icn.name + " " + icn.outerName + " " + icn.innerName + " 0x" + Integer.toHexString(icn.access) + "\n";
+					s += "// " + UnicodeUtils.escape(icn.name) + " " + UnicodeUtils.escape(icn.outerName) + " "
+							+ UnicodeUtils.escape(icn.innerName) + " 0x" + Integer.toHexString(icn.access) + "\n";
 				}
 			}
-			s += ClassUtil.getAccessFlagsClass(classNode.access) + classNode.name + " ";
-			s += "extends " + classNode.superName + " ";
+			s += ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escape(classNode.name) + " ";
+			s += "extends " + UnicodeUtils.escape(classNode.superName) + " ";
 			if (classNode.interfaces != null && !classNode.interfaces.isEmpty()) {
 				String interfaceStr = "";
 				for (String interfc : classNode.interfaces) {
 					if (interfaceStr.isEmpty()) {
-						interfaceStr += interfc;
+						interfaceStr += UnicodeUtils.escape(interfc);
 					} else {
-						interfaceStr += ", " + interfc;
+						interfaceStr += ", " + UnicodeUtils.escape(interfc);
 					}
 				}
 				if (!interfaceStr.isEmpty())
 					s += "implements " + interfaceStr + " ";
 			}
-			s += "{\n// #SourceFile: " + (classNode.sourceFile == null ? "null" : classNode.sourceFile) + "\n\n// #Fields\n";
+			s += "{\n// #SourceFile: " + (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile))
+					+ "\n\n// #Fields\n";
 			for (FieldNode fn : classNode.fields) {
 				if (fn.signature != null)
-					s += "\t// #Signature: " + fn.signature + "\n";
+					s += "\t// #Signature: " + UnicodeUtils.escape(fn.signature) + "\n";
 				if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty()) {
 					for (AnnotationNode annotationNode : fn.visibleAnnotations) {
-						s += "\t@" + annotationNode.desc;
+						s += "\t@" + UnicodeUtils.escape(annotationNode.desc);
 						if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
 							s += " (";
 							boolean valBefore = true;
@@ -182,10 +185,10 @@ public class Disassembler {
 										boolean w8ing = false;
 										for (String rofl : arr) {
 											if (!w8ing) {
-												s += rofl + "/";
+												s += UnicodeUtils.escape(rofl) + "/";
 												w8ing = true;
 											} else {
-												s += rofl + "]";
+												s += UnicodeUtils.escape(rofl) + "]";
 											}
 										}
 										s += ", ";
@@ -198,10 +201,10 @@ public class Disassembler {
 												boolean w8ing = false;
 												for (String rofl : arr) {
 													if (!w8ing) {
-														s += rofl + "/";
+														s += UnicodeUtils.escape(rofl) + "/";
 														w8ing = true;
 													} else {
-														s += rofl;
+														s += UnicodeUtils.escape(rofl);
 													}
 												}
 											} else {
@@ -224,7 +227,8 @@ public class Disassembler {
 						s += "\n";
 					}
 				}
-				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + fn.desc + " " + fn.name;
+				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + UnicodeUtils.escape(fn.desc) + " "
+						+ UnicodeUtils.escape(fn.name);
 				if (fn.value != null) {
 					s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc);
 				}
@@ -235,7 +239,7 @@ public class Disassembler {
 				try {
 					s += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
 					if (mn.signature != null)
-						s += "\t// #Signature: " + mn.signature + "\n";
+						s += "\t// #Signature: " + UnicodeUtils.escape(mn.signature) + "\n";
 					String[] dis = disassembleMethod(classNode.name, mn);
 					s += dis[2];
 					s += dis[1];
@@ -256,10 +260,10 @@ public class Disassembler {
 											boolean w8ing = false;
 											for (String rofl : arr) {
 												if (!w8ing) {
-													s += rofl + "/";
+													s += UnicodeUtils.escape(rofl) + "/";
 													w8ing = true;
 												} else {
-													s += rofl + "]";
+													s += UnicodeUtils.escape(rofl) + "]";
 												}
 											}
 											s += ", ";
@@ -272,10 +276,10 @@ public class Disassembler {
 													boolean w8ing = false;
 													for (String rofl : arr) {
 														if (!w8ing) {
-															s += rofl + "/";
+															s += UnicodeUtils.escape(rofl) + "/";
 															w8ing = true;
 														} else {
-															s += rofl;
+															s += UnicodeUtils.escape(rofl);
 														}
 													}
 												} else {
@@ -301,14 +305,15 @@ public class Disassembler {
 					if (mn.equals(methodToFind)) {
 						lineFound = s.split("\\n").length;
 					}
-					s += "\t" + ClassUtil.getAccessFlagsFull(mn.access) + mn.name + " " + mn.desc + " ";
+					s += "\t" + ClassUtil.getAccessFlagsFull(mn.access) + UnicodeUtils.escape(mn.name) + " " + UnicodeUtils.escape(mn.desc)
+							+ " ";
 					if (mn.exceptions != null && !mn.exceptions.isEmpty()) {
 						String exceptionStr = "";
 						for (String exc : mn.exceptions) {
 							if (exceptionStr.isEmpty()) {
-								exceptionStr += exc;
+								exceptionStr += UnicodeUtils.escape(exc);
 							} else {
-								exceptionStr += ", " + exc;
+								exceptionStr += ", " + UnicodeUtils.escape(exc);
 							}
 						}
 						if (!exceptionStr.isEmpty())
@@ -343,14 +348,15 @@ public class Disassembler {
 		}
 		if (mn.localVariables != null) {
 			for (LocalVariableNode lvn : mn.localVariables) {
-				localVarTable += "\t// " + lvn.name + ": " + lvn.desc + " i:" + lvn.index + " s:" + labels.get(lvn.start.getLabel()) + " e:"
-						+ labels.get(lvn.end.getLabel()) + " sig:" + lvn.signature + "\n";
+				localVarTable += "\t// " + UnicodeUtils.escape(lvn.name) + ": " + UnicodeUtils.escape(lvn.desc) + " i:" + lvn.index + " s:"
+						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + " sig:"
+						+ UnicodeUtils.escape(lvn.signature) + "\n";
 			}
 		}
 		if (mn.tryCatchBlocks != null) {
 			for (TryCatchBlockNode tcbn : mn.tryCatchBlocks) {
-				tryCatchTable += "\t// " + tcbn.type + " s:" + labels.get(tcbn.start.getLabel()) + " e:" + labels.get(tcbn.end.getLabel())
-						+ " h:" + labels.get(tcbn.handler.getLabel()) + "\n";
+				tryCatchTable += "\t// " + UnicodeUtils.escape(tcbn.type) + " s:" + labels.get(tcbn.start.getLabel()) + " e:"
+						+ labels.get(tcbn.end.getLabel()) + " h:" + labels.get(tcbn.handler.getLabel()) + "\n";
 			}
 		}
 		for (AbstractInsnNode n : mn.instructions.toArray()) {
@@ -363,8 +369,8 @@ public class Disassembler {
 		switch (n.getClass().getSimpleName()) {
 			case "FieldInsnNode": {
 				FieldInsnNode node = (FieldInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + node.desc + " " + node.owner + "/" + node.name
-						+ "\n";
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escape(node.desc) + " "
+						+ UnicodeUtils.escape(node.owner) + "/" + UnicodeUtils.escape(node.name) + "\n";
 			}
 			case "LabelNode": {
 				LabelNode node = (LabelNode) n;
@@ -380,7 +386,7 @@ public class Disassembler {
 							arr.add(null);
 						} else {
 							if (o instanceof String) {
-								arr.add((String) o);
+								arr.add(UnicodeUtils.escape((String) o));
 							} else if (o instanceof LabelNode) {
 								arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 							} else {
@@ -400,7 +406,7 @@ public class Disassembler {
 							arr.add(null);
 						} else {
 							if (o instanceof String) {
-								arr.add((String) o);
+								arr.add(UnicodeUtils.escape((String) o));
 							} else if (o instanceof LabelNode) {
 								arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 							} else {
@@ -421,10 +427,11 @@ public class Disassembler {
 			}
 			case "InvokeDynamicInsnNode": {
 				InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: " + node.name + "\n\t\t\tdesc: "
-						+ node.desc + "\n\t\t\tHandle: [\n\t\t\t\tname: " + node.bsm.getName() + "\n\t\t\t\towner: " + node.bsm.getOwner()
-						+ "\n\t\t\t\tdesc: " + node.bsm.getDesc() + "\n\t\t\t\tisInterface: " + node.bsm.isInterface() + "\n\t\t\t\ttag: "
-						+ node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
+				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: " + UnicodeUtils.escape(node.name)
+						+ "\n\t\t\tdesc: " + UnicodeUtils.escape(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
+						+ UnicodeUtils.escape(node.bsm.getName()) + "\n\t\t\t\towner: " + UnicodeUtils.escape(node.bsm.getOwner())
+						+ "\n\t\t\t\tdesc: " + UnicodeUtils.escape(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: " + node.bsm.isInterface()
+						+ "\n\t\t\t\ttag: " + node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
 				for (Object l : node.bsmArgs) {
 					if (l.getClass().getName().equals("org.objectweb.asm.Type")) {
 						Type type = (Type) l;
@@ -447,9 +454,9 @@ public class Disassembler {
 						s += "\n\t\t\t\t]\n";
 					} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
 						Handle h = (Handle) l;
-						s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: " + h.getName() + "\n\t\t\t\t\towner: " + h.getOwner()
-								+ "\n\t\t\t\t\tdesc: " + h.getDesc() + "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: "
-								+ h.getTag();
+						s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: " + UnicodeUtils.escape(h.getName()) + "\n\t\t\t\t\towner: "
+								+ UnicodeUtils.escape(h.getOwner()) + "\n\t\t\t\t\tdesc: " + UnicodeUtils.escape(h.getDesc())
+								+ "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: " + h.getTag();
 						s += "\n\t\t\t\t]\n";
 					} else {
 						s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
@@ -460,16 +467,17 @@ public class Disassembler {
 			}
 			case "MethodInsnNode": {
 				MethodInsnNode node = (MethodInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + node.desc + " " + node.owner + "/" + node.name
-						+ "\n";
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escape(node.desc) + " "
+						+ UnicodeUtils.escape(node.owner) + "/" + UnicodeUtils.escape(node.name) + "\n";
 			}
 			case "TypeInsnNode": {
 				TypeInsnNode node = (TypeInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.desc + "\n";
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escape(node.desc) + "\n";
 			}
 			case "MultiANewArrayInsnNode": {
 				MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + node.desc + " " + node.dims + "\n";
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escape(node.desc) + " " + node.dims
+						+ "\n";
 			}
 			case "LdcInsnNode": {
 				LdcInsnNode node = (LdcInsnNode) n;
@@ -535,7 +543,6 @@ public class Disassembler {
 				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min + "\n\t\t\tmax: " + node.max
 						+ "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel()) + "\n\t\t\tlabels: [\n";
 				for (LabelNode l : node.labels) {
-					// System.out.println(l + ", " + l.getLabel());
 					s += "\t\t\t\t" + labels.get(l.getLabel()) + "\n";
 				}
 				s += "\t\t\t]\n\t\t]\n";

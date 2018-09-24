@@ -77,6 +77,7 @@ import me.ByteEdit.edit.SearchBox;
 import me.ByteEdit.edit.TypeOpenBox;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
+import me.ByteEdit.utils.UnicodeUtils;
 
 public class Main extends JFrame {
 	
@@ -404,8 +405,8 @@ public class Main extends JFrame {
 		line = line.substring(2);
 		if (line.startsWith("invoke")) {
 			String[] split = line.split(" ");
-			String desc = split[1];
-			String className = split[2];
+			String desc = UnicodeUtils.unescape(split[1]);
+			String className = UnicodeUtils.unescape(split[2]);
 			String[] nameSplit = className.split("/");
 			String methodName = nameSplit[nameSplit.length - 1];
 			className = className.substring(0, className.length() - methodName.length() - 1);
@@ -425,6 +426,14 @@ public class Main extends JFrame {
 					break;
 				}
 			}
+		} else if (line.startsWith("new ")) {
+			String[] split = line.split(" ");
+			String className = UnicodeUtils.unescape(split[1]);
+			ClassNode classNode = classNodes.get(className + ".class");
+			if (classNode == null) {
+				return;
+			}
+			selectFile(className + ".class");
 		}
 	}
 	

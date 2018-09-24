@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.objectweb.asm.Type;
 
 public class ClassUtil {
@@ -451,7 +450,7 @@ public class ClassUtil {
 	public static String getDecompiledValue(Object o, String desc) {
 		switch (o.getClass().getName()) {
 			case "java.lang.String": {
-				return "\"" + StringEscapeUtils.escapeJava((String) o).replace("\n", "\\n").replace("\r", "\\r") + "\"";
+				return "\"" + UnicodeUtils.escape((String) o) + "\"";
 			}
 			case "java.lang.Integer": {
 				if (desc.equals("Z")) {
