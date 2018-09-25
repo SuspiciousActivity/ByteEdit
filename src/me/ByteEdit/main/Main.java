@@ -69,12 +69,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import me.ByteEdit.boxes.OptionBox;
+import me.ByteEdit.boxes.SearchBox;
+import me.ByteEdit.boxes.TypeOpenBox;
+import me.ByteEdit.boxes.UnicodeBox;
 import me.ByteEdit.edit.Assembler;
 import me.ByteEdit.edit.Disassembler;
 import me.ByteEdit.edit.Disassembler.DisassembleTuple;
-import me.ByteEdit.edit.OptionBox;
-import me.ByteEdit.edit.SearchBox;
-import me.ByteEdit.edit.TypeOpenBox;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
@@ -92,6 +93,7 @@ public class Main extends JFrame {
 	public static SearchBox searchBox;
 	public static TypeOpenBox typeOpenBox;
 	public static OptionBox optionBox;
+	public static UnicodeBox unicodeBox;
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static Theme theme;
@@ -166,6 +168,7 @@ public class Main extends JFrame {
 		searchBox = new SearchBox();
 		typeOpenBox = new TypeOpenBox();
 		optionBox = new OptionBox();
+		unicodeBox = new UnicodeBox();
 		setTitle("ByteEdit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 407),
@@ -322,6 +325,7 @@ public class Main extends JFrame {
 		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlG = KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
 		// global
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
 			
@@ -348,6 +352,13 @@ public class Main extends JFrame {
 				optionBox.setVisible(true);
 			}
 		}, ctrlO, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				unicodeBox.setVisible(true);
+			}
+		}, ctrlU, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		// specific
 		tree.registerKeyboardAction(new ActionListener() {
 			
