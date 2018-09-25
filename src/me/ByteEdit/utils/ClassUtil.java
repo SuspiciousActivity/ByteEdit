@@ -447,10 +447,10 @@ public class ClassUtil {
 		return count;
 	}
 	
-	public static String getDecompiledValue(Object o, String desc) {
+	public static String getDecompiledValue(Object o, String desc, boolean escapeSpaces) {
 		switch (o.getClass().getName()) {
 			case "java.lang.String": {
-				return "\"" + UnicodeUtils.escape((String) o) + "\"";
+				return "\"" + (escapeSpaces ? UnicodeUtils.escapeWithSpaces((String) o) : UnicodeUtils.escape((String) o)) + "\"";
 			}
 			case "java.lang.Integer": {
 				if (desc.equals("Z")) {
@@ -464,15 +464,13 @@ public class ClassUtil {
 			case "java.lang.Float": {
 				return o.toString() + "f";
 			}
-			// case "java.util.ArrayList": {
-			// ArrayList list = (ArrayList) o;
-			// for (Object obj : list) {
-			// System.out.println(obj.getClass().getName());
-			// }
-			// }
 			default:
 				return o.toString();
 		}
+	}
+	
+	public static String getDecompiledValue(Object o, String desc) {
+		return getDecompiledValue(o, desc, false);
 	}
 	
 	public static Object getCastedValue(String o, String className) {

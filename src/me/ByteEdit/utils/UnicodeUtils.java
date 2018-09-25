@@ -77,6 +77,13 @@ public class UnicodeUtils {
 		return sb.toString();
 	}
 	
+	public static String escapeWithSpaces(String s) {
+		if (s == null) {
+			return null;
+		}
+		return escape(s).replace(" ", "\\u0020");
+	}
+	
 	public static String escape(String s) {
 		if (s == null) {
 			return null;
