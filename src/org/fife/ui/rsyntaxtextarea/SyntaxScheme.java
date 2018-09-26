@@ -24,8 +24,8 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
- * The set of colors and styles used by an <code>RSyntaxTextArea</code> to
- * color tokens.
+ * The set of colors and styles used by an <code>RSyntaxTextArea</code> to color
+ * tokens.
  * <p>
  * You can use this class to programmatically set the fonts and colors used in
  * an RSyntaxTextArea, but for more powerful, externalized control, consider
@@ -35,20 +35,18 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @version 1.0
  * @see Theme
  */
-@SuppressWarnings({ "checkstyle:magicnumber" })
 public class SyntaxScheme implements Cloneable, TokenTypes {
-	
+
 	private Style[] styles;
 	private static final String VERSION = "*ver1";
-	
+
 	/**
-	 * Creates a color scheme that either has all color values set to
-	 * a default value or set to <code>null</code>.
+	 * Creates a color scheme that either has all color values set to a default
+	 * value or set to <code>null</code>.
 	 *
-	 * @param useDefaults
-	 *            If <code>true</code>, all color values will
-	 *            be set to default colors; if <code>false</code>, all colors
-	 *            will be initially <code>null</code>.
+	 * @param useDefaults If <code>true</code>, all color values will be set to
+	 *                    default colors; if <code>false</code>, all colors will be
+	 *                    initially <code>null</code>.
 	 */
 	public SyntaxScheme(boolean useDefaults) {
 		styles = new Style[DEFAULT_NUM_TOKEN_TYPES];
@@ -56,50 +54,43 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 			restoreDefaults(null);
 		}
 	}
-	
+
 	/**
 	 * Creates a default color scheme.
 	 *
-	 * @param baseFont
-	 *            The base font to use. Keywords will be a bold version
-	 *            of this font, and comments will be an italicized version of
-	 *            this
-	 *            font.
+	 * @param baseFont The base font to use. Keywords will be a bold version of this
+	 *                 font, and comments will be an italicized version of this
+	 *                 font.
 	 */
 	public SyntaxScheme(Font baseFont) {
 		this(baseFont, true);
 	}
-	
+
 	/**
 	 * Creates a default color scheme.
 	 *
-	 * @param baseFont
-	 *            The base font to use. Keywords will be a bold version
-	 *            of this font, and comments will be an italicized version of
-	 *            this
-	 *            font.
-	 * @param fontStyles
-	 *            Whether bold and italic should be used in the scheme
-	 *            (vs. all tokens using a plain font).
+	 * @param baseFont   The base font to use. Keywords will be a bold version of
+	 *                   this font, and comments will be an italicized version of
+	 *                   this font.
+	 * @param fontStyles Whether bold and italic should be used in the scheme (vs.
+	 *                   all tokens using a plain font).
 	 */
 	public SyntaxScheme(Font baseFont, boolean fontStyles) {
 		styles = new Style[DEFAULT_NUM_TOKEN_TYPES];
 		restoreDefaults(baseFont, fontStyles);
 	}
-	
+
 	/**
 	 * Changes the "base font" for this syntax scheme. This is called by
 	 * <code>RSyntaxTextArea</code> when its font changes via
-	 * <code>setFont()</code>. This looks for tokens that use a derivative of
-	 * the text area's old font (but bolded and/or italicized) and make them
-	 * use the new font with those stylings instead. This is desirable because
-	 * most programmers prefer a single font to be used in their text editor,
-	 * but might want bold (say for keywords) or italics.
+	 * <code>setFont()</code>. This looks for tokens that use a derivative of the
+	 * text area's old font (but bolded and/or italicized) and make them use the new
+	 * font with those stylings instead. This is desirable because most programmers
+	 * prefer a single font to be used in their text editor, but might want bold
+	 * (say for keywords) or italics.
 	 *
-	 * @param old
-	 *            The old font of the text area.
-	 * @param font
-	 *            The new font of the text area.
+	 * @param old  The old font of the text area.
+	 * @param font The new font of the text area.
 	 */
 	void changeBaseFont(Font old, Font font) {
 		for (int i = 0; i < styles.length; i++) {
@@ -113,7 +104,7 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns a deep copy of this color scheme.
 	 *
@@ -137,15 +128,13 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 		}
 		return shcs;
 	}
-	
+
 	/**
 	 * Tests whether this color scheme is the same as another color scheme.
 	 *
-	 * @param otherScheme
-	 *            The color scheme to compare to.
-	 * @return <code>true</code> if this color scheme and
-	 *         <code>otherScheme</code> are the same scheme;
-	 *         <code>false</code> otherwise.
+	 * @param otherScheme The color scheme to compare to.
+	 * @return <code>true</code> if this color scheme and <code>otherScheme</code>
+	 *         are the same scheme; <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object otherScheme) {
@@ -167,24 +156,22 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Returns a hex string representing an RGB color, of the form
 	 * <code>"$rrggbb"</code>.
 	 *
-	 * @param c
-	 *            The color.
+	 * @param c The color.
 	 * @return The string representation of the color.
 	 */
 	private static String getHexString(Color c) {
 		return "$" + Integer.toHexString((c.getRGB() & 0xffffff) + 0x1000000).substring(1);
 	}
-	
+
 	/**
 	 * Returns the specified style.
 	 *
-	 * @param index
-	 *            The index of the style.
+	 * @param index The index of the style.
 	 * @return The style.
 	 * @see #setStyle(int, Style)
 	 * @see #getStyleCount()
@@ -192,7 +179,7 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 	public Style getStyle(int index) {
 		return styles[index];
 	}
-	
+
 	/**
 	 * Returns the number of styles.
 	 *
@@ -202,14 +189,14 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 	public int getStyleCount() {
 		return styles.length;
 	}
-	
+
 	/**
-	 * Used by third party implementors e.g. SquirreL SQL. Most applications do
-	 * not need to call this method.
+	 * Used by third party implementors e.g. SquirreL SQL. Most applications do not
+	 * need to call this method.
 	 * <p>
 	 * Note that the returned array is not a copy of the style data; editing the
-	 * array will modify the styles used by any <code>RSyntaxTextArea</code>
-	 * using this scheme.
+	 * array will modify the styles used by any <code>RSyntaxTextArea</code> using
+	 * this scheme.
 	 *
 	 * @return The style array.
 	 * @see #setStyles(Style[])
@@ -217,10 +204,10 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 	public Style[] getStyles() {
 		return styles;
 	}
-	
+
 	/**
-	 * This is implemented to be consistent with {@link #equals(Object)}.
-	 * This is a requirement to keep FindBugs happy.
+	 * This is implemented to be consistent with {@link #equals(Object)}. This is a
+	 * requirement to keep FindBugs happy.
 	 *
 	 * @return The hash code for this object.
 	 */
@@ -238,24 +225,20 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 		}
 		return hashCode;
 	}
-	
+
 	/**
 	 * Loads a syntax scheme from an input stream.
 	 * <p>
 	 *
-	 * Consider using the {@link Theme} class for saving and loading RSTA
-	 * styles rather than using this API.
+	 * Consider using the {@link Theme} class for saving and loading RSTA styles
+	 * rather than using this API.
 	 *
-	 * @param baseFont
-	 *            The font to use as the "base" for the syntax scheme.
-	 *            If this is <code>null</code>, a default monospaced font is
-	 *            used.
-	 * @param in
-	 *            The stream to load from. It is up to the caller to close this
-	 *            stream when they are done.
+	 * @param baseFont The font to use as the "base" for the syntax scheme. If this
+	 *                 is <code>null</code>, a default monospaced font is used.
+	 * @param in       The stream to load from. It is up to the caller to close this
+	 *                 stream when they are done.
 	 * @return The syntax scheme.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @throws IOException If an IO error occurs.
 	 */
 	public static SyntaxScheme load(Font baseFont, InputStream in) throws IOException {
 		if (baseFont == null) {
@@ -263,42 +246,40 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 		}
 		return SyntaxSchemeLoader.load(baseFont, in);
 	}
-	
+
 	/**
 	 * Loads a syntax highlighting color scheme from a string created from
-	 * <code>toCommaSeparatedString</code>. This method is useful for saving
-	 * and restoring color schemes.
+	 * <code>toCommaSeparatedString</code>. This method is useful for saving and
+	 * restoring color schemes.
 	 * <p>
 	 *
-	 * Consider using the {@link Theme} class for saving and loading RSTA
-	 * styles rather than using this API.
+	 * Consider using the {@link Theme} class for saving and loading RSTA styles
+	 * rather than using this API.
 	 *
-	 * @param string
-	 *            A string generated from {@link #toCommaSeparatedString()}.
+	 * @param string A string generated from {@link #toCommaSeparatedString()}.
 	 * @return A color scheme.
 	 * @see #toCommaSeparatedString()
 	 */
 	public static SyntaxScheme loadFromString(String string) {
 		return loadFromString(string, DEFAULT_NUM_TOKEN_TYPES);
 	}
-	
+
 	/**
 	 * Loads a syntax highlighting color scheme from a string created from
-	 * <code>toCommaSeparatedString</code>. This method is useful for saving
-	 * and restoring color schemes.
+	 * <code>toCommaSeparatedString</code>. This method is useful for saving and
+	 * restoring color schemes.
 	 * <p>
 	 *
-	 * Consider using the {@link Theme} class for saving and loading RSTA
-	 * styles rather than using this API.
+	 * Consider using the {@link Theme} class for saving and loading RSTA styles
+	 * rather than using this API.
 	 *
-	 * @param string
-	 *            A string generated from {@link #toCommaSeparatedString()}.
-	 * @param tokenTypeCount
-	 *            The number of token types saved in this string.
-	 *            This should be the number of token types saved by your custom
-	 *            SyntaxScheme subclass,
-	 *            or {@link TokenTypes#DEFAULT_NUM_TOKEN_TYPES} if you used the
-	 *            standard implementation (which most people will).
+	 * @param string         A string generated from
+	 *                       {@link #toCommaSeparatedString()}.
+	 * @param tokenTypeCount The number of token types saved in this string. This
+	 *                       should be the number of token types saved by your
+	 *                       custom SyntaxScheme subclass, or
+	 *                       {@link TokenTypes#DEFAULT_NUM_TOKEN_TYPES} if you used
+	 *                       the standard implementation (which most people will).
 	 * @return A color scheme.
 	 * @see #loadFromString(String)
 	 * @see #toCommaSeparatedString()
@@ -314,7 +295,8 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 				}
 				int tokenCount = tokenTypeCount * 7 + 1; // Version string
 				if (tokens.length != tokenCount) {
-					throw new Exception("Not enough tokens in packed color scheme: expected " + tokenCount + ", found " + tokens.length);
+					throw new Exception("Not enough tokens in packed color scheme: expected " + tokenCount + ", found "
+							+ tokens.length);
 				}
 				// Use StyleContext to create fonts to get composite fonts for
 				// Asian glyphs.
@@ -359,7 +341,7 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 		}
 		return scheme;
 	}
-	
+
 	void refreshFontMetrics(Graphics2D g2d) {
 		// It is assumed that any rendering hints are already applied to g2d.
 		for (int i = 0; i < styles.length; i++) {
@@ -369,29 +351,24 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 			}
 		}
 	}
-	
+
 	/**
 	 * Restores all colors and fonts to their default values.
 	 *
-	 * @param baseFont
-	 *            The base font to use when creating this scheme. If
-	 *            this is <code>null</code>, then a default monospaced font is
-	 *            used.
+	 * @param baseFont The base font to use when creating this scheme. If this is
+	 *                 <code>null</code>, then a default monospaced font is used.
 	 */
 	public void restoreDefaults(Font baseFont) {
 		restoreDefaults(baseFont, true);
 	}
-	
+
 	/**
 	 * Restores all colors and fonts to their default values.
 	 *
-	 * @param baseFont
-	 *            The base font to use when creating this scheme. If
-	 *            this is <code>null</code>, then a default monospaced font is
-	 *            used.
-	 * @param fontStyles
-	 *            Whether bold and italic should be used in the scheme
-	 *            (vs. all tokens using a plain font).
+	 * @param baseFont   The base font to use when creating this scheme. If this is
+	 *                   <code>null</code>, then a default monospaced font is used.
+	 * @param fontStyles Whether bold and italic should be used in the scheme (vs.
+	 *                   all tokens using a plain font).
 	 */
 	public void restoreDefaults(Font baseFont, boolean fontStyles) {
 		// Colors used by tokens.
@@ -469,40 +446,36 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets a style to use when rendering a token type.
 	 *
-	 * @param type
-	 *            The token type.
-	 * @param style
-	 *            The style for the token type.
+	 * @param type  The token type.
+	 * @param style The style for the token type.
 	 * @see #getStyle(int)
 	 */
 	public void setStyle(int type, Style style) {
 		styles[type] = style;
 	}
-	
+
 	/**
-	 * Used by third party implementors e.g. SquirreL SQL. Most applications do
-	 * not need to call this method; individual styles can be set via
+	 * Used by third party implementors e.g. SquirreL SQL. Most applications do not
+	 * need to call this method; individual styles can be set via
 	 * {@link #setStyle(int, Style)}.
 	 *
-	 * @param styles
-	 *            The new array of styles to use. Note that this should
-	 *            have length of at least
-	 *            {@link TokenTypes#DEFAULT_NUM_TOKEN_TYPES}.
+	 * @param styles The new array of styles to use. Note that this should have
+	 *               length of at least {@link TokenTypes#DEFAULT_NUM_TOKEN_TYPES}.
 	 * @see #setStyle(int, Style)
 	 * @see #getStyles()
 	 */
 	public void setStyles(Style[] styles) {
 		this.styles = styles;
 	}
-	
+
 	/**
-	 * Returns the color represented by a string. If the first char in the
-	 * string is '<code>$</code>', it is assumed to be in hex, otherwise it is
-	 * assumed to be decimal. So, for example, both of these:
+	 * Returns the color represented by a string. If the first char in the string is
+	 * '<code>$</code>', it is assumed to be in hex, otherwise it is assumed to be
+	 * decimal. So, for example, both of these:
 	 * 
 	 * <pre>
 	 * "$00ff00"
@@ -511,8 +484,7 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 	 * 
 	 * will return <code>new Color(0, 255, 0)</code>.
 	 *
-	 * @param s
-	 *            The string to evaluate.
+	 * @param s The string to evaluate.
 	 * @return The color.
 	 */
 	private static Color stringToColor(String s) {
@@ -521,28 +493,26 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 		char ch = s.charAt(0);
 		return new Color((ch == '$' || ch == '#') ? Integer.parseInt(s.substring(1), 16) : Integer.parseInt(s));
 	}
-	
+
 	/**
-	 * Returns this syntax highlighting scheme as a comma-separated list of
-	 * values as follows:
+	 * Returns this syntax highlighting scheme as a comma-separated list of values
+	 * as follows:
 	 * <ul>
-	 * <li>If a color is non-null, it is added as a 24-bit integer
-	 * of the form <code>((r&lt;*lt;16) | (g&lt;*lt;8) | (b))</code>; if
-	 * it is <code>null</code>, it is added as "<i>-,</i>".
+	 * <li>If a color is non-null, it is added as a 24-bit integer of the form
+	 * <code>((r&lt;*lt;16) | (g&lt;*lt;8) | (b))</code>; if it is
+	 * <code>null</code>, it is added as "<i>-,</i>".
 	 * <li>The font and style (bold/italic) is added as an integer like so:
 	 * "<i>family,</i> <i>style,</i> <i>size</i>".
-	 * <li>The entire syntax highlighting scheme is thus one long string of
-	 * color schemes of the format "<i>i,[fg],[bg],uline,[style]</i>,
-	 * where:
+	 * <li>The entire syntax highlighting scheme is thus one long string of color
+	 * schemes of the format "<i>i,[fg],[bg],uline,[style]</i>, where:
 	 * <ul>
 	 * <li><code>i</code> is the index of the syntax scheme.
-	 * <li><i>fg</i> and <i>bg</i> are the foreground and background
-	 * colors for the scheme, and may be null (represented by
-	 * <code>-</code>).
-	 * <li><code>uline</code> is whether or not the font should be
-	 * underlined, and is either <code>t</code> or <code>f</code>.
-	 * <li><code>style</code> is the <code>family,style,size</code>
-	 * triplet described above.
+	 * <li><i>fg</i> and <i>bg</i> are the foreground and background colors for the
+	 * scheme, and may be null (represented by <code>-</code>).
+	 * <li><code>uline</code> is whether or not the font should be underlined, and
+	 * is either <code>t</code> or <code>f</code>.
+	 * <li><code>style</code> is the <code>family,style,size</code> triplet
+	 * described above.
 	 * </ul>
 	 * </ul>
 	 *
@@ -566,26 +536,27 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 			sb.append(ss.underline ? "t," : "f,");
 			Font font = ss.font;
 			if (font != null) {
-				sb.append(font.getFamily()).append(',').append(font.getStyle()).append(',').append(font.getSize()).append(',');
+				sb.append(font.getFamily()).append(',').append(font.getStyle()).append(',').append(font.getSize())
+						.append(',');
 			} else {
 				sb.append("-,,,");
 			}
 		}
 		return sb.substring(0, sb.length() - 1); // Take off final ','.
 	}
-	
+
 	/**
 	 * Loads a <code>SyntaxScheme</code> from an XML file.
 	 */
 	private static class SyntaxSchemeLoader extends DefaultHandler {
-		
+
 		private Font baseFont;
 		private SyntaxScheme scheme;
-		
+
 		SyntaxSchemeLoader(Font baseFont) {
 			scheme = new SyntaxScheme(baseFont);
 		}
-		
+
 		public static SyntaxScheme load(Font baseFont, InputStream in) throws IOException {
 			SyntaxSchemeLoader parser = null;
 			try {
@@ -601,7 +572,7 @@ public class SyntaxScheme implements Cloneable, TokenTypes {
 			}
 			return parser.scheme;
 		}
-		
+
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attrs) {
 			if ("style".equals(qName)) {

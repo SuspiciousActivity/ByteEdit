@@ -40,36 +40,36 @@ import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
 
 public class Disassembler {
-	
+
 	public static String disassemble(ClassNode classNode) {
 		return disassemble(classNode, null).getDisassembly();
 	}
-	
+
 	public static class DisassembleTuple {
-		
+
 		private final String dis;
 		private final int line;
-		
+
 		public DisassembleTuple(String dis) {
 			this.dis = dis;
 			this.line = -1;
 		}
-		
+
 		public DisassembleTuple(String dis, int line) {
 			this.dis = dis;
 			this.line = line;
 		}
-		
+
 		public String getDisassembly() {
 			return dis;
 		}
-		
+
 		public int getLine() {
 			return line;
 		}
-		
+
 	}
-	
+
 	public static DisassembleTuple disassemble(ClassNode classNode, MethodNode methodToFind) {
 		if (classNode == null) {
 			return new DisassembleTuple("ClassNode is null! This is not a valid java class file!");
@@ -139,8 +139,10 @@ public class Disassembler {
 			}
 			s += "// #Class v:" + classNode.version + "\n";
 			s += "// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n";
-			s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null" : (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
-					+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc))) + "\n";
+			s += "// #OuterMethod: "
+					+ (classNode.outerMethod == null ? "null"
+							: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " " + UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
+					+ "\n";
 			s += "// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n";
 			s += "// #InnerClasses:\n";
 			if (classNode.innerClasses != null) {
@@ -163,8 +165,7 @@ public class Disassembler {
 				if (!interfaceStr.isEmpty())
 					s += "implements " + interfaceStr + " ";
 			}
-			s += "{\n// #SourceFile: " + (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile))
-					+ "\n\n// #Fields\n";
+			s += "{\n// #SourceFile: " + (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile)) + "\n\n// #Fields\n";
 			for (FieldNode fn : classNode.fields) {
 				if (fn.signature != null)
 					s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(fn.signature) + "\n";
@@ -227,8 +228,8 @@ public class Disassembler {
 						s += "\n";
 					}
 				}
-				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + UnicodeUtils.escapeWithSpaces(fn.desc)
-						+ " " + UnicodeUtils.escapeWithSpaces(fn.name);
+				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + UnicodeUtils.escapeWithSpaces(fn.desc) + " "
+						+ UnicodeUtils.escapeWithSpaces(fn.name);
 				if (fn.value != null) {
 					s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc, true);
 				}
@@ -323,8 +324,8 @@ public class Disassembler {
 					s += dis[0];
 					s += "\t}\n\n";
 				} catch (Exception e) {
-					s += "\t\t// Method couldn't be disassembled:\n\t\t// " + e.getClass().getName() + ": " + e.getMessage() + "\n" + Arrays
-							.toString(e.getStackTrace()).replace(", ", "\n\t\t// \tat ").replace("[", "\t\t// \tat ").replace("]", "")
+					s += "\t\t// Method couldn't be disassembled:\n\t\t// " + e.getClass().getName() + ": " + e.getMessage() + "\n"
+							+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\t\t// \tat ").replace("[", "\t\t// \tat ").replace("]", "")
 							+ "\n\t}\n\n";
 				}
 			}
@@ -335,7 +336,7 @@ public class Disassembler {
 					+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\tat ").replace("[", "\tat ").replace("]", "") + "\n");
 		}
 	}
-	
+
 	private static String[] disassembleMethod(String className, MethodNode mn) {
 		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
 		String s = "";
@@ -364,7 +365,7 @@ public class Disassembler {
 		}
 		return new String[] { s, localVarTable, tryCatchTable };
 	}
-	
+
 	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels) {
 		switch (n.getClass().getSimpleName()) {
 			case "FieldInsnNode": {
@@ -427,38 +428,36 @@ public class Disassembler {
 			}
 			case "InvokeDynamicInsnNode": {
 				InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
-						+ UnicodeUtils.escapeWithSpaces(node.name) + "\n\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(node.desc)
-						+ "\n\t\t\tHandle: [\n\t\t\t\tname: " + UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: "
-						+ UnicodeUtils.escapeWithSpaces(node.bsm.getOwner()) + "\n\t\t\t\tdesc: "
-						+ UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: " + node.bsm.isInterface()
+				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: " + UnicodeUtils.escapeWithSpaces(node.name)
+						+ "\n\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
+						+ UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: " + UnicodeUtils.escapeWithSpaces(node.bsm.getOwner())
+						+ "\n\t\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: " + node.bsm.isInterface()
 						+ "\n\t\t\t\ttag: " + node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
 				for (Object l : node.bsmArgs) {
 					if (l.getClass().getName().equals("org.objectweb.asm.Type")) {
 						Type type = (Type) l;
-						int off = 0;
-						int len = 0;
-						char[] buf = null;
+						int valueBegin = 0;
+						int valueEnd = 0;
+						String buf = null;
 						try {
-							Field f_off = Type.class.getDeclaredField("off");
+							Field f_off = Type.class.getDeclaredField("valueBegin");
 							f_off.setAccessible(true);
-							off = f_off.getInt(type);
-							Field f_len = Type.class.getDeclaredField("len");
+							valueBegin = f_off.getInt(type);
+							Field f_len = Type.class.getDeclaredField("valueEnd");
 							f_len.setAccessible(true);
-							len = f_len.getInt(type);
-							Field f_buf = Type.class.getDeclaredField("buf");
+							valueEnd = f_len.getInt(type);
+							Field f_buf = Type.class.getDeclaredField("valueBuffer");
 							f_buf.setAccessible(true);
-							buf = (char[]) f_buf.get(type);
+							buf = (String) f_buf.get(type);
 						} catch (Exception e) {}
-						s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type) + "\n\t\t\t\t\toff: " + off
-								+ "\n\t\t\t\t\tlen: " + len + "\n\t\t\t\t\tbuf: " + ClassUtil.getDecompiledValue(new String(buf), "");
+						s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type) + "\n\t\t\t\t\tstart: " + valueBegin
+								+ "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "");
 						s += "\n\t\t\t\t]\n";
 					} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
 						Handle h = (Handle) l;
 						s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: " + UnicodeUtils.escapeWithSpaces(h.getName()) + "\n\t\t\t\t\towner: "
-								+ UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: "
-								+ UnicodeUtils.escapeWithSpaces(h.getDesc()) + "\n\t\t\t\t\tisInterface: " + h.isInterface()
-								+ "\n\t\t\t\t\ttag: " + h.getTag();
+								+ UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(h.getDesc())
+								+ "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: " + h.getTag();
 						s += "\n\t\t\t\t]\n";
 					} else {
 						s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
@@ -478,8 +477,8 @@ public class Disassembler {
 			}
 			case "MultiANewArrayInsnNode": {
 				MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " "
-						+ node.dims + "\n";
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " " + node.dims
+						+ "\n";
 			}
 			case "LdcInsnNode": {
 				LdcInsnNode node = (LdcInsnNode) n;
@@ -489,28 +488,27 @@ public class Disassembler {
 					case "Integer":
 					case "Float":
 					case "Long": {
-						return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + ClassUtil.getDecompiledValue(node.cst, "")
-								+ "\n";
+						return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + ClassUtil.getDecompiledValue(node.cst, "") + "\n";
 					}
 					case "Type": {
 						Type type = (Type) node.cst;
-						int off = 0;
-						int len = 0;
-						char[] buf = null;
+						int valueBegin = 0;
+						int valueEnd = 0;
+						String buf = null;
 						try {
-							Field f_off = Type.class.getDeclaredField("off");
+							Field f_off = Type.class.getDeclaredField("valueBegin");
 							f_off.setAccessible(true);
-							off = f_off.getInt(type);
-							Field f_len = Type.class.getDeclaredField("len");
+							valueBegin = f_off.getInt(type);
+							Field f_len = Type.class.getDeclaredField("valueEnd");
 							f_len.setAccessible(true);
-							len = f_len.getInt(type);
-							Field f_buf = Type.class.getDeclaredField("buf");
+							valueEnd = f_len.getInt(type);
+							Field f_buf = Type.class.getDeclaredField("valueBuffer");
 							f_buf.setAccessible(true);
-							buf = (char[]) f_buf.get(type);
+							buf = (String) f_buf.get(type);
 						} catch (Exception e) {}
 						String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
-								+ ClassUtil.getClassNameFromType(type) + "\n\t\t\toff: " + off + "\n\t\t\tlen: " + len + "\n\t\t\tbuf: "
-								+ ClassUtil.getDecompiledValue(new String(buf), "");
+								+ ClassUtil.getClassNameFromType(type) + "\n\t\t\tstart: " + valueBegin + "\n\t\t\tend: " + valueEnd + "\n\t\t\tbuf: "
+								+ ClassUtil.getDecompiledValue(buf, "");
 						s += "\n\t\t]\n";
 						return s;
 					}
@@ -572,5 +570,5 @@ public class Disassembler {
 				return "\t\tNOT HANDLED! " + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + n.getClass().getSimpleName() + "\n";
 		}
 	}
-	
+
 }

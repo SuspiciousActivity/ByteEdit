@@ -28,9 +28,8 @@ import javax.swing.JPanel;
  * @author Robert Futrell
  * @version 0.6
  */
-@SuppressWarnings({ "checkstyle:visibilitymodifier" })
 public class Style implements Cloneable {
-	
+
 	public static final Color DEFAULT_FOREGROUND = Color.BLACK;
 	public static final Color DEFAULT_BACKGROUND = null;
 	public static final Font DEFAULT_FONT = null;
@@ -39,62 +38,52 @@ public class Style implements Cloneable {
 	public boolean underline;
 	public Font font;
 	public FontMetrics fontMetrics;
-	
+
 	/**
-	 * Creates a new style defaulting to black foreground, no
-	 * background, and no styling.
+	 * Creates a new style defaulting to black foreground, no background, and no
+	 * styling.
 	 */
 	public Style() {
 		this(DEFAULT_FOREGROUND);
 	}
-	
+
 	/**
 	 * Creates a new style with the specified foreground and no styling.
 	 *
-	 * @param fg
-	 *            The foreground color to use.
+	 * @param fg The foreground color to use.
 	 */
 	public Style(Color fg) {
 		this(fg, DEFAULT_BACKGROUND);
 	}
-	
+
 	/**
 	 * Creates a new style with the specified colors and no styling.
 	 *
-	 * @param fg
-	 *            The foreground color to use.
-	 * @param bg
-	 *            The background color to use.
+	 * @param fg The foreground color to use.
+	 * @param bg The background color to use.
 	 */
 	public Style(Color fg, Color bg) {
 		this(fg, bg, DEFAULT_FONT);
 	}
-	
+
 	/**
 	 * Creates a new style.
 	 *
-	 * @param fg
-	 *            The foreground color to use.
-	 * @param bg
-	 *            The background color to use.
-	 * @param font
-	 *            The font for this syntax scheme.
+	 * @param fg   The foreground color to use.
+	 * @param bg   The background color to use.
+	 * @param font The font for this syntax scheme.
 	 */
 	public Style(Color fg, Color bg, Font font) {
 		this(fg, bg, font, false);
 	}
-	
+
 	/**
 	 * Creates a new style.
 	 *
-	 * @param fg
-	 *            The foreground color to use.
-	 * @param bg
-	 *            The background color to use.
-	 * @param font
-	 *            The font for this syntax scheme.
-	 * @param underline
-	 *            Whether or not to underline tokens with this style.
+	 * @param fg        The foreground color to use.
+	 * @param bg        The background color to use.
+	 * @param font      The font for this syntax scheme.
+	 * @param underline Whether or not to underline tokens with this style.
 	 */
 	public Style(Color fg, Color bg, Font font, boolean underline) {
 		foreground = fg;
@@ -106,15 +95,14 @@ public class Style implements Cloneable {
 																					// rendering
 																					// hints!
 	}
-	
+
 	/**
-	 * Returns whether or not two (possibly <code>null</code>) objects are
-	 * equal.
+	 * Returns whether or not two (possibly <code>null</code>) objects are equal.
 	 */
 	private boolean areEqual(Object o1, Object o2) {
 		return (o1 == null && o2 == null) || (o1 != null && o1.equals(o2));
 	}
-	
+
 	/**
 	 * Returns a deep copy of this object.
 	 *
@@ -136,34 +124,32 @@ public class Style implements Cloneable {
 		clone.fontMetrics = fontMetrics;
 		return clone;
 	}
-	
+
 	/**
 	 * Returns whether or not two syntax schemes are equal.
 	 *
-	 * @param o2
-	 *            The object with which to compare this syntax scheme.
-	 * @return Whether or not these two syntax schemes represent the same
-	 *         scheme.
+	 * @param o2 The object with which to compare this syntax scheme.
+	 * @return Whether or not these two syntax schemes represent the same scheme.
 	 */
 	@Override
 	public boolean equals(Object o2) {
 		if (o2 instanceof Style) {
 			Style ss2 = (Style) o2;
-			if (this.underline == ss2.underline && areEqual(foreground, ss2.foreground) && areEqual(background, ss2.background)
-					&& areEqual(font, ss2.font) && areEqual(fontMetrics, ss2.fontMetrics)) {
+			if (this.underline == ss2.underline && areEqual(foreground, ss2.foreground)
+					&& areEqual(background, ss2.background) && areEqual(font, ss2.font)
+					&& areEqual(fontMetrics, ss2.fontMetrics)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Computes the hash code to use when adding this syntax scheme to
-	 * hash tables.
+	 * Computes the hash code to use when adding this syntax scheme to hash tables.
 	 * <p>
 	 *
-	 * This method is implemented, since {@link #equals(Object)} is implemented,
-	 * to keep FindBugs happy.
+	 * This method is implemented, since {@link #equals(Object)} is implemented, to
+	 * keep FindBugs happy.
 	 *
 	 * @return The hash code.
 	 */
@@ -178,7 +164,7 @@ public class Style implements Cloneable {
 		}
 		return hashCode;
 	}
-	
+
 	/**
 	 * Returns a string representation of this style.
 	 *
@@ -186,6 +172,7 @@ public class Style implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "[Style: foreground: " + foreground + ", background: " + background + ", underline: " + underline + ", font: " + font + "]";
+		return "[Style: foreground: " + foreground + ", background: " + background + ", underline: " + underline
+				+ ", font: " + font + "]";
 	}
 }

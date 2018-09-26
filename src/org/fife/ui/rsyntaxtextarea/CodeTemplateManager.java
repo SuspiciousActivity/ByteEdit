@@ -32,31 +32,30 @@ import org.fife.ui.rsyntaxtextarea.templates.CodeTemplate;
  * Manages "code templates."
  * <p>
  *
- * All methods in this class are synchronized for thread safety, but as a
- * best practice, you should probably only modify the templates known to a
+ * All methods in this class are synchronized for thread safety, but as a best
+ * practice, you should probably only modify the templates known to a
  * <code>CodeTemplateManager</code> on the EDT. Modifying a
  * <code>CodeTemplate</code> retrieved from a <code>CodeTemplateManager</code>
  * while <em>not</em> on the EDT could cause problems.
  * <p>
  *
- * For more flexible boilerplate code insertion, consider using the
- * <a href=
+ * For more flexible boilerplate code insertion, consider using the <a href=
  * "http://javadoc.fifesoft.com/autocomplete/org/fife/ui/autocomplete/TemplateCompletion.html">
  * TemplateCompletion class</a> in the
- * <a href="https://github.com/bobbylight/AutoComplete">AutoComplete
- * add-on library</a>.
+ * <a href="https://github.com/bobbylight/AutoComplete">AutoComplete add-on
+ * library</a>.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class CodeTemplateManager {
-	
+
 	private int maxTemplateIDLength;
 	private List<CodeTemplate> templates;
 	private Segment s;
 	private TemplateComparator comparator;
 	private File directory;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -65,15 +64,13 @@ public class CodeTemplateManager {
 		comparator = new TemplateComparator();
 		templates = new ArrayList<CodeTemplate>();
 	}
-	
+
 	/**
 	 * Registers the specified template with this template manager.
 	 *
-	 * @param template
-	 *            The template to register.
-	 * @throws IllegalArgumentException
-	 *             If <code>template</code> is
-	 *             <code>null</code>.
+	 * @param template The template to register.
+	 * @throws IllegalArgumentException If <code>template</code> is
+	 *                                  <code>null</code>.
 	 * @see #removeTemplate(CodeTemplate)
 	 * @see #removeTemplate(String)
 	 */
@@ -84,13 +81,12 @@ public class CodeTemplateManager {
 		templates.add(template);
 		sortTemplates();
 	}
-	
+
 	/**
-	 * Returns the template that should be inserted at the current caret
-	 * position, assuming the trigger character was pressed.
+	 * Returns the template that should be inserted at the current caret position,
+	 * assuming the trigger character was pressed.
 	 *
-	 * @param textArea
-	 *            The text area that's getting text inserted into it.
+	 * @param textArea The text area that's getting text inserted into it.
 	 * @return A template that should be inserted, if appropriate, or
 	 *         <code>null</code> if no template should be inserted.
 	 */
@@ -100,7 +96,6 @@ public class CodeTemplateManager {
 		try {
 			Document doc = textArea.getDocument();
 			doc.getText(caretPos - charsToGet, charsToGet, s);
-			@SuppressWarnings("unchecked")
 			int index = Collections.binarySearch(templates, s, comparator);
 			return index >= 0 ? (CodeTemplate) templates.get(index) : null;
 		} catch (BadLocationException ble) {
@@ -108,7 +103,7 @@ public class CodeTemplateManager {
 			throw new InternalError("Error in CodeTemplateManager");
 		}
 	}
-	
+
 	/**
 	 * Returns the number of templates this manager knows about.
 	 *
@@ -117,7 +112,7 @@ public class CodeTemplateManager {
 	public synchronized int getTemplateCount() {
 		return templates.size();
 	}
-	
+
 	/**
 	 * Returns the templates currently available.
 	 *
@@ -127,29 +122,26 @@ public class CodeTemplateManager {
 		CodeTemplate[] temp = new CodeTemplate[templates.size()];
 		return templates.toArray(temp);
 	}
-	
+
 	/**
 	 * Returns whether the specified character is a valid character for a
 	 * <code>CodeTemplate</code> id.
 	 *
-	 * @param ch
-	 *            The character to check.
+	 * @param ch The character to check.
 	 * @return Whether the character is a valid template character.
 	 */
 	public static final boolean isValidChar(char ch) {
 		return RSyntaxUtilities.isLetterOrDigit(ch) || ch == '_';
 	}
-	
+
 	/**
 	 * Returns the specified code template.
 	 *
-	 * @param template
-	 *            The template to remove.
-	 * @return <code>true</code> if the template was removed, <code>false</code>
-	 *         if the template was not in this template manager.
-	 * @throws IllegalArgumentException
-	 *             If <code>template</code> is
-	 *             <code>null</code>.
+	 * @param template The template to remove.
+	 * @return <code>true</code> if the template was removed, <code>false</code> if
+	 *         the template was not in this template manager.
+	 * @throws IllegalArgumentException If <code>template</code> is
+	 *                                  <code>null</code>.
 	 * @see #removeTemplate(String)
 	 * @see #addTemplate(CodeTemplate)
 	 */
@@ -160,16 +152,14 @@ public class CodeTemplateManager {
 		// TODO: Do a binary search
 		return templates.remove(template);
 	}
-	
+
 	/**
 	 * Returns the code template with the specified id.
 	 *
-	 * @param id
-	 *            The id to check for.
-	 * @return The code template that was removed, or <code>null</code> if
-	 *         there was no template with the specified ID.
-	 * @throws IllegalArgumentException
-	 *             If <code>id</code> is <code>null</code>.
+	 * @param id The id to check for.
+	 * @return The code template that was removed, or <code>null</code> if there was
+	 *         no template with the specified ID.
+	 * @throws IllegalArgumentException If <code>id</code> is <code>null</code>.
 	 * @see #removeTemplate(CodeTemplate)
 	 * @see #addTemplate(CodeTemplate)
 	 */
@@ -187,14 +177,12 @@ public class CodeTemplateManager {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Replaces the current set of available templates with the ones
-	 * specified.
+	 * Replaces the current set of available templates with the ones specified.
 	 *
-	 * @param newTemplates
-	 *            The new set of templates. Note that we will
-	 *            be taking a shallow copy of these and sorting them.
+	 * @param newTemplates The new set of templates. Note that we will be taking a
+	 *                     shallow copy of these and sorting them.
 	 */
 	public synchronized void replaceTemplates(CodeTemplate[] newTemplates) {
 		templates.clear();
@@ -205,7 +193,7 @@ public class CodeTemplateManager {
 		}
 		sortTemplates(); // Also recomputes maxTemplateIDLength.
 	}
-	
+
 	/**
 	 * Saves all templates as XML files in the current template directory.
 	 *
@@ -243,14 +231,13 @@ public class CodeTemplateManager {
 		}
 		return wasSuccessful;
 	}
-	
+
 	/**
-	 * Sets the directory in which to look for templates. Calling this
-	 * method adds any new templates found in the specified directory to
-	 * the templates already registered.
+	 * Sets the directory in which to look for templates. Calling this method adds
+	 * any new templates found in the specified directory to the templates already
+	 * registered.
 	 *
-	 * @param dir
-	 *            The new directory in which to look for templates.
+	 * @param dir The new directory in which to look for templates.
 	 * @return The new number of templates in this template manager, or
 	 *         <code>-1</code> if the specified directory does not exist.
 	 */
@@ -285,11 +272,10 @@ public class CodeTemplateManager {
 		}
 		return -1;
 	}
-	
+
 	/**
-	 * Removes any null entries in the current set of templates (if
-	 * any), sorts the remaining templates, and computes the new
-	 * maximum template ID length.
+	 * Removes any null entries in the current set of templates (if any), sorts the
+	 * remaining templates, and computes the new maximum template ID length.
 	 */
 	private synchronized void sortTemplates() {
 		// Get the maximum length of a template ID.
@@ -307,15 +293,14 @@ public class CodeTemplateManager {
 		}
 		Collections.sort(templates);
 	}
-	
+
 	/**
-	 * A comparator that takes a <code>CodeTemplate</code> as its first
-	 * parameter and a <code>Segment</code> as its second, and knows
-	 * to compare the template's ID to the segment's text.
+	 * A comparator that takes a <code>CodeTemplate</code> as its first parameter
+	 * and a <code>Segment</code> as its second, and knows to compare the template's
+	 * ID to the segment's text.
 	 */
-	@SuppressWarnings("rawtypes")
 	private static class TemplateComparator implements Comparator, Serializable {
-		
+
 		@Override
 		public int compare(Object template, Object segment) {
 			// Get template start index (0) and length.
@@ -345,12 +330,12 @@ public class CodeTemplateManager {
 			return len1 - len2;
 		}
 	}
-	
+
 	/**
 	 * A file filter that accepts only XML files.
 	 */
 	private static class XMLFileFilter implements FileFilter {
-		
+
 		@Override
 		public boolean accept(File f) {
 			return f.getName().toLowerCase().endsWith(".xml");

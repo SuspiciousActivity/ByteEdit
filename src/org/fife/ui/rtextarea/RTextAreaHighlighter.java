@@ -26,8 +26,8 @@ import javax.swing.text.View;
 import org.fife.ui.rsyntaxtextarea.DocumentRange;
 
 /**
- * The highlighter implementation used by {@link RTextArea}s. It knows to
- * always paint "mark all" highlights below selection highlights.
+ * The highlighter implementation used by {@link RTextArea}s. It knows to always
+ * paint "mark all" highlights below selection highlights.
  * <p>
  *
  * Most of this code is copied from javax.swing.text.DefaultHighlighter;
@@ -37,24 +37,23 @@ import org.fife.ui.rsyntaxtextarea.DocumentRange;
  * @version 1.0
  */
 public class RTextAreaHighlighter extends BasicHighlighter {
-	
+
 	/**
 	 * The text component we are the highlighter for.
 	 */
 	protected RTextArea textArea;
 	/**
-	 * The "mark all" highlights (to be painted separately from other
-	 * highlights).
+	 * The "mark all" highlights (to be painted separately from other highlights).
 	 */
 	private List<HighlightInfo> markAllHighlights;
-	
+
 	/**
 	 * Constructor.
 	 */
 	public RTextAreaHighlighter() {
 		markAllHighlights = new ArrayList<HighlightInfo>();
 	}
-	
+
 	/**
 	 * Adds a special "marked occurrence" highlight.
 	 *
@@ -80,7 +79,7 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 		mapper.damageRange(textArea, start, end);
 		return i;
 	}
-	
+
 	/**
 	 * Removes all "mark all" highlights from the view.
 	 *
@@ -95,7 +94,7 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 		}
 		markAllHighlights.clear();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -104,20 +103,19 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 		this.textArea = null;
 		markAllHighlights.clear();
 	}
-	
+
 	/**
-	 * Returns the number of "mark all" highlights currently shown in the
-	 * editor.
+	 * Returns the number of "mark all" highlights currently shown in the editor.
 	 *
 	 * @return The "mark all" highlight count.
 	 */
 	public int getMarkAllHighlightCount() {
 		return markAllHighlights.size();
 	}
-	
+
 	/**
-	 * Returns a list of "mark all" highlights in the text area. If there are
-	 * no such highlights, this will be an empty list.
+	 * Returns a list of "mark all" highlights in the text area. If there are no
+	 * such highlights, this will be an empty list.
 	 *
 	 * @return The list of "mark all" highlight ranges.
 	 */
@@ -131,7 +129,7 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -140,33 +138,27 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 		super.install(c);
 		this.textArea = (RTextArea) c;
 	}
-	
+
 	/**
-	 * When leaf Views (such as LabelView) are rendering they should
-	 * call into this method. If a highlight is in the given region it will
-	 * be drawn immediately.
+	 * When leaf Views (such as LabelView) are rendering they should call into this
+	 * method. If a highlight is in the given region it will be drawn immediately.
 	 *
-	 * @param g
-	 *            Graphics used to draw
-	 * @param lineStart
-	 *            starting offset of view
-	 * @param lineEnd
-	 *            ending offset of view
-	 * @param viewBounds
-	 *            Bounds of View
-	 * @param editor
-	 *            JTextComponent
-	 * @param view
-	 *            View instance being rendered
+	 * @param g          Graphics used to draw
+	 * @param lineStart  starting offset of view
+	 * @param lineEnd    ending offset of view
+	 * @param viewBounds Bounds of View
+	 * @param editor     JTextComponent
+	 * @param view       View instance being rendered
 	 */
 	@Override
-	public void paintLayeredHighlights(Graphics g, int lineStart, int lineEnd, Shape viewBounds, JTextComponent editor, View view) {
+	public void paintLayeredHighlights(Graphics g, int lineStart, int lineEnd, Shape viewBounds, JTextComponent editor,
+			View view) {
 		paintListLayered(g, lineStart, lineEnd, viewBounds, editor, view, markAllHighlights);
 		super.paintLayeredHighlights(g, lineStart, lineEnd, viewBounds, editor, view);
 	}
-	
-	protected void paintListLayered(Graphics g, int lineStart, int lineEnd, Shape viewBounds, JTextComponent editor, View view,
-			List<? extends HighlightInfo> highlights) {
+
+	protected void paintListLayered(Graphics g, int lineStart, int lineEnd, Shape viewBounds, JTextComponent editor,
+			View view, List<? extends HighlightInfo> highlights) {
 		for (int i = highlights.size() - 1; i >= 0; i--) {
 			HighlightInfo tag = highlights.get(i);
 			if (tag instanceof LayeredHighlightInfo) {
@@ -175,13 +167,14 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 				int highlightEnd = lhi.getEndOffset() + 1; // "+1" workaround
 															// for Java
 															// highlight issues
-				if ((lineStart < highlightStart && lineEnd > highlightStart) || (lineStart >= highlightStart && lineStart < highlightEnd)) {
+				if ((lineStart < highlightStart && lineEnd > highlightStart)
+						|| (lineStart >= highlightStart && lineStart < highlightEnd)) {
 					lhi.paintLayeredHighlights(g, lineStart, lineEnd, viewBounds, editor, view);
 				}
 			}
 		}
 	}
-	
+
 	protected void repaintListHighlight(HighlightInfo info) {
 		// Note: We're relying on implementation here, not interface. Yuck...
 		if (info instanceof LayeredHighlightInfoImpl) {
@@ -195,89 +188,85 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 			// safeDamageRange(info.p0, info.p1);
 		}
 	}
-	
+
 	/**
 	 * Information about a highlight being painted by this highlighter.
 	 */
-	public interface HighlightInfo extends Highlighter.Highlight {}
-	
+	public interface HighlightInfo extends Highlighter.Highlight {
+	}
+
 	/**
 	 * Information about a layered highlight being painted by this highlighter.
 	 */
 	public interface LayeredHighlightInfo extends HighlightInfo {
-		
+
 		/**
-		 * Restricts the region based on the receivers offsets and messages
-		 * the painter to paint the region.
+		 * Restricts the region based on the receivers offsets and messages the painter
+		 * to paint the region.
 		 */
 		void paintLayeredHighlights(Graphics g, int p0, int p1, Shape viewBounds, JTextComponent editor, View view);
 	}
-	
+
 	/**
 	 * A straightforward implementation of <code>HighlightInfo</code>.
 	 */
 	protected static class HighlightInfoImpl implements HighlightInfo {
-		
+
 		private Position p0;
 		private Position p1;
 		private Highlighter.HighlightPainter painter;
-		
+
 		/** To be extended by subclasses. */
 		public Color getColor() {
 			return null;
 		}
-		
+
 		@Override
 		public int getStartOffset() {
 			return p0.getOffset();
 		}
-		
+
 		@Override
 		public int getEndOffset() {
 			return p1.getOffset();
 		}
-		
+
 		@Override
 		public Highlighter.HighlightPainter getPainter() {
 			return painter;
 		}
-		
+
 		public void setStartOffset(Position startOffset) {
 			this.p0 = startOffset;
 		}
-		
+
 		public void setEndOffset(Position endOffset) {
 			this.p1 = endOffset;
 		}
-		
+
 		public void setPainter(Highlighter.HighlightPainter painter) {
 			this.painter = painter;
 		}
 	}
-	
+
 	/**
-	 * A straightforward implementation of <code>HighlightInfo</code> for
-	 * painting layered highlights.
+	 * A straightforward implementation of <code>HighlightInfo</code> for painting
+	 * layered highlights.
 	 */
-	@SuppressWarnings({ "checkstyle:visibilitymodifier" })
 	protected static class LayeredHighlightInfoImpl extends HighlightInfoImpl implements LayeredHighlightInfo {
-		
+
 		/*
-		 * NOTE: This implementation is a "hack" so typing at the "end" of the
-		 * highlight
-		 * does not extend it to include the newly-typed chars, which is the
-		 * standard
-		 * behavior of Swing Highlights. It assumes that the "p1" Position set
-		 * is
-		 * actually 1 char too short, and will render the selection as if that
-		 * "extra"
+		 * NOTE: This implementation is a "hack" so typing at the "end" of the highlight
+		 * does not extend it to include the newly-typed chars, which is the standard
+		 * behavior of Swing Highlights. It assumes that the "p1" Position set is
+		 * actually 1 char too short, and will render the selection as if that "extra"
 		 * char should be highlighted.
 		 */
 		public int x;
 		public int y;
 		public int width;
 		public int height;
-		
+
 		void union(Shape bounds) {
 			if (bounds == null) {
 				return;
@@ -297,12 +286,13 @@ public class RTextAreaHighlighter extends BasicHighlighter {
 				height -= y;
 			}
 		}
-		
+
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void paintLayeredHighlights(Graphics g, int p0, int p1, Shape viewBounds, JTextComponent editor, View view) {
+		public void paintLayeredHighlights(Graphics g, int p0, int p1, Shape viewBounds, JTextComponent editor,
+				View view) {
 			int start = getStartOffset();
 			int end = getEndOffset();
 			end++; // Workaround for Java highlight issues

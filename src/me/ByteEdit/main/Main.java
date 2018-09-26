@@ -81,7 +81,7 @@ import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
 
 public class Main extends JFrame {
-	
+
 	public static Main INSTANCE;
 	private JPanel contentPane;
 	private boolean isChangingFile;
@@ -97,13 +97,13 @@ public class Main extends JFrame {
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static Theme theme;
-	
+
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
-			
+
 			public void run() {
 				try {
 					Main frame = new Main();
@@ -114,7 +114,7 @@ public class Main extends JFrame {
 			}
 		});
 	}
-	
+
 	/**
 	 * Create a simple provider that adds some Java-related completions.
 	 */
@@ -159,7 +159,7 @@ public class Main extends JFrame {
 				"<html><b><u>method</u></b><br>Creates an example method</html>"));
 		return provider;
 	}
-	
+
 	/**
 	 * Create the frame.
 	 */
@@ -200,7 +200,7 @@ public class Main extends JFrame {
 		}
 		tree = new JTree(new DefaultTreeModel(null));
 		tree.addKeyListener(new KeyAdapter() {
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && jarFile != null) {
@@ -230,7 +230,7 @@ public class Main extends JFrame {
 		}
 		scrollPane.setViewportView(tree);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
-			
+
 			public void valueChanged(TreeSelectionEvent e) {
 				if (!isChangingFile) {
 					String s = "";
@@ -248,7 +248,7 @@ public class Main extends JFrame {
 			}
 		});
 		new DropTarget(tree, new DropTargetListener() {
-			
+
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
@@ -279,25 +279,25 @@ public class Main extends JFrame {
 				}
 				dtde.rejectDrop();
 			}
-			
+
 			@Override
 			public void dragEnter(DropTargetDragEvent dtde) {}
-			
+
 			@Override
 			public void dragOver(DropTargetDragEvent dtde) {}
-			
+
 			@Override
 			public void dropActionChanged(DropTargetDragEvent dtde) {}
-			
+
 			@Override
 			public void dragExit(DropTargetEvent dte) {}
 		});
-		
+
 		txtByteEditView = new RSyntaxTextArea();
 		ac.install(txtByteEditView);
 		txtByteEditView.setCodeFoldingEnabled(true);
 		txtByteEditView.addKeyListener(new KeyAdapter() {
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && currentNodeName != null) {
@@ -328,7 +328,7 @@ public class Main extends JFrame {
 		KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
 		// global
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchBox.setVisible(true);
@@ -337,7 +337,7 @@ public class Main extends JFrame {
 			}
 		}, ctrlF, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				typeOpenBox.setVisible(true);
@@ -346,14 +346,14 @@ public class Main extends JFrame {
 			}
 		}, ctrlT, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				optionBox.setVisible(true);
 			}
 		}, ctrlO, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				unicodeBox.setVisible(true);
@@ -361,21 +361,21 @@ public class Main extends JFrame {
 		}, ctrlU, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		// specific
 		tree.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				save();
 			}
 		}, ctrlS, JComponent.WHEN_FOCUSED);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveCurrentClassNode();
 			}
 		}, ctrlS, JComponent.WHEN_FOCUSED);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -395,7 +395,7 @@ public class Main extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
-		
+
 		splitPane.setRightComponent(scrollPane_ByteEdit);
 		txtByteEditView.setBackground(Color.LIGHT_GRAY);
 		scrollPane_ByteEdit.setViewportView(txtByteEditView);
@@ -403,9 +403,9 @@ public class Main extends JFrame {
 		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
 		scrollPane_ByteEdit.getGutter().setBackground(Color.LIGHT_GRAY);
 	}
-	
+
 	private final Pattern jumpableInstructionPattern = Pattern.compile("^\t\t(?!//|\t+).+ .+");
-	
+
 	public void goToSelected() throws BadLocationException {
 		int lineStart = txtByteEditView.getLineStartOffsetOfCurrentLine();
 		int lineEnd = txtByteEditView.getLineEndOffsetOfCurrentLine() - 1;
@@ -447,7 +447,7 @@ public class Main extends JFrame {
 			selectFile(className + ".class");
 		}
 	}
-	
+
 	private void saveCurrentClassNode() {
 		String txt = txtByteEditView.getText();
 		for (String s : txt.split("\\/\\/ #Annotations\n")) {
@@ -462,7 +462,7 @@ public class Main extends JFrame {
 			}
 		}
 	}
-	
+
 	public static int selectFileWithSearch(String s, MethodNode methodToFind) {
 		if (s.endsWith(".class")) {
 			currentNodeName = s;
@@ -493,16 +493,16 @@ public class Main extends JFrame {
 		}
 		return -1;
 	}
-	
+
 	public static int selectFile(String s) {
 		return selectFileWithSearch(s, null);
 	}
-	
+
 	public static File saveFolder = null;
-	
+
 	public void save() {
 		final JFileChooser fileChooser = new JFileChooser(saveFolder) {
-			
+
 			@Override
 			protected JDialog createDialog(final Component parent) throws HeadlessException {
 				final JDialog dialog = super.createDialog(parent);
@@ -529,7 +529,7 @@ public class Main extends JFrame {
 			}
 		}
 	}
-	
+
 	public void save(File jar, Collection<ClassNode> classes) {
 		try {
 			final JarOutputStream output = new JarOutputStream(new FileOutputStream(jar));
@@ -586,7 +586,7 @@ public class Main extends JFrame {
 			showError(e);
 		}
 	}
-	
+
 	public static void showError(Throwable e) {
 		String s = e.toString() + "\n";
 		StackTraceElement[] stackTrace = e.getStackTrace();
@@ -596,19 +596,16 @@ public class Main extends JFrame {
 			s += "\tat " + ste + "\n";
 		}
 	}
-	
+
 	public static void showError(String s) {
 		JOptionPane.showMessageDialog(INSTANCE, s, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	class ArchiveTreeModel extends DefaultTreeModel {
-		
+
 		public ArchiveTreeModel(JarFile jar) {
-			super(new DefaultMutableTreeNode(
-					jar.getName()
-							.split(File.separator.equals("\\") ? "\\\\"
-									: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
-											- 1]));
+			super(new DefaultMutableTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
+					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length - 1]));
 			try {
 				ArrayList<String> paths = new ArrayList<>();
 				classNodes.clear();
@@ -662,7 +659,7 @@ public class Main extends JFrame {
 				showError(e);
 			}
 		}
-		
+
 		private DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name) {
 			Enumeration<?> e = parent.children();
 			while (e.hasMoreElements()) {

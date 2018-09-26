@@ -24,21 +24,19 @@ import javax.swing.text.DefaultEditorKit;
  * <li>INSERT key toggles between insert and overwrite modes.
  * <li>Ctrl+DELETE key deletes all text between the caret and the end of the
  * current line.
- * <li>Ctrl+Shift+Up and Ctrl+Shift+Down move the current line up and
- * down, respectively.
+ * <li>Ctrl+Shift+Up and Ctrl+Shift+Down move the current line up and down,
+ * respectively.
  * <li>Ctrl+J joins lines.
  * <li>Ctrl+Z is undo and Ctrl+Y is redo.
- * <li>Ctrl+Up and Ctrl+Down shift the visible area of the text area up and
- * down one line, respectively.
- * <li>F2 and Shift+F2 moves to the next and previous bookmarks,
- * respectively.
+ * <li>Ctrl+Up and Ctrl+Down shift the visible area of the text area up and down
+ * one line, respectively.
+ * <li>F2 and Shift+F2 moves to the next and previous bookmarks, respectively.
  * <li>Ctrl+F2 toggles whether a bookmark is on the current line.
  * <li>etc.
  * </ul>
  */
-@SuppressWarnings({ "checkstyle:linelength" })
 public class RTADefaultInputMap extends InputMap {
-	
+
 	/**
 	 * Constructs the default input map for an <code>RTextArea</code>.
 	 */
@@ -50,12 +48,14 @@ public class RTADefaultInputMap extends InputMap {
 		int shift = InputEvent.SHIFT_MASK;
 		boolean isOSX = RTextArea.isOSX();
 		int moveByWordMod = isOSX ? alt : defaultModifier;
-		put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), isOSX ? DefaultEditorKit.beginAction : DefaultEditorKit.beginLineAction);
+		put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0),
+				isOSX ? DefaultEditorKit.beginAction : DefaultEditorKit.beginLineAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, shift),
 				isOSX ? DefaultEditorKit.selectionBeginAction : DefaultEditorKit.selectionBeginLineAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, defaultModifier), DefaultEditorKit.beginAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, defaultModifier | shift), DefaultEditorKit.selectionBeginAction);
-		put(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0), isOSX ? DefaultEditorKit.endAction : DefaultEditorKit.endLineAction);
+		put(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0),
+				isOSX ? DefaultEditorKit.endAction : DefaultEditorKit.endLineAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_END, shift),
 				isOSX ? DefaultEditorKit.selectionEndAction : DefaultEditorKit.selectionEndLineAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_END, defaultModifier), DefaultEditorKit.endAction);
@@ -63,7 +63,8 @@ public class RTADefaultInputMap extends InputMap {
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), DefaultEditorKit.backwardAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, shift), DefaultEditorKit.selectionBackwardAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, moveByWordMod), DefaultEditorKit.previousWordAction);
-		put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, moveByWordMod | shift), DefaultEditorKit.selectionPreviousWordAction);
+		put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, moveByWordMod | shift),
+				DefaultEditorKit.selectionPreviousWordAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), DefaultEditorKit.downAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, shift), DefaultEditorKit.selectionDownAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, defaultModifier), RTextAreaEditorKit.rtaScrollDownAction);
@@ -78,10 +79,12 @@ public class RTADefaultInputMap extends InputMap {
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, alt), RTextAreaEditorKit.rtaLineUpAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), DefaultEditorKit.pageUpAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, shift), RTextAreaEditorKit.rtaSelectionPageUpAction);
-		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, defaultModifier | shift), RTextAreaEditorKit.rtaSelectionPageLeftAction);
+		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, defaultModifier | shift),
+				RTextAreaEditorKit.rtaSelectionPageLeftAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), DefaultEditorKit.pageDownAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, shift), RTextAreaEditorKit.rtaSelectionPageDownAction);
-		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, defaultModifier | shift), RTextAreaEditorKit.rtaSelectionPageRightAction);
+		put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, defaultModifier | shift),
+				RTextAreaEditorKit.rtaSelectionPageRightAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_CUT, 0), DefaultEditorKit.cutAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_COPY, 0), DefaultEditorKit.copyAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_PASTE, 0), DefaultEditorKit.pasteAction);
@@ -99,7 +102,8 @@ public class RTADefaultInputMap extends InputMap {
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_D, defaultModifier), RTextAreaEditorKit.rtaDeleteLineAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_J, defaultModifier), RTextAreaEditorKit.rtaJoinLinesAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, shift), DefaultEditorKit.deletePrevCharAction);
-		put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, defaultModifier), RTextAreaEditorKit.rtaDeletePrevWordAction);
+		put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, defaultModifier),
+				RTextAreaEditorKit.rtaDeletePrevWordAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), DefaultEditorKit.insertTabAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), DefaultEditorKit.insertBreakAction);
 		put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, shift), DefaultEditorKit.insertBreakAction);
@@ -114,8 +118,10 @@ public class RTADefaultInputMap extends InputMap {
 		if (isOSX) {
 			put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, defaultModifier), DefaultEditorKit.beginLineAction);
 			put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, defaultModifier), DefaultEditorKit.endLineAction);
-			put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, defaultModifier | shift), DefaultEditorKit.selectionBeginLineAction);
-			put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, defaultModifier | shift), DefaultEditorKit.selectionEndLineAction);
+			put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, defaultModifier | shift),
+					DefaultEditorKit.selectionBeginLineAction);
+			put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, defaultModifier | shift),
+					DefaultEditorKit.selectionEndLineAction);
 		}
 		/* NOTE: Currently, macros aren't part of the default input map for */
 		/* RTextArea, as they display their own popup windows, etc. which */
@@ -132,10 +138,10 @@ public class RTADefaultInputMap extends InputMap {
 		 * RTextAreaEditorKit.rtaPlaybackLastMacroAction);
 		 */
 	}
-	
+
 	/**
-	 * Returns the default modifier key for a system. For example, on Windows
-	 * this would be the CTRL key (<code>InputEvent.CTRL_MASK</code>).
+	 * Returns the default modifier key for a system. For example, on Windows this
+	 * would be the CTRL key (<code>InputEvent.CTRL_MASK</code>).
 	 *
 	 * @return The default modifier key.
 	 */

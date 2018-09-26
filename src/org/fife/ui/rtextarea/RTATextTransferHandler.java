@@ -37,33 +37,29 @@ import javax.swing.text.Position;
  * @author Robert Futrell
  * @version 0.1
  */
-@SuppressWarnings("deprecation")
 public class RTATextTransferHandler extends TransferHandler {
-	
+
 	private JTextComponent exportComp;
 	private boolean shouldRemove;
 	private int p0;
 	private int p1;
 	private boolean withinSameComponent;
-	
+
 	/**
-	 * Try to find a flavor that can be used to import a Transferable to a
-	 * specified text component.
-	 * The set of usable flavors are tried in the following order:
+	 * Try to find a flavor that can be used to import a Transferable to a specified
+	 * text component. The set of usable flavors are tried in the following order:
 	 * <ol>
-	 * <li>First, an attempt is made to find a flavor matching the content
-	 * tyep of the EditorKit for the component.
+	 * <li>First, an attempt is made to find a flavor matching the content tyep of
+	 * the EditorKit for the component.
 	 * <li>Second, an attempt to find a text/plain flavor is made.
-	 * <li>Third, an attempt to find a flavor representing a String
-	 * reference in the same VM is made.
+	 * <li>Third, an attempt to find a flavor representing a String reference in the
+	 * same VM is made.
 	 * <li>Lastly, DataFlavor.stringFlavor is searched for.
 	 * </ol>
 	 *
-	 * @param flavors
-	 *            The flavors to check if c will accept them.
-	 * @param c
-	 *            The text component to see whether it will accept any of the
-	 *            specified data flavors as input.
+	 * @param flavors The flavors to check if c will accept them.
+	 * @param c       The text component to see whether it will accept any of the
+	 *                specified data flavors as input.
 	 */
 	protected DataFlavor getImportFlavor(DataFlavor[] flavors, JTextComponent c) {
 		DataFlavor refFlavor = null;
@@ -86,7 +82,7 @@ public class RTATextTransferHandler extends TransferHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Import the given stream data into the text component.
 	 */
@@ -105,38 +101,38 @@ public class RTATextTransferHandler extends TransferHandler {
 			last = 0;
 			for (int counter = 0; counter < nch; counter++) {
 				switch (buff[counter]) {
-					case '\r':
-						if (lastWasCR) {
-							if (counter == 0) {
-								sbuff.append('\n');
-							} else {
-								buff[counter - 1] = '\n';
-							}
+				case '\r':
+					if (lastWasCR) {
+						if (counter == 0) {
+							sbuff.append('\n');
 						} else {
-							lastWasCR = true;
+							buff[counter - 1] = '\n';
 						}
-						break;
-					case '\n':
-						if (lastWasCR) {
-							if (counter > (last + 1)) {
-								sbuff.append(buff, last, counter - last - 1);
-							}
-							// else nothing to do, can skip \r, next write will
-							// write \n
-							lastWasCR = false;
-							last = counter;
+					} else {
+						lastWasCR = true;
+					}
+					break;
+				case '\n':
+					if (lastWasCR) {
+						if (counter > (last + 1)) {
+							sbuff.append(buff, last, counter - last - 1);
 						}
-						break;
-					default:
-						if (lastWasCR) {
-							if (counter == 0) {
-								sbuff.append('\n');
-							} else {
-								buff[counter - 1] = '\n';
-							}
-							lastWasCR = false;
+						// else nothing to do, can skip \r, next write will
+						// write \n
+						lastWasCR = false;
+						last = counter;
+					}
+					break;
+				default:
+					if (lastWasCR) {
+						if (counter == 0) {
+							sbuff.append('\n');
+						} else {
+							buff[counter - 1] = '\n';
 						}
-						break;
+						lastWasCR = false;
+					}
+					break;
 				} // End fo switch (buff[counter]).
 			} // End of for (int counter = 0; counter < nch; counter++).
 			if (last < nch) {
@@ -157,16 +153,15 @@ public class RTATextTransferHandler extends TransferHandler {
 		}
 		c.replaceSelection(sbuff != null ? sbuff.toString() : "");
 	}
-	
+
 	/**
-	 * This is the type of transfer actions supported by the source. Some
-	 * models are not mutable, so a transfer operation of COPY only should
-	 * be advertised in that case.
+	 * This is the type of transfer actions supported by the source. Some models are
+	 * not mutable, so a transfer operation of COPY only should be advertised in
+	 * that case.
 	 *
-	 * @param c
-	 *            The component holding the data to be transfered. This
-	 *            argument is provided to enable sharing of TransferHandlers by
-	 *            multiple components.
+	 * @param c The component holding the data to be transfered. This argument is
+	 *          provided to enable sharing of TransferHandlers by multiple
+	 *          components.
 	 * @return If the text component is editable, COPY_OR_MOVE is returned,
 	 *         otherwise just COPY is allowed.
 	 */
@@ -178,14 +173,13 @@ public class RTATextTransferHandler extends TransferHandler {
 			return COPY;
 		}
 	}
-	
+
 	/**
 	 * Create a Transferable to use as the source for a data transfer.
 	 *
-	 * @param comp
-	 *            The component holding the data to be transfered. This
-	 *            argument is provided to enable sharing of TransferHandlers by
-	 *            multiple components.
+	 * @param comp The component holding the data to be transfered. This argument is
+	 *             provided to enable sharing of TransferHandlers by multiple
+	 *             components.
 	 * @return The representation of the data to be transfered.
 	 *
 	 */
@@ -197,18 +191,15 @@ public class RTATextTransferHandler extends TransferHandler {
 		p1 = exportComp.getSelectionEnd();
 		return (p0 != p1) ? (new TextTransferable(exportComp, p0, p1)) : null;
 	}
-	
+
 	/**
-	 * This method is called after data has been exported. This method should
-	 * remove the data that was transfered if the action was MOVE.
+	 * This method is called after data has been exported. This method should remove
+	 * the data that was transfered if the action was MOVE.
 	 *
-	 * @param source
-	 *            The component that was the source of the data.
-	 * @param data
-	 *            The data that was transferred or possibly null
-	 *            if the action is <code>NONE</code>.
-	 * @param action
-	 *            The actual action that was performed.
+	 * @param source The component that was the source of the data.
+	 * @param data   The data that was transferred or possibly null if the action is
+	 *               <code>NONE</code>.
+	 * @param action The actual action that was performed.
 	 */
 	@Override
 	protected void exportDone(JComponent source, Transferable data, int action) {
@@ -227,18 +218,15 @@ public class RTATextTransferHandler extends TransferHandler {
 			ClipboardHistory.get().add(((TextTransferable) data).getPlainData());
 		}
 	}
-	
+
 	/**
-	 * This method causes a transfer to a component from a clipboard or a
-	 * DND drop operation. The Transferable represents the data to be
-	 * imported into the component.
+	 * This method causes a transfer to a component from a clipboard or a DND drop
+	 * operation. The Transferable represents the data to be imported into the
+	 * component.
 	 *
-	 * @param comp
-	 *            The component to receive the transfer. This
-	 *            argument is provided to enable sharing of TransferHandlers by
-	 *            multiple components.
-	 * @param t
-	 *            The data to import
+	 * @param comp The component to receive the transfer. This argument is provided
+	 *             to enable sharing of TransferHandlers by multiple components.
+	 * @param t    The data to import
 	 * @return <code>true</code> iff the data was inserted into the component.
 	 */
 	@Override
@@ -272,17 +260,15 @@ public class RTATextTransferHandler extends TransferHandler {
 		}
 		return imported;
 	}
-	
+
 	/**
-	 * This method indicates if a component would accept an import of the
-	 * given set of data flavors prior to actually attempting to import it.
+	 * This method indicates if a component would accept an import of the given set
+	 * of data flavors prior to actually attempting to import it.
 	 *
-	 * @param comp
-	 *            The component to receive the transfer. This argument is
-	 *            provided to enable sharing of TransferHandlers by multiple
-	 *            components.
-	 * @param flavors
-	 *            The data formats available.
+	 * @param comp    The component to receive the transfer. This argument is
+	 *                provided to enable sharing of TransferHandlers by multiple
+	 *                components.
+	 * @param flavors The data formats available.
 	 * @return <code>true</code> iff the data can be inserted.
 	 */
 	@Override
@@ -293,19 +279,19 @@ public class RTATextTransferHandler extends TransferHandler {
 		}
 		return (getImportFlavor(flavors, c) != null);
 	}
-	
+
 	/**
 	 * A possible implementation of the Transferable interface for RTextAreas.
 	 */
 	static class TextTransferable implements Transferable {
-		
+
 		private Position p0;
 		private Position p1;
 		private JTextComponent c;
 		protected String plainData;
 		private static DataFlavor[] stringFlavors;
 		private static DataFlavor[] plainFlavors;
-		
+
 		TextTransferable(JTextComponent c, int start, int end) {
 			this.c = c;
 			Document doc = c.getDocument();
@@ -313,31 +299,27 @@ public class RTATextTransferHandler extends TransferHandler {
 				p0 = doc.createPosition(start);
 				p1 = doc.createPosition(end);
 				plainData = c.getSelectedText();
-			} catch (BadLocationException ble) {}
+			} catch (BadLocationException ble) {
+			}
 		}
-		
+
 		/**
 		 * Fetch the data in a text/plain format.
 		 */
 		protected String getPlainData() {
 			return plainData;
 		}
-		
+
 		/**
-		 * Returns an object which represents the data to be transferred. The
-		 * class
-		 * of the object returned is defined by the representation class of the
-		 * flavor.
+		 * Returns an object which represents the data to be transferred. The class of
+		 * the object returned is defined by the representation class of the flavor.
 		 *
-		 * @param flavor
-		 *            the requested flavor for the data
+		 * @param flavor the requested flavor for the data
 		 * @see DataFlavor#getRepresentationClass
-		 * @exception IOException
-		 *                if the data is no longer available
-		 *                in the requested flavor.
-		 * @exception UnsupportedFlavorException
-		 *                if the requested data flavor is
-		 *                not supported.
+		 * @exception IOException                if the data is no longer available in
+		 *                                       the requested flavor.
+		 * @exception UnsupportedFlavorException if the requested data flavor is not
+		 *                                       supported.
 		 */
 		@Override
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
@@ -359,17 +341,13 @@ public class RTATextTransferHandler extends TransferHandler {
 			}
 			throw new UnsupportedFlavorException(flavor);
 		}
-		
+
 		/**
-		 * Returns an array of DataFlavor objects indicating the flavors the
-		 * data
-		 * can be provided in. The array should be ordered according to
-		 * preference
-		 * for providing the data (from most richly descriptive to least
-		 * descriptive).
+		 * Returns an array of DataFlavor objects indicating the flavors the data can be
+		 * provided in. The array should be ordered according to preference for
+		 * providing the data (from most richly descriptive to least descriptive).
 		 *
-		 * @return an array of data flavors in which this data can be
-		 *         transferred
+		 * @return an array of data flavors in which this data can be transferred
 		 */
 		@Override
 		public DataFlavor[] getTransferDataFlavors() {
@@ -389,15 +367,13 @@ public class RTATextTransferHandler extends TransferHandler {
 			}
 			return flavors;
 		}
-		
+
 		/**
-		 * Returns whether or not the specified data flavor is supported for
-		 * this object.
+		 * Returns whether or not the specified data flavor is supported for this
+		 * object.
 		 * 
-		 * @param flavor
-		 *            the requested flavor for the data
-		 * @return boolean indicating whether or not the data flavor is
-		 *         supported
+		 * @param flavor the requested flavor for the data
+		 * @return boolean indicating whether or not the data flavor is supported
 		 */
 		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor) {
@@ -409,16 +385,13 @@ public class RTATextTransferHandler extends TransferHandler {
 			}
 			return false;
 		}
-		
+
 		/**
-		 * Returns whether or not the specified data flavor is an plain flavor
-		 * that
-		 * is supported.
+		 * Returns whether or not the specified data flavor is an plain flavor that is
+		 * supported.
 		 * 
-		 * @param flavor
-		 *            the requested flavor for the data
-		 * @return boolean indicating whether or not the data flavor is
-		 *         supported
+		 * @param flavor the requested flavor for the data
+		 * @return boolean indicating whether or not the data flavor is supported
 		 */
 		protected boolean isPlainFlavor(DataFlavor flavor) {
 			DataFlavor[] flavors = plainFlavors;
@@ -429,24 +402,21 @@ public class RTATextTransferHandler extends TransferHandler {
 			}
 			return false;
 		}
-		
+
 		/**
-		 * Should the plain text flavors be offered? If so, the method
-		 * getPlainData should be implemented to provide something reasonable.
+		 * Should the plain text flavors be offered? If so, the method getPlainData
+		 * should be implemented to provide something reasonable.
 		 */
 		protected boolean isPlainSupported() {
 			return plainData != null;
 		}
-		
+
 		/**
-		 * Returns whether or not the specified data flavor is a String flavor
-		 * that
-		 * is supported.
+		 * Returns whether or not the specified data flavor is a String flavor that is
+		 * supported.
 		 * 
-		 * @param flavor
-		 *            the requested flavor for the data
-		 * @return boolean indicating whether or not the data flavor is
-		 *         supported
+		 * @param flavor the requested flavor for the data
+		 * @return boolean indicating whether or not the data flavor is supported
 		 */
 		protected boolean isStringFlavor(DataFlavor flavor) {
 			DataFlavor[] flavors = stringFlavors;
@@ -457,16 +427,17 @@ public class RTATextTransferHandler extends TransferHandler {
 			}
 			return false;
 		}
-		
+
 		void removeText() {
 			if ((p0 != null) && (p1 != null) && (p0.getOffset() != p1.getOffset())) {
 				try {
 					Document doc = c.getDocument();
 					doc.remove(p0.getOffset(), p1.getOffset() - p0.getOffset());
-				} catch (BadLocationException e) {}
+				} catch (BadLocationException e) {
+				}
 			}
 		}
-		
+
 		// Initialization of supported flavors.
 		static {
 			try {

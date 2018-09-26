@@ -49,7 +49,7 @@ import me.ByteEdit.utils.SwitchIntContainer;
 import me.ByteEdit.utils.UnicodeUtils;
 
 public class Assembler {
-	
+
 	public static ClassNode assemble(String input) {
 		Main.txtByteEditView.removeAllLineHighlights();
 		CustomBufferedReader read = null;
@@ -79,9 +79,9 @@ public class Assembler {
 					clazz.innerClasses = new ArrayList<>();
 				} else {
 					String split[] = s.split(" ");
-					clazz.innerClasses.add(new InnerClassNode(UnicodeUtils.unescape(split[1]),
-							split[2].equals("null") ? null : UnicodeUtils.unescape(split[2]),
-							split[3].equals("null") ? null : UnicodeUtils.unescape(split[3]), Integer.parseInt(split[4].substring(2), 16)));
+					clazz.innerClasses
+							.add(new InnerClassNode(UnicodeUtils.unescape(split[1]), split[2].equals("null") ? null : UnicodeUtils.unescape(split[2]),
+									split[3].equals("null") ? null : UnicodeUtils.unescape(split[3]), Integer.parseInt(split[4].substring(2), 16)));
 				}
 			}
 			{
@@ -297,9 +297,8 @@ public class Assembler {
 									_end = new LabelNode(entry.getKey());
 								}
 							}
-							node.localVariables
-									.add(new LocalVariableNode(sp[0], UnicodeUtils.unescape(sp[1].substring(1, sp[1].length() - 2)), signat,
-											_start, _end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
+							node.localVariables.add(new LocalVariableNode(sp[0], UnicodeUtils.unescape(sp[1].substring(1, sp[1].length() - 2)),
+									signat, _start, _end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
 						}
 						for (String st : tryCatchBlocksToParse) {
 							String[] sp = st.split(" ");
@@ -320,8 +319,8 @@ public class Assembler {
 									_handler = new LabelNode(entry.getKey());
 								}
 							}
-							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler,
-									sp[0].equals("null") ? null : UnicodeUtils.unescape(sp[0])));
+							node.tryCatchBlocks
+									.add(new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : UnicodeUtils.unescape(sp[0])));
 						}
 						clazz.methods.add(node);
 						// signature = null;
@@ -432,7 +431,7 @@ public class Assembler {
 			} catch (Exception e) {}
 		}
 	}
-	
+
 	private static AnnotationNode parseAnnotation(String s) {
 		s = s.substring(1);
 		String[] split = s.split(" ");
@@ -482,7 +481,7 @@ public class Assembler {
 		}
 		return node;
 	}
-	
+
 	private static String consolidateStrings(String[] args, int start) {
 		if (args.length == 0) {
 			return null;
@@ -495,7 +494,7 @@ public class Assembler {
 		}
 		return ret;
 	}
-	
+
 	private static String consolidateStrings(String[] args, int start, int end) {
 		if (end == 0) {
 			return null;
@@ -508,7 +507,7 @@ public class Assembler {
 		}
 		return ret;
 	}
-	
+
 	private static Object getValue(String s, String to) {
 		if (s == null) {
 			return null;
@@ -537,7 +536,7 @@ public class Assembler {
 			}
 		}
 	}
-	
+
 	private static AbstractInsnNode getNode(String s, HashMap<Label, Integer> labels) throws Exception {
 		if (s.startsWith("// label ")) {
 			int labelNr = Integer.parseInt(s.substring(9));
@@ -643,8 +642,8 @@ public class Assembler {
 					}
 				}
 			}
-			return new FrameNode(Integer.parseInt(str1.split(" ")[0]), local != null ? local.length : 0, local,
-					stack != null ? stack.length : 0, stack);
+			return new FrameNode(Integer.parseInt(str1.split(" ")[0]), local != null ? local.length : 0, local, stack != null ? stack.length : 0,
+					stack);
 		} else {
 			String[] split = s.split(" ");
 			String command = split[0];
@@ -694,12 +693,12 @@ public class Assembler {
 						if (str.startsWith("Type: ")) {
 							str = str.substring(8, str.length() - 2);
 							String[] split2 = str.split("\n\t");
-							Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class, int.class, int.class);
+							Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, String.class, int.class, int.class);
 							constr.setAccessible(true);
 							String type = split2[0].substring(7);
-							val = constr.newInstance(new Object[] { ClassUtil.getIDFromClassNameForType(type),
-									split2[3].substring(6, split2[3].length() - 1).toCharArray(), Integer.parseInt(split2[1].substring(5)),
-									Integer.parseInt(split2[2].substring(5)) });
+							val = constr.newInstance(
+									new Object[] { ClassUtil.getIDFromClassNameForType(type), split2[3].substring(6, split2[3].length() - 1),
+											Integer.parseInt(split2[1].substring(7)), Integer.parseInt(split2[2].substring(5)) });
 						} else if (str.startsWith("\"") && str.endsWith("\"")) {
 							val = UnicodeUtils.unescape(str.substring(1, str.length() - 1));
 						} else if (str.endsWith("l")) {
@@ -1193,7 +1192,7 @@ public class Assembler {
 								labelIDs.put(BigInteger.valueOf(dfltLabelNr), dflt);
 							}
 							labelMap.replaceAll(new BiFunction<SwitchIntContainer, LabelNode, LabelNode>() {
-								
+
 								@Override
 								public LabelNode apply(SwitchIntContainer t, LabelNode u) {
 									if (entry.getValue().intValue() == t.getId()) {
@@ -1201,7 +1200,7 @@ public class Assembler {
 									}
 									return u;
 								}
-								
+
 							});
 						}
 						if (dflt == null) {
@@ -1226,8 +1225,7 @@ public class Assembler {
 						arr[counter] = ln;
 						counter++;
 					}
-					return new TableSwitchInsnNode(Integer.parseInt(split2[0].substring(5)), Integer.parseInt(split2[1].substring(5)), dflt,
-							arr);
+					return new TableSwitchInsnNode(Integer.parseInt(split2[0].substring(5)), Integer.parseInt(split2[1].substring(5)), dflt, arr);
 				}
 				case "lookupswitch": {
 					String str = s.substring(15, s.length() - 2).replace("\t", "");
@@ -1260,7 +1258,7 @@ public class Assembler {
 							labelIDs.put(BigInteger.valueOf(labelNr), dflt);
 						}
 						labelMap.replaceAll(new BiFunction<SwitchIntContainer, LabelNode, LabelNode>() {
-							
+
 							@Override
 							public LabelNode apply(SwitchIntContainer t, LabelNode u) {
 								if (entry.getValue().intValue() == t.getId()) {
@@ -1268,7 +1266,7 @@ public class Assembler {
 								}
 								return u;
 							}
-							
+
 						});
 					}
 					if (dflt == null) {
@@ -1375,19 +1373,18 @@ public class Assembler {
 						if (st.equals("]")) {
 							if (stage == 1) {
 								try {
-									Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, char[].class, int.class,
-											int.class);
+									Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, String.class, int.class, int.class);
 									constr.setAccessible(true);
 									args.add(constr.newInstance(new Object[] { Integer.parseInt(vals.get(0).substring(6)),
-											UnicodeUtils.unescape(vals.get(3).substring(6, vals.get(3).length() - 1)).toCharArray(),
-											Integer.parseInt(vals.get(1).substring(5)), Integer.parseInt(vals.get(2).substring(5)) }));
+											UnicodeUtils.unescape(vals.get(3).substring(6, vals.get(3).length() - 1)),
+											Integer.parseInt(vals.get(1).substring(7)), Integer.parseInt(vals.get(2).substring(5)) }));
 								} catch (Exception e) {
 									throw e;
 								}
 							} else if (stage == 2) {
-								args.add(new Handle(Integer.parseInt(vals.get(4).substring(5)),
-										UnicodeUtils.unescape(vals.get(1).substring(7)), UnicodeUtils.unescape(vals.get(0).substring(6)),
-										UnicodeUtils.unescape(vals.get(2).substring(6)), Boolean.parseBoolean(vals.get(3).substring(13))));
+								args.add(new Handle(Integer.parseInt(vals.get(4).substring(5)), UnicodeUtils.unescape(vals.get(1).substring(7)),
+										UnicodeUtils.unescape(vals.get(0).substring(6)), UnicodeUtils.unescape(vals.get(2).substring(6)),
+										Boolean.parseBoolean(vals.get(3).substring(13))));
 								vals.clear();
 							}
 							stage = 0;

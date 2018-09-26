@@ -62,17 +62,16 @@ import org.xml.sax.helpers.DefaultHandler;
  * for various tasks.
  * <p>
  *
- * Note that to save a <code>Theme</code> via {@link #save(OutputStream)},
- * you must currently create a <code>Theme</code> from a text area wrapped in
- * an <code>RTextScrollPane</code>, so that the color information for the
- * gutter can be retrieved.
+ * Note that to save a <code>Theme</code> via {@link #save(OutputStream)}, you
+ * must currently create a <code>Theme</code> from a text area wrapped in an
+ * <code>RTextScrollPane</code>, so that the color information for the gutter
+ * can be retrieved.
  *
  * @author Robert Futrell
  * @version 1.0
  */
-@SuppressWarnings({ "checkstyle:visibilitymodifier" })
 public class Theme {
-	
+
 	public Font baseFont;
 	public Color bgColor;
 	public Color caretColor;
@@ -103,14 +102,13 @@ public class Theme {
 	public Color foldIndicatorFG;
 	public Color foldBG;
 	public Color armedFoldBG;
-	
+
 	/**
 	 * Private constructor, used when loading from a stream.
 	 *
-	 * @param baseFont
-	 *            The default font to use for any "base font" properties
-	 *            not specified in the theme XML. If this is <code>null</code>,
-	 *            a default monospaced font will be used.
+	 * @param baseFont The default font to use for any "base font" properties not
+	 *                 specified in the theme XML. If this is <code>null</code>, a
+	 *                 default monospaced font will be used.
 	 */
 	private Theme(Font baseFont) {
 		// Optional fields that require a default value.
@@ -118,13 +116,12 @@ public class Theme {
 		secondaryLanguages = new Color[3];
 		activeLineRangeColor = Gutter.DEFAULT_ACTIVE_LINE_RANGE_COLOR;
 	}
-	
+
 	/**
-	 * Creates a theme from an RSyntaxTextArea. It should be contained in
-	 * an <code>RTextScrollPane</code> to get all gutter color information.
+	 * Creates a theme from an RSyntaxTextArea. It should be contained in an
+	 * <code>RTextScrollPane</code> to get all gutter color information.
 	 *
-	 * @param textArea
-	 *            The text area.
+	 * @param textArea The text area.
 	 */
 	public Theme(RSyntaxTextArea textArea) {
 		baseFont = textArea.getFont();
@@ -165,12 +162,11 @@ public class Theme {
 			armedFoldBG = gutter.getArmedFoldBackground();
 		}
 	}
-	
+
 	/**
 	 * Applies this theme to a text area.
 	 *
-	 * @param textArea
-	 *            The text area to apply this theme to.
+	 * @param textArea The text area to apply this theme to.
 	 */
 	public void apply(RSyntaxTextArea textArea) {
 		textArea.setFont(baseFont);
@@ -212,7 +208,7 @@ public class Theme {
 			gutter.setArmedFoldBackground(armedFoldBG);
 		}
 	}
-	
+
 	private static String colorToString(Color c) {
 		int color = c.getRGB() & 0xffffff;
 		StringBuilder stringBuilder = new StringBuilder(Integer.toHexString(color));
@@ -221,7 +217,7 @@ public class Theme {
 		}
 		return stringBuilder.toString();
 	}
-	
+
 	/**
 	 * Returns the default selection background color to use if "default" is
 	 * specified in a theme.
@@ -243,7 +239,7 @@ public class Theme {
 		}
 		return c;
 	}
-	
+
 	/**
 	 * Returns the default selection background color to use if "default" is
 	 * specified in a theme.
@@ -264,10 +260,10 @@ public class Theme {
 		}
 		return c;
 	}
-	
+
 	/**
-	 * Returns the default "selected text" color to use if "default" is
-	 * specified in a theme.
+	 * Returns the default "selected text" color to use if "default" is specified in
+	 * a theme.
 	 *
 	 * @return The default selection foreground color to use.
 	 * @see #getDefaultSelectionBG()
@@ -285,16 +281,13 @@ public class Theme {
 		}
 		return c;
 	}
-	
+
 	/**
 	 * Returns the specified font.
 	 *
-	 * @param family
-	 *            The font family.
-	 * @param style
-	 *            The style of font.
-	 * @param size
-	 *            The size of the font.
+	 * @param family The font family.
+	 * @param style  The style of font.
+	 * @param size   The size of the font.
 	 * @return The font.
 	 */
 	private static Font getFont(String family, int style, int size) {
@@ -302,35 +295,30 @@ public class Theme {
 		StyleContext sc = StyleContext.getDefaultStyleContext();
 		return sc.getFont(family, style, size);
 	}
-	
+
 	/**
 	 * Loads a theme.
 	 *
-	 * @param in
-	 *            The input stream to read from. This will be closed when this
-	 *            method returns.
+	 * @param in The input stream to read from. This will be closed when this method
+	 *           returns.
 	 * @return The theme.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @throws IOException If an IO error occurs.
 	 * @see #save(OutputStream)
 	 */
 	public static Theme load(InputStream in) throws IOException {
 		return load(in, null);
 	}
-	
+
 	/**
 	 * Loads a theme.
 	 *
-	 * @param in
-	 *            The input stream to read from. This will be closed when this
-	 *            method returns.
-	 * @param baseFont
-	 *            The default font to use for any "base font" properties
-	 *            not specified in the theme XML. If this is <code>null</code>,
-	 *            a default monospaced font will be used.
+	 * @param in       The input stream to read from. This will be closed when this
+	 *                 method returns.
+	 * @param baseFont The default font to use for any "base font" properties not
+	 *                 specified in the theme XML. If this is <code>null</code>, a
+	 *                 default monospaced font will be used.
 	 * @return The theme.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @throws IOException If an IO error occurs.
 	 * @see #save(OutputStream)
 	 */
 	public static Theme load(InputStream in, Font baseFont) throws IOException {
@@ -343,14 +331,12 @@ public class Theme {
 		}
 		return theme;
 	}
-	
+
 	/**
 	 * Saves this theme to an output stream.
 	 *
-	 * @param out
-	 *            The output stream to write to.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param out The output stream to write to.
+	 * @throws IOException If an IO error occurs.
 	 * @see #load(InputStream)
 	 */
 	public void save(OutputStream out) throws IOException {
@@ -495,11 +481,11 @@ public class Theme {
 			bout.close();
 		}
 	}
-	
+
 	/**
-	 * Returns the color represented by a string. The input is expected to
-	 * be a 6-digit hex string, optionally prefixed by a '$'. For example,
-	 * either of the following:
+	 * Returns the color represented by a string. The input is expected to be a
+	 * 6-digit hex string, optionally prefixed by a '$'. For example, either of the
+	 * following:
 	 * 
 	 * <pre>
 	 * "$00ff00"
@@ -508,18 +494,17 @@ public class Theme {
 	 * 
 	 * will return <code>new Color(0, 255, 0)</code>.
 	 *
-	 * @param s
-	 *            The string to evaluate.
+	 * @param s The string to evaluate.
 	 * @return The color.
 	 */
 	private static Color stringToColor(String s) {
 		return stringToColor(s, null);
 	}
-	
+
 	/**
-	 * Returns the color represented by a string. The input is expected to
-	 * be a 6-digit hex string, optionally prefixed by a '$'. For example,
-	 * either of the following:
+	 * Returns the color represented by a string. The input is expected to be a
+	 * 6-digit hex string, optionally prefixed by a '$'. For example, either of the
+	 * following:
 	 * 
 	 * <pre>
 	 * "$00ff00"
@@ -528,11 +513,9 @@ public class Theme {
 	 * 
 	 * will return <code>new Color(0, 255, 0)</code>.
 	 *
-	 * @param s
-	 *            The string to evaluate.
-	 * @param defaultVal
-	 *            The color to use if <code>s</code> is
-	 *            "<code>default</code>".
+	 * @param s          The string to evaluate.
+	 * @param defaultVal The color to use if <code>s</code> is
+	 *                   "<code>default</code>".
 	 * @return The color.
 	 */
 	private static Color stringToColor(String s, Color defaultVal) {
@@ -547,24 +530,24 @@ public class Theme {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Loads a <code>SyntaxScheme</code> from an XML file.
 	 */
 	private static class XmlHandler extends DefaultHandler {
-		
+
 		private Theme theme;
-		
+
 		@Override
 		public void error(SAXParseException e) throws SAXException {
 			throw e;
 		}
-		
+
 		@Override
 		public void fatalError(SAXParseException e) throws SAXException {
 			throw e;
 		}
-		
+
 		public static void load(Theme theme, InputStream in) throws IOException {
 			SAXParserFactory spf = SAXParserFactory.newInstance();
 			spf.setValidating(true);
@@ -584,7 +567,7 @@ public class Theme {
 				throw new IOException(se.toString());
 			}
 		}
-		
+
 		private static int parseInt(Attributes attrs, String attr, int def) {
 			int value = def;
 			String temp = attrs.getValue(attr);
@@ -597,12 +580,12 @@ public class Theme {
 			}
 			return value;
 		}
-		
+
 		@Override
 		public InputSource resolveEntity(String publicID, String systemID) throws SAXException {
 			return new InputSource(getClass().getResourceAsStream("themes/theme.dtd"));
 		}
-		
+
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attrs) {
 			if ("background".equals(qName)) {
@@ -787,7 +770,7 @@ public class Theme {
 				}
 			}
 		}
-		
+
 		@Override
 		public void warning(SAXParseException e) throws SAXException {
 			throw e;

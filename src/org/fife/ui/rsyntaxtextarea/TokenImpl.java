@@ -22,19 +22,18 @@ import javax.swing.text.Utilities;
  * <b>Note:</b> The instances of <code>Token</code> returned by
  * {@link RSyntaxDocument}s are pooled and should always be treated as
  * immutable. They should not be cast to <code>TokenImpl</code> and modified.
- * Modifying tokens you did not create yourself can and will result in
- * rendering issues and/or runtime exceptions. You have been warned!
+ * Modifying tokens you did not create yourself can and will result in rendering
+ * issues and/or runtime exceptions. You have been warned!
  *
  * @author Robert Futrell
  * @version 0.3
  */
-@SuppressWarnings({ "checkstyle:visibilitymodifier" })
 public class TokenImpl implements Token {
-	
+
 	/**
-	 * The text this token represents. This is implemented as a segment so we
-	 * can point directly to the text in the document without having to make a
-	 * copy of it.
+	 * The text this token represents. This is implemented as a segment so we can
+	 * point directly to the text in the document without having to make a copy of
+	 * it.
 	 */
 	public char[] text;
 	public int textOffset;
@@ -59,11 +58,11 @@ public class TokenImpl implements Token {
 	 * The language this token is in, <code>&gt;= 0</code>.
 	 */
 	private int languageIndex;
-	
+
 	/**
-	 * Creates a "null" token. The token itself is not null; rather, it
-	 * signifies that it is the last token in a linked list of tokens and
-	 * that it is not part of a "multi-line token."
+	 * Creates a "null" token. The token itself is not null; rather, it signifies
+	 * that it is the last token in a linked list of tokens and that it is not part
+	 * of a "multi-line token."
 	 */
 	public TokenImpl() {
 		this.text = null;
@@ -74,69 +73,55 @@ public class TokenImpl implements Token {
 		hyperlink = false;
 		nextToken = null;
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param line
-	 *            The segment from which to get the token.
-	 * @param beg
-	 *            The first character's position in <code>line</code>.
-	 * @param end
-	 *            The last character's position in <code>line</code>.
-	 * @param startOffset
-	 *            The offset into the document at which this
-	 *            token begins.
-	 * @param type
-	 *            A token type listed as "generic" above.
-	 * @param languageIndex
-	 *            The language index for this token.
+	 * @param line          The segment from which to get the token.
+	 * @param beg           The first character's position in <code>line</code>.
+	 * @param end           The last character's position in <code>line</code>.
+	 * @param startOffset   The offset into the document at which this token begins.
+	 * @param type          A token type listed as "generic" above.
+	 * @param languageIndex The language index for this token.
 	 */
 	public TokenImpl(Segment line, int beg, int end, int startOffset, int type, int languageIndex) {
 		this(line.array, beg, end, startOffset, type, languageIndex);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param line
-	 *            The segment from which to get the token.
-	 * @param beg
-	 *            The first character's position in <code>line</code>.
-	 * @param end
-	 *            The last character's position in <code>line</code>.
-	 * @param startOffset
-	 *            The offset into the document at which this
-	 *            token begins.
-	 * @param type
-	 *            A token type listed as "generic" above.
-	 * @param languageIndex
-	 *            The language index for this token.
+	 * @param line          The segment from which to get the token.
+	 * @param beg           The first character's position in <code>line</code>.
+	 * @param end           The last character's position in <code>line</code>.
+	 * @param startOffset   The offset into the document at which this token begins.
+	 * @param type          A token type listed as "generic" above.
+	 * @param languageIndex The language index for this token.
 	 */
 	public TokenImpl(char[] line, int beg, int end, int startOffset, int type, int languageIndex) {
 		this();
 		set(line, beg, end, startOffset, type);
 		setLanguageIndex(languageIndex);
 	}
-	
+
 	/**
 	 * Creates this token as a copy of the passed-in token.
 	 *
-	 * @param t2
-	 *            The token from which to make a copy.
+	 * @param t2 The token from which to make a copy.
 	 */
 	public TokenImpl(Token t2) {
 		this();
 		copyFrom(t2);
 	}
-	
+
 	@Override
 	public StringBuilder appendHTMLRepresentation(StringBuilder sb, RSyntaxTextArea textArea, boolean fontFamily) {
 		return appendHTMLRepresentation(sb, textArea, fontFamily, false);
 	}
-	
+
 	@Override
-	public StringBuilder appendHTMLRepresentation(StringBuilder sb, RSyntaxTextArea textArea, boolean fontFamily, boolean tabsToSpaces) {
+	public StringBuilder appendHTMLRepresentation(StringBuilder sb, RSyntaxTextArea textArea, boolean fontFamily,
+			boolean tabsToSpaces) {
 		SyntaxScheme colorScheme = textArea.getSyntaxScheme();
 		Style scheme = colorScheme.getStyle(getType());
 		Font font = textArea.getFontForTokenType(getType());// scheme.font;
@@ -177,18 +162,15 @@ public class TokenImpl implements Token {
 		}
 		return sb;
 	}
-	
+
 	/**
-	 * Appends an HTML version of the lexeme of this token (i.e. no style
-	 * HTML, but replacing chars such as <code>\t</code>, <code>&lt;</code>
-	 * and <code>&gt;</code> with their escapes).
+	 * Appends an HTML version of the lexeme of this token (i.e. no style HTML, but
+	 * replacing chars such as <code>\t</code>, <code>&lt;</code> and
+	 * <code>&gt;</code> with their escapes).
 	 *
-	 * @param textArea
-	 *            The text area.
-	 * @param sb
-	 *            The buffer to append to.
-	 * @param tabsToSpaces
-	 *            Whether to convert tabs into spaces.
+	 * @param textArea     The text area.
+	 * @param sb           The buffer to append to.
+	 * @param tabsToSpaces Whether to convert tabs into spaces.
 	 * @return The same buffer.
 	 */
 	private StringBuilder appendHtmlLexeme(RSyntaxTextArea textArea, StringBuilder sb, boolean tabsToSpaces) {
@@ -199,64 +181,64 @@ public class TokenImpl implements Token {
 		while (i < textOffset + textCount) {
 			char ch = text[i];
 			switch (ch) {
-				case ' ':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append(lastWasSpace ? "&nbsp;" : " ");
-					lastWasSpace = true;
-					break;
-				case '\t':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					if (tabsToSpaces && tabStr == null) {
-						StringBuilder stringBuilder = new StringBuilder();
-						for (int j = 0; j < textArea.getTabSize(); j++) {
-							stringBuilder.append("&nbsp;");
-						}
-						tabStr = stringBuilder.toString();
+			case ' ':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append(lastWasSpace ? "&nbsp;" : " ");
+				lastWasSpace = true;
+				break;
+			case '\t':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				if (tabsToSpaces && tabStr == null) {
+					StringBuilder stringBuilder = new StringBuilder();
+					for (int j = 0; j < textArea.getTabSize(); j++) {
+						stringBuilder.append("&nbsp;");
 					}
-					sb.append(tabsToSpaces ? tabStr : "&#09;");
-					lastWasSpace = false;
-					break;
-				case '&':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append("&amp;");
-					lastWasSpace = false;
-					break;
-				case '<':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append("&lt;");
-					lastWasSpace = false;
-					break;
-				case '>':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append("&gt;");
-					lastWasSpace = false;
-					break;
-				case '\'':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append("&#39;");
-					lastWasSpace = false;
-					break;
-				case '"':
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append("&#34;");
-					lastWasSpace = false;
-					break;
-				case '/': // OWASP-recommended to escape even though unnecessary
-					sb.append(text, lastI, i - lastI);
-					lastI = i + 1;
-					sb.append("&#47;");
-					lastWasSpace = false;
-					break;
-				default:
-					lastWasSpace = false;
-					break;
+					tabStr = stringBuilder.toString();
+				}
+				sb.append(tabsToSpaces ? tabStr : "&#09;");
+				lastWasSpace = false;
+				break;
+			case '&':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append("&amp;");
+				lastWasSpace = false;
+				break;
+			case '<':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append("&lt;");
+				lastWasSpace = false;
+				break;
+			case '>':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append("&gt;");
+				lastWasSpace = false;
+				break;
+			case '\'':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append("&#39;");
+				lastWasSpace = false;
+				break;
+			case '"':
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append("&#34;");
+				lastWasSpace = false;
+				break;
+			case '/': // OWASP-recommended to escape even though unnecessary
+				sb.append(text, lastI, i - lastI);
+				lastI = i + 1;
+				sb.append("&#47;");
+				lastWasSpace = false;
+				break;
+			default:
+				lastWasSpace = false;
+				break;
 			}
 			i++;
 		}
@@ -265,23 +247,22 @@ public class TokenImpl implements Token {
 		}
 		return sb;
 	}
-	
+
 	@Override
 	public char charAt(int index) {
 		return text[textOffset + index];
 	}
-	
+
 	@Override
 	public boolean containsPosition(int pos) {
 		return pos >= getOffset() && pos < getOffset() + textCount;
 	}
-	
+
 	/**
-	 * Makes one token point to the same text segment, and have the same value
-	 * as another token.
+	 * Makes one token point to the same text segment, and have the same value as
+	 * another token.
 	 *
-	 * @param t2
-	 *            The token from which to copy.
+	 * @param t2 The token from which to copy.
 	 */
 	public void copyFrom(Token t2) {
 		text = t2.getTextArray();
@@ -293,12 +274,12 @@ public class TokenImpl implements Token {
 		languageIndex = t2.getLanguageIndex();
 		nextToken = t2.getNextToken();
 	}
-	
+
 	@Override
 	public int documentToToken(int pos) {
 		return pos + (textOffset - getOffset());
 	}
-	
+
 	@Override
 	public boolean endsWith(char[] ch) {
 		if (ch == null || ch.length > textCount) {
@@ -312,7 +293,7 @@ public class TokenImpl implements Token {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -322,21 +303,21 @@ public class TokenImpl implements Token {
 			return false;
 		}
 		Token t2 = (Token) obj;
-		return offset == t2.getOffset() && type == t2.getType() && languageIndex == t2.getLanguageIndex() && hyperlink == t2.isHyperlink()
-				&& ((getLexeme() == null && t2.getLexeme() == null) || (getLexeme() != null && getLexeme().equals(t2.getLexeme())));
+		return offset == t2.getOffset() && type == t2.getType() && languageIndex == t2.getLanguageIndex()
+				&& hyperlink == t2.isHyperlink() && ((getLexeme() == null && t2.getLexeme() == null)
+						|| (getLexeme() != null && getLexeme().equals(t2.getLexeme())));
 	}
-	
+
 	@Override
 	public int getEndOffset() {
 		return offset + textCount;
 	}
-	
+
 	/**
-	 * Returns a <code>String</code> of the form "#xxxxxx" good for use
-	 * in HTML, representing the given color.
+	 * Returns a <code>String</code> of the form "#xxxxxx" good for use in HTML,
+	 * representing the given color.
 	 *
-	 * @param color
-	 *            The color to get a string for.
+	 * @param color The color to get a string for.
 	 * @return The HTML form of the color. If <code>color</code> is
 	 *         <code>null</code>, <code>#000000</code> is returned.
 	 */
@@ -358,39 +339,39 @@ public class TokenImpl implements Token {
 		}
 		return "#" + hexRed + hexGreen + hexBlue;
 	}
-	
+
 	@Override
 	public String getHTMLRepresentation(RSyntaxTextArea textArea) {
 		StringBuilder buf = new StringBuilder();
 		appendHTMLRepresentation(buf, textArea, true);
 		return buf.toString();
 	}
-	
+
 	@Override
 	public int getLanguageIndex() {
 		return languageIndex;
 	}
-	
+
 	@Override
 	public Token getLastNonCommentNonWhitespaceToken() {
 		Token last = null;
 		for (Token t = this; t != null && t.isPaintable(); t = t.getNextToken()) {
 			switch (t.getType()) {
-				case COMMENT_DOCUMENTATION:
-				case COMMENT_EOL:
-				case COMMENT_MULTILINE:
-				case COMMENT_KEYWORD:
-				case COMMENT_MARKUP:
-				case WHITESPACE:
-					break;
-				default:
-					last = t;
-					break;
+			case COMMENT_DOCUMENTATION:
+			case COMMENT_EOL:
+			case COMMENT_MULTILINE:
+			case COMMENT_KEYWORD:
+			case COMMENT_MARKUP:
+			case WHITESPACE:
+				break;
+			default:
+				last = t;
+				break;
 			}
 		}
 		return last;
 	}
-	
+
 	@Override
 	public Token getLastPaintableToken() {
 		Token t = this;
@@ -403,12 +384,12 @@ public class TokenImpl implements Token {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String getLexeme() {
 		return text == null ? null : new String(text, textOffset, textCount);
 	}
-	
+
 	@Override
 	public int getListOffset(RSyntaxTextArea textArea, TabExpander e, float x0, float x) {
 		// If the coordinate in question is before this line's start, quit.
@@ -449,17 +430,17 @@ public class TokenImpl implements Token {
 		// If we didn't find anything, return the end position of the text.
 		return last;
 	}
-	
+
 	@Override
 	public Token getNextToken() {
 		return nextToken;
 	}
-	
+
 	@Override
 	public int getOffset() {
 		return offset;
 	}
-	
+
 	@Override
 	public int getOffsetBeforeX(RSyntaxTextArea textArea, TabExpander e, float startX, float endBeforeX) {
 		FontMetrics fm = textArea.getFontMetricsForTokenType(getType());
@@ -484,27 +465,27 @@ public class TokenImpl implements Token {
 		// If we got here, the whole token fit in (endBeforeX-startX) pixels.
 		return getOffset() + textCount - 1;
 	}
-	
+
 	@Override
 	public char[] getTextArray() {
 		return text;
 	}
-	
+
 	@Override
 	public int getTextOffset() {
 		return textOffset;
 	}
-	
+
 	@Override
 	public int getType() {
 		return type;
 	}
-	
+
 	@Override
 	public float getWidth(RSyntaxTextArea textArea, TabExpander e, float x0) {
 		return getWidthUpTo(textCount, textArea, e, x0);
 	}
-	
+
 	@Override
 	public float getWidthUpTo(int numChars, RSyntaxTextArea textArea, TabExpander e, float x0) {
 		float width = x0;
@@ -535,12 +516,12 @@ public class TokenImpl implements Token {
 		}
 		return width - x0;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return offset + (getLexeme() == null ? 0 : getLexeme().hashCode());
 	}
-	
+
 	@Override
 	public boolean is(char[] lexeme) {
 		if (textCount == lexeme.length) {
@@ -553,7 +534,7 @@ public class TokenImpl implements Token {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean is(int type, char[] lexeme) {
 		if (this.getType() == type && textCount == lexeme.length) {
@@ -566,67 +547,67 @@ public class TokenImpl implements Token {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean is(int type, String lexeme) {
 		return this.getType() == type && textCount == lexeme.length() && lexeme.equals(getLexeme());
 	}
-	
+
 	@Override
 	public boolean isComment() {
 		return getType() >= Token.COMMENT_EOL && getType() <= Token.COMMENT_MARKUP;
 	}
-	
+
 	@Override
 	public boolean isCommentOrWhitespace() {
 		return isComment() || isWhitespace();
 	}
-	
+
 	@Override
 	public boolean isHyperlink() {
 		return hyperlink;
 	}
-	
+
 	@Override
 	public boolean isIdentifier() {
 		return getType() == IDENTIFIER;
 	}
-	
+
 	@Override
 	public boolean isLeftCurly() {
 		return getType() == SEPARATOR && isSingleChar('{');
 	}
-	
+
 	@Override
 	public boolean isRightCurly() {
 		return getType() == SEPARATOR && isSingleChar('}');
 	}
-	
+
 	@Override
 	public boolean isPaintable() {
 		return getType() > Token.NULL;
 	}
-	
+
 	@Override
 	public boolean isSingleChar(char ch) {
 		return textCount == 1 && text[textOffset] == ch;
 	}
-	
+
 	@Override
 	public boolean isSingleChar(int type, char ch) {
 		return this.getType() == type && isSingleChar(ch);
 	}
-	
+
 	@Override
 	public boolean isWhitespace() {
 		return getType() == WHITESPACE;
 	}
-	
+
 	@Override
 	public int length() {
 		return textCount;
 	}
-	
+
 	@Override
 	public Rectangle listOffsetToView(RSyntaxTextArea textArea, TabExpander e, int pos, int x0, Rectangle rect) {
 		int stableX = x0; // Cached ending x-coord. of last tab or token.
@@ -678,49 +659,46 @@ public class TokenImpl implements Token {
 		rect.width = 1;
 		return rect;
 	}
-	
+
 	/**
 	 * Makes this token start at the specified offset into the document.
 	 * <p>
 	 *
-	 * <b>Note:</b> You should not modify <code>Token</code> instances you
-	 * did not create yourself (e.g., came from an
-	 * <code>RSyntaxDocument</code>). If you do, rendering issues and/or
-	 * runtime exceptions will likely occur. You have been warned!
+	 * <b>Note:</b> You should not modify <code>Token</code> instances you did not
+	 * create yourself (e.g., came from an <code>RSyntaxDocument</code>). If you do,
+	 * rendering issues and/or runtime exceptions will likely occur. You have been
+	 * warned!
 	 *
-	 * @param pos
-	 *            The offset into the document this token should start at.
-	 *            Note that this token must already contain this position; if
-	 *            it doesn't, an exception is thrown.
-	 * @throws IllegalArgumentException
-	 *             If pos is not already contained by
-	 *             this token.
+	 * @param pos The offset into the document this token should start at. Note that
+	 *            this token must already contain this position; if it doesn't, an
+	 *            exception is thrown.
+	 * @throws IllegalArgumentException If pos is not already contained by this
+	 *                                  token.
 	 * @see #moveOffset(int)
 	 */
 	public void makeStartAt(int pos) {
 		if (pos < getOffset() || pos >= (getOffset() + textCount)) {
-			throw new IllegalArgumentException("pos " + pos + " is not in range " + getOffset() + "-" + (getOffset() + textCount - 1));
+			throw new IllegalArgumentException(
+					"pos " + pos + " is not in range " + getOffset() + "-" + (getOffset() + textCount - 1));
 		}
 		int shift = pos - getOffset();
 		setOffset(pos);
 		textOffset += shift;
 		textCount -= shift;
 	}
-	
+
 	/**
 	 * Moves the starting offset of this token.
 	 * <p>
 	 *
-	 * <b>Note:</b> You should not modify <code>Token</code> instances you
-	 * did not create yourself (e.g., came from an
-	 * <code>RSyntaxDocument</code>). If you do, rendering issues and/or
-	 * runtime exceptions will likely occur. You have been warned!
+	 * <b>Note:</b> You should not modify <code>Token</code> instances you did not
+	 * create yourself (e.g., came from an <code>RSyntaxDocument</code>). If you do,
+	 * rendering issues and/or runtime exceptions will likely occur. You have been
+	 * warned!
 	 *
-	 * @param amt
-	 *            The amount to move the starting offset. This should be
-	 *            between <code>0</code> and <code>textCount</code>, inclusive.
-	 * @throws IllegalArgumentException
-	 *             If <code>amt</code> is an invalid value.
+	 * @param amt The amount to move the starting offset. This should be between
+	 *            <code>0</code> and <code>textCount</code>, inclusive.
+	 * @throws IllegalArgumentException If <code>amt</code> is an invalid value.
 	 * @see #makeStartAt(int)
 	 */
 	public void moveOffset(int amt) {
@@ -731,21 +709,16 @@ public class TokenImpl implements Token {
 		textOffset += amt;
 		textCount -= amt;
 	}
-	
+
 	/**
-	 * Sets the value of this token to a particular segment of a document.
-	 * The "next token" value is cleared.
+	 * Sets the value of this token to a particular segment of a document. The "next
+	 * token" value is cleared.
 	 *
-	 * @param line
-	 *            The segment from which to get the token.
-	 * @param beg
-	 *            The first character's position in <code>line</code>.
-	 * @param end
-	 *            The last character's position in <code>line</code>.
-	 * @param offset
-	 *            The offset into the document at which this token begins.
-	 * @param type
-	 *            A token type listed as "generic" above.
+	 * @param line   The segment from which to get the token.
+	 * @param beg    The first character's position in <code>line</code>.
+	 * @param end    The last character's position in <code>line</code>.
+	 * @param offset The offset into the document at which this token begins.
+	 * @param type   A token type listed as "generic" above.
 	 */
 	public void set(final char[] line, final int beg, final int end, final int offset, final int type) {
 		this.text = line;
@@ -755,61 +728,56 @@ public class TokenImpl implements Token {
 		this.setOffset(offset);
 		nextToken = null;
 	}
-	
+
 	/**
 	 * Sets whether this token is a hyperlink.
 	 *
-	 * @param hyperlink
-	 *            Whether this token is a hyperlink.
+	 * @param hyperlink Whether this token is a hyperlink.
 	 * @see #isHyperlink()
 	 */
 	@Override
 	public void setHyperlink(boolean hyperlink) {
 		this.hyperlink = hyperlink;
 	}
-	
+
 	/**
-	 * Sets the language index for this token. If this value is positive, it
-	 * denotes a specific "secondary" language this token represents (such as
-	 * JavaScript code or CSS embedded in an HTML file). If this value is
-	 * <code>0</code>, this token is in the "main" language being edited.
-	 * Negative values are invalid and treated as <code>0</code>.
+	 * Sets the language index for this token. If this value is positive, it denotes
+	 * a specific "secondary" language this token represents (such as JavaScript
+	 * code or CSS embedded in an HTML file). If this value is <code>0</code>, this
+	 * token is in the "main" language being edited. Negative values are invalid and
+	 * treated as <code>0</code>.
 	 *
-	 * @param languageIndex
-	 *            The new language index. A value of
-	 *            <code>0</code> denotes the "main" language, any positive value
-	 *            denotes a specific secondary language. Negative values will
-	 *            be treated as <code>0</code>.
+	 * @param languageIndex The new language index. A value of <code>0</code>
+	 *                      denotes the "main" language, any positive value denotes
+	 *                      a specific secondary language. Negative values will be
+	 *                      treated as <code>0</code>.
 	 * @see #getLanguageIndex()
 	 */
 	@Override
 	public void setLanguageIndex(int languageIndex) {
 		this.languageIndex = languageIndex;
 	}
-	
+
 	/**
-	 * Sets the "next token" pointer of this token to point to the specified
-	 * token.
+	 * Sets the "next token" pointer of this token to point to the specified token.
 	 *
-	 * @param nextToken
-	 *            The new next token.
+	 * @param nextToken The new next token.
 	 * @see #getNextToken()
 	 */
 	public void setNextToken(Token nextToken) {
 		this.nextToken = nextToken;
 	}
-	
+
 	/**
 	 * Sets the offset into the document at which this token resides.
 	 *
-	 * @param offset
-	 *            The new offset into the document.
+	 * @param offset The new offset into the document.
 	 * @see #getOffset()
 	 */
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -817,7 +785,7 @@ public class TokenImpl implements Token {
 	public void setType(int type) {
 		this.type = type;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -833,7 +801,7 @@ public class TokenImpl implements Token {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -841,18 +809,20 @@ public class TokenImpl implements Token {
 	public int tokenToDocument(int pos) {
 		return pos + (getOffset() - textOffset);
 	}
-	
+
 	/**
-	 * Returns this token as a <code>String</code>, which is useful for
-	 * debugging.
+	 * Returns this token as a <code>String</code>, which is useful for debugging.
 	 *
 	 * @return A string describing this token.
 	 */
 	@Override
 	public String toString() {
-		return "[Token: " + (getType() == Token.NULL ? "<null token>"
-				: "text: '" + (text == null ? "<null>" : getLexeme() + "'; " + "offset: " + getOffset() + "; type: " + getType() + "; "
-						+ "isPaintable: " + isPaintable() + "; nextToken==null: " + (nextToken == null)))
+		return "[Token: "
+				+ (getType() == Token.NULL ? "<null token>"
+						: "text: '" + (text == null ? "<null>"
+								: getLexeme() + "'; " + "offset: " + getOffset() + "; type: " + getType() + "; "
+										+ "isPaintable: " + isPaintable() + "; nextToken==null: "
+										+ (nextToken == null)))
 				+ "]";
 	}
 }

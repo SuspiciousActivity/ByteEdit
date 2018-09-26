@@ -22,9 +22,9 @@ import org.fife.ui.rsyntaxtextarea.DocumentRange;
 import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
 
 /**
- * A singleton class that can perform advanced find/replace operations
- * in an {@link RTextArea}. Simply create a {@link SearchContext} and call
- * one of the following methods:
+ * A singleton class that can perform advanced find/replace operations in an
+ * {@link RTextArea}. Simply create a {@link SearchContext} and call one of the
+ * following methods:
  *
  * <ul>
  * <li>{@link #find(JTextArea, SearchContext)}
@@ -38,25 +38,22 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  * @see SearchContext
  */
 public final class SearchEngine {
-	
+
 	/**
 	 * Private constructor to prevent instantiation.
 	 */
-	private SearchEngine() {}
-	
+	private SearchEngine() {
+	}
+
 	/**
-	 * Finds the next instance of the string/regular expression specified
-	 * from the caret position. If a match is found, it is selected in this
-	 * text area.
+	 * Finds the next instance of the string/regular expression specified from the
+	 * caret position. If a match is found, it is selected in this text area.
 	 *
-	 * @param textArea
-	 *            The text area in which to search.
-	 * @param context
-	 *            What to search for and all search options.
+	 * @param textArea The text area in which to search.
+	 * @param context  What to search for and all search options.
 	 * @return The result of the operation.
-	 * @throws PatternSyntaxException
-	 *             If this is a regular expression search
-	 *             but the search text is an invalid regular expression.
+	 * @throws PatternSyntaxException If this is a regular expression search but the
+	 *                                search text is an invalid regular expression.
 	 * @see #replace(RTextArea, SearchContext)
 	 * @see #replaceAll(RTextArea, SearchContext)
 	 */
@@ -106,21 +103,17 @@ public final class SearchEngine {
 		result.setMarkedCount(markAllCount);
 		return result;
 	}
-	
+
 	/**
-	 * Finds the next instance of the string/regular expression specified
-	 * from the caret position. If a match is found, it is selected in this
-	 * text area.
+	 * Finds the next instance of the string/regular expression specified from the
+	 * caret position. If a match is found, it is selected in this text area.
 	 *
-	 * @param findIn
-	 *            The text to search in.
-	 * @param context
-	 *            The search context.
-	 * @return The result of the operation. "Mark all" will always be zero,
-	 *         since this method does not perform that operation.
-	 * @throws PatternSyntaxException
-	 *             If this is a regular expression search
-	 *             but the search text is an invalid regular expression.
+	 * @param findIn  The text to search in.
+	 * @param context The search context.
+	 * @return The result of the operation. "Mark all" will always be zero, since
+	 *         this method does not perform that operation.
+	 * @throws PatternSyntaxException If this is a regular expression search but the
+	 *                                search text is an invalid regular expression.
 	 */
 	private static SearchResult findImpl(String findIn, SearchContext context) {
 		String text = context.getSearchFor();
@@ -140,7 +133,8 @@ public final class SearchEngine {
 			Point regExPos = null;
 			int start = 0;
 			do {
-				regExPos = getNextMatchPosRegEx(text, findIn.substring(start), forward, context.getMatchCase(), context.getWholeWord());
+				regExPos = getNextMatchPosRegEx(text, findIn.substring(start), forward, context.getMatchCase(),
+						context.getWholeWord());
 				if (regExPos != null) {
 					if (regExPos.x != regExPos.y) {
 						regExPos.translate(start, start);
@@ -157,20 +151,17 @@ public final class SearchEngine {
 		}
 		return new SearchResult();
 	}
-	
+
 	/**
-	 * Returns a <code>CharSequence</code> for a text area that doesn't make a
-	 * copy of its contents for iteration. This conserves memory but is likely
-	 * just a tad slower.
+	 * Returns a <code>CharSequence</code> for a text area that doesn't make a copy
+	 * of its contents for iteration. This conserves memory but is likely just a tad
+	 * slower.
 	 *
-	 * @param textArea
-	 *            The text area whose document is the basis for the
-	 *            <code>CharSequence</code>.
-	 * @param start
-	 *            The starting offset of the sequence (or ending offset if
-	 *            <code>forward</code> is <code>false</code>).
-	 * @param forward
-	 *            Whether we're searching forward or backward.
+	 * @param textArea The text area whose document is the basis for the
+	 *                 <code>CharSequence</code>.
+	 * @param start    The starting offset of the sequence (or ending offset if
+	 *                 <code>forward</code> is <code>false</code>).
+	 * @param forward  Whether we're searching forward or backward.
 	 * @return The character sequence.
 	 */
 	private static CharSequence getFindInCharSequence(RTextArea textArea, int start, boolean forward) {
@@ -186,10 +177,10 @@ public final class SearchEngine {
 		}
 		return new RDocumentCharSequence(doc, csStart, csEnd);
 	}
-	
+
 	/**
-	 * Returns the text in which to search, as a string. This is used
-	 * internally to grab the smallest buffer possible in which to search.
+	 * Returns the text in which to search, as a string. This is used internally to
+	 * grab the smallest buffer possible in which to search.
 	 */
 	private static String getFindInText(JTextArea textArea, int start, boolean forward) {
 		// Be smart about the text we grab to search in. We grab more than
@@ -208,42 +199,36 @@ public final class SearchEngine {
 		}
 		return findIn;
 	}
-	
+
 	/**
-	 * This method is called internally by
-	 * <code>getNextMatchPosRegExImpl</code> and is used to get the locations
-	 * of all regular-expression matches, and possibly their replacement
-	 * strings.
+	 * This method is called internally by <code>getNextMatchPosRegExImpl</code> and
+	 * is used to get the locations of all regular-expression matches, and possibly
+	 * their replacement strings.
 	 * <p>
 	 *
 	 * Returns either:
 	 * <ul>
-	 * <li>A list of points representing the starting and ending positions
-	 * of all matches returned by the specified matcher, or
-	 * <li>A list of <code>RegExReplaceInfo</code>s describing the matches
-	 * found by the matcher and the replacement strings for each.
+	 * <li>A list of points representing the starting and ending positions of all
+	 * matches returned by the specified matcher, or
+	 * <li>A list of <code>RegExReplaceInfo</code>s describing the matches found by
+	 * the matcher and the replacement strings for each.
 	 * </ul>
 	 *
-	 * If <code>replacement</code> is <code>null</code>, this method call is
-	 * assumed to be part of a "find" operation and points are returned. If
-	 * if is non-<code>null</code>, it is assumed to be part of a "replace"
-	 * operation and the <code>RegExReplaceInfo</code>s are returned.
+	 * If <code>replacement</code> is <code>null</code>, this method call is assumed
+	 * to be part of a "find" operation and points are returned. If if is
+	 * non-<code>null</code>, it is assumed to be part of a "replace" operation and
+	 * the <code>RegExReplaceInfo</code>s are returned.
 	 * <p>
 	 *
-	 * @param m
-	 *            The matcher.
-	 * @param replaceStr
-	 *            The string to replace matches with. This is a
-	 *            "template" string and can contain captured group references in
-	 *            the form "<code>${digit}</code>".
+	 * @param m          The matcher.
+	 * @param replaceStr The string to replace matches with. This is a "template"
+	 *                   string and can contain captured group references in the
+	 *                   form "<code>${digit}</code>".
 	 * @return A list of result objects.
-	 * @throws IndexOutOfBoundsException
-	 *             If <code>replaceStr</code> references
-	 *             an invalid group (less than zero or greater than the number
-	 *             of
-	 *             groups matched).
+	 * @throws IndexOutOfBoundsException If <code>replaceStr</code> references an
+	 *                                   invalid group (less than zero or greater
+	 *                                   than the number of groups matched).
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static List getMatches(Matcher m, String replaceStr) {
 		ArrayList matches = new ArrayList();
 		while (m.find()) {
@@ -256,63 +241,53 @@ public final class SearchEngine {
 		}
 		return matches;
 	}
-	
+
 	/**
-	 * Searches <code>searchIn</code> for an occurrence of
-	 * <code>searchFor</code> either forwards or backwards, matching
-	 * case or not.
+	 * Searches <code>searchIn</code> for an occurrence of <code>searchFor</code>
+	 * either forwards or backwards, matching case or not.
 	 * <p>
 	 *
 	 * Most clients will have no need to call this method directly.
 	 *
-	 * @param searchFor
-	 *            The string to look for.
-	 * @param searchIn
-	 *            The string to search in.
-	 * @param forward
-	 *            Whether to search forward or backward in
-	 *            <code>searchIn</code>.
-	 * @param matchCase
-	 *            If <code>true</code>, do a case-sensitive search for
-	 *            <code>searchFor</code>.
-	 * @param wholeWord
-	 *            If <code>true</code>, <code>searchFor</code>
-	 *            occurrences embedded in longer words in <code>searchIn</code>
-	 *            don't count as matches.
-	 * @return The starting position of a match, or <code>-1</code> if no
-	 *         match was found.
+	 * @param searchFor The string to look for.
+	 * @param searchIn  The string to search in.
+	 * @param forward   Whether to search forward or backward in
+	 *                  <code>searchIn</code>.
+	 * @param matchCase If <code>true</code>, do a case-sensitive search for
+	 *                  <code>searchFor</code>.
+	 * @param wholeWord If <code>true</code>, <code>searchFor</code> occurrences
+	 *                  embedded in longer words in <code>searchIn</code> don't
+	 *                  count as matches.
+	 * @return The starting position of a match, or <code>-1</code> if no match was
+	 *         found.
 	 */
-	public static int getNextMatchPos(String searchFor, String searchIn, boolean forward, boolean matchCase, boolean wholeWord) {
+	public static int getNextMatchPos(String searchFor, String searchIn, boolean forward, boolean matchCase,
+			boolean wholeWord) {
 		// Make our variables lower case if we're ignoring case.
 		if (!matchCase) {
 			return getNextMatchPosImpl(searchFor.toLowerCase(), searchIn.toLowerCase(), forward, matchCase, wholeWord);
 		}
 		return getNextMatchPosImpl(searchFor, searchIn, forward, matchCase, wholeWord);
 	}
-	
+
 	/**
-	 * Actually does the work of matching; assumes searchFor and searchIn
-	 * are already upper/lower-cased appropriately.<br>
+	 * Actually does the work of matching; assumes searchFor and searchIn are
+	 * already upper/lower-cased appropriately.<br>
 	 * The reason this method is here is to attempt to speed up
-	 * <code>FindInFilesDialog</code>; since it repeatedly calls
-	 * this method instead of <code>getNextMatchPos</code>, it gets better
-	 * performance as it no longer has to allocate a lower-cased string for
-	 * every call.
+	 * <code>FindInFilesDialog</code>; since it repeatedly calls this method instead
+	 * of <code>getNextMatchPos</code>, it gets better performance as it no longer
+	 * has to allocate a lower-cased string for every call.
 	 *
-	 * @param searchFor
-	 *            The string to search for.
-	 * @param searchIn
-	 *            The string to search in.
-	 * @param goForward
-	 *            Whether the search is forward or backward.
-	 * @param matchCase
-	 *            Whether the search is case-sensitive.
-	 * @param wholeWord
-	 *            Whether only whole words should be matched.
-	 * @return The location of the next match, or <code>-1</code> if no
-	 *         match was found.
+	 * @param searchFor The string to search for.
+	 * @param searchIn  The string to search in.
+	 * @param goForward Whether the search is forward or backward.
+	 * @param matchCase Whether the search is case-sensitive.
+	 * @param wholeWord Whether only whole words should be matched.
+	 * @return The location of the next match, or <code>-1</code> if no match was
+	 *         found.
 	 */
-	private static int getNextMatchPosImpl(String searchFor, String searchIn, boolean goForward, boolean matchCase, boolean wholeWord) {
+	private static int getNextMatchPosImpl(String searchFor, String searchIn, boolean goForward, boolean matchCase,
+			boolean wholeWord) {
 		if (wholeWord) {
 			int len = searchFor.length();
 			int temp = goForward ? 0 : searchIn.length();
@@ -337,80 +312,63 @@ public final class SearchEngine {
 			return goForward ? searchIn.indexOf(searchFor) : searchIn.lastIndexOf(searchFor);
 		}
 	}
-	
+
 	/**
-	 * Searches <code>searchIn</code> for an occurrence of <code>regEx</code>
-	 * either forwards or backwards, matching case or not.
+	 * Searches <code>searchIn</code> for an occurrence of <code>regEx</code> either
+	 * forwards or backwards, matching case or not.
 	 *
-	 * @param regEx
-	 *            The regular expression to look for.
-	 * @param searchIn
-	 *            The string to search in.
-	 * @param goForward
-	 *            Whether to search forward. If <code>false</code>,
-	 *            search backward.
-	 * @param matchCase
-	 *            Whether or not to do a case-sensitive search for
-	 *            <code>regEx</code>.
-	 * @param wholeWord
-	 *            If <code>true</code>, <code>regEx</code>
-	 *            occurrences embedded in longer words in <code>searchIn</code>
-	 *            don't count as matches.
-	 * @return A <code>Point</code> representing the starting and ending
-	 *         position of the match, or <code>null</code> if no match was
-	 *         found.
-	 * @throws PatternSyntaxException
-	 *             If <code>regEx</code> is an invalid
-	 *             regular expression.
+	 * @param regEx     The regular expression to look for.
+	 * @param searchIn  The string to search in.
+	 * @param goForward Whether to search forward. If <code>false</code>, search
+	 *                  backward.
+	 * @param matchCase Whether or not to do a case-sensitive search for
+	 *                  <code>regEx</code>.
+	 * @param wholeWord If <code>true</code>, <code>regEx</code> occurrences
+	 *                  embedded in longer words in <code>searchIn</code> don't
+	 *                  count as matches.
+	 * @return A <code>Point</code> representing the starting and ending position of
+	 *         the match, or <code>null</code> if no match was found.
+	 * @throws PatternSyntaxException If <code>regEx</code> is an invalid regular
+	 *                                expression.
 	 * @see #getNextMatchPos
 	 */
 	private static Point getNextMatchPosRegEx(String regEx, CharSequence searchIn, boolean goForward, boolean matchCase,
 			boolean wholeWord) {
 		return (Point) getNextMatchPosRegExImpl(regEx, searchIn, goForward, matchCase, wholeWord, null);
 	}
-	
+
 	/**
-	 * Searches <code>searchIn</code> for an occurrence of <code>regEx</code>
-	 * either forwards or backwards, matching case or not.
+	 * Searches <code>searchIn</code> for an occurrence of <code>regEx</code> either
+	 * forwards or backwards, matching case or not.
 	 *
-	 * @param regEx
-	 *            The regular expression to look for.
-	 * @param searchIn
-	 *            The string to search in.
-	 * @param goForward
-	 *            Whether to search forward. If <code>false</code>,
-	 *            search backward.
-	 * @param matchCase
-	 *            Whether or not to do a case-sensitive search for
-	 *            <code>regEx</code>.
-	 * @param wholeWord
-	 *            If <code>true</code>, <code>regEx</code>
-	 *            occurrences embedded in longer words in <code>searchIn</code>
-	 *            don't count as matches.
-	 * @param replaceStr
-	 *            The string that will replace the match found (if
-	 *            a match is found). The object returned will contain the
-	 *            replacement string with matched groups substituted. If this
-	 *            value is <code>null</code>, it is assumed this call is part of
-	 *            a
-	 *            "find" instead of a "replace" operation.
-	 * @return If <code>replaceStr</code> is <code>null</code>, a
-	 *         <code>Point</code> representing the starting and ending points
-	 *         of the match. If it is non-<code>null</code>, an object with
-	 *         information about the match and the morphed string to replace
-	 *         it with. If no match is found, <code>null</code> is returned.
-	 * @throws PatternSyntaxException
-	 *             If <code>regEx</code> is an invalid
-	 *             regular expression.
-	 * @throws IndexOutOfBoundsException
-	 *             If <code>replaceStr</code> references
-	 *             an invalid group (less than zero or greater than the number
-	 *             of
-	 *             groups matched).
+	 * @param regEx      The regular expression to look for.
+	 * @param searchIn   The string to search in.
+	 * @param goForward  Whether to search forward. If <code>false</code>, search
+	 *                   backward.
+	 * @param matchCase  Whether or not to do a case-sensitive search for
+	 *                   <code>regEx</code>.
+	 * @param wholeWord  If <code>true</code>, <code>regEx</code> occurrences
+	 *                   embedded in longer words in <code>searchIn</code> don't
+	 *                   count as matches.
+	 * @param replaceStr The string that will replace the match found (if a match is
+	 *                   found). The object returned will contain the replacement
+	 *                   string with matched groups substituted. If this value is
+	 *                   <code>null</code>, it is assumed this call is part of a
+	 *                   "find" instead of a "replace" operation.
+	 * @return If <code>replaceStr</code> is <code>null</code>, a <code>Point</code>
+	 *         representing the starting and ending points of the match. If it is
+	 *         non-<code>null</code>, an object with information about the match and
+	 *         the morphed string to replace it with. If no match is found,
+	 *         <code>null</code> is returned.
+	 * @throws PatternSyntaxException    If <code>regEx</code> is an invalid regular
+	 *                                   expression.
+	 * @throws IndexOutOfBoundsException If <code>replaceStr</code> references an
+	 *                                   invalid group (less than zero or greater
+	 *                                   than the number of groups matched).
 	 * @see #getNextMatchPos
 	 */
-	private static Object getNextMatchPosRegExImpl(String regEx, CharSequence searchIn, boolean goForward, boolean matchCase,
-			boolean wholeWord, String replaceStr) {
+	private static Object getNextMatchPosRegExImpl(String regEx, CharSequence searchIn, boolean goForward,
+			boolean matchCase, boolean wholeWord, String replaceStr) {
 		if (wholeWord) {
 			regEx = "\\b" + regEx + "\\b";
 		}
@@ -444,24 +402,20 @@ public final class SearchEngine {
 		}
 		return null; // No match found
 	}
-	
+
 	/**
-	 * Returns information on how to implement a regular expression "replace"
-	 * action in the specified text with the specified replacement string.
+	 * Returns information on how to implement a regular expression "replace" action
+	 * in the specified text with the specified replacement string.
 	 *
-	 * @param searchIn
-	 *            The string to search in.
-	 * @param context
-	 *            The search options.
-	 * @return A <code>RegExReplaceInfo</code> object describing how to
-	 *         implement the replace.
-	 * @throws PatternSyntaxException
-	 *             If the search text is an invalid regular
-	 *             expression.
-	 * @throws IndexOutOfBoundsException
-	 *             If the replacement text references an
-	 *             invalid group (less than zero or greater than the number of
-	 *             groups matched).
+	 * @param searchIn The string to search in.
+	 * @param context  The search options.
+	 * @return A <code>RegExReplaceInfo</code> object describing how to implement
+	 *         the replace.
+	 * @throws PatternSyntaxException    If the search text is an invalid regular
+	 *                                   expression.
+	 * @throws IndexOutOfBoundsException If the replacement text references an
+	 *                                   invalid group (less than zero or greater
+	 *                                   than the number of groups matched).
 	 * @see #getNextMatchPos
 	 */
 	private static RegExReplaceInfo getRegExReplaceInfo(CharSequence searchIn, SearchContext context) {
@@ -476,39 +430,34 @@ public final class SearchEngine {
 		boolean goForward = context.getSearchForward();
 		boolean matchCase = context.getMatchCase();
 		boolean wholeWord = context.getWholeWord();
-		return (RegExReplaceInfo) getNextMatchPosRegExImpl(regex, searchIn, goForward, matchCase, wholeWord, replacement);
+		return (RegExReplaceInfo) getNextMatchPosRegExImpl(regex, searchIn, goForward, matchCase, wholeWord,
+				replacement);
 	}
-	
+
 	/**
-	 * Called internally by <code>getMatches()</code>. This method assumes
-	 * that the specified matcher has just found a match, and that you want
-	 * to get the string with which to replace that match.
+	 * Called internally by <code>getMatches()</code>. This method assumes that the
+	 * specified matcher has just found a match, and that you want to get the string
+	 * with which to replace that match.
 	 * <p>
 	 *
-	 * Escapes simply insert the escaped character, except for <code>\n</code>
-	 * and <code>\t</code>, which insert a newline and tab respectively.
-	 * Substrings of the form <code>$\d+</code> are considered to be matched
-	 * groups. To include a literal dollar sign in your template, escape it
-	 * (i.e. <code>\$</code>).
+	 * Escapes simply insert the escaped character, except for <code>\n</code> and
+	 * <code>\t</code>, which insert a newline and tab respectively. Substrings of
+	 * the form <code>$\d+</code> are considered to be matched groups. To include a
+	 * literal dollar sign in your template, escape it (i.e. <code>\$</code>).
 	 * <p>
 	 *
 	 * Most clients will have no need to call this method directly.
 	 *
-	 * @param m
-	 *            The matcher.
-	 * @param template
-	 *            The template for the replacement string. For example,
-	 *            "<code>foo</code>" would yield the replacement string
-	 *            "<code>foo</code>", while "<code>$1 is the greatest</code>"
-	 *            would yield different values depending on the value of the
-	 *            first
-	 *            captured group in the match.
+	 * @param m        The matcher.
+	 * @param template The template for the replacement string. For example,
+	 *                 "<code>foo</code>" would yield the replacement string
+	 *                 "<code>foo</code>", while "<code>$1 is the greatest</code>"
+	 *                 would yield different values depending on the value of the
+	 *                 first captured group in the match.
 	 * @return The string to replace the match with.
-	 * @throws IndexOutOfBoundsException
-	 *             If <code>template</code> references
-	 *             an invalid group (less than zero or greater than the number
-	 *             of
-	 *             groups matched).
+	 * @throws IndexOutOfBoundsException If <code>template</code> references an
+	 *                                   invalid group (less than zero or greater
+	 *                                   than the number of groups matched).
 	 */
 	public static String getReplacementText(Matcher m, CharSequence template) {
 		// NOTE: This code was mostly ripped off from J2SE's Matcher
@@ -521,12 +470,12 @@ public final class SearchEngine {
 			if (nextChar == '\\') { // Escape character.
 				nextChar = template.charAt(++cursor);
 				switch (nextChar) { // Special cases.
-					case 'n':
-						nextChar = '\n';
-						break;
-					case 't':
-						nextChar = '\t';
-						break;
+				case 'n':
+					nextChar = '\n';
+					break;
+				case 't':
+					nextChar = '\t';
+					break;
 				}
 				result.append(nextChar);
 				cursor++;
@@ -570,11 +519,11 @@ public final class SearchEngine {
 		}
 		return result.toString();
 	}
-	
+
 	/**
 	 * Returns whether the characters on either side of
-	 * <code>substr(searchIn, startPos, startPos+searchStringLength)</code>
-	 * are <em>not</em> letters or digits.
+	 * <code>substr(searchIn, startPos, startPos+searchStringLength)</code> are
+	 * <em>not</em> letters or digits.
 	 */
 	private static boolean isWholeWord(CharSequence searchIn, int offset, int len) {
 		boolean wsBefore, wsAfter;
@@ -590,17 +539,15 @@ public final class SearchEngine {
 		}
 		return wsBefore && wsAfter;
 	}
-	
+
 	/**
-	 * Makes the caret's dot and mark the same location so that, for the
-	 * next search in the specified direction, a match will be found even
-	 * if it was within the original dot and mark's selection.
+	 * Makes the caret's dot and mark the same location so that, for the next search
+	 * in the specified direction, a match will be found even if it was within the
+	 * original dot and mark's selection.
 	 *
-	 * @param textArea
-	 *            The text area.
-	 * @param forward
-	 *            Whether the search will be forward through the
-	 *            document (<code>false</code> means backward).
+	 * @param textArea The text area.
+	 * @param forward  Whether the search will be forward through the document
+	 *                 (<code>false</code> means backward).
 	 * @return The new dot and mark position.
 	 */
 	private static int makeMarkAndDotEqual(JTextArea textArea, boolean forward) {
@@ -609,21 +556,18 @@ public final class SearchEngine {
 		c.setDot(val);
 		return val;
 	}
-	
+
 	/**
-	 * Marks all instances of the specified text in this text area. This
-	 * method is typically only called directly in response to search events
-	 * of type <code>SearchEvent.Type.MARK_ALL</code>. "Mark all" behavior
-	 * is automatically performed when {@link #find(JTextArea, SearchContext)}
-	 * or {@link #replace(RTextArea, SearchContext)} is called.
+	 * Marks all instances of the specified text in this text area. This method is
+	 * typically only called directly in response to search events of type
+	 * <code>SearchEvent.Type.MARK_ALL</code>. "Mark all" behavior is automatically
+	 * performed when {@link #find(JTextArea, SearchContext)} or
+	 * {@link #replace(RTextArea, SearchContext)} is called.
 	 *
-	 * @param textArea
-	 *            The text area in which to mark occurrences.
-	 * @param context
-	 *            The search context specifying the text to search for.
-	 *            It is assumed that <code>context.getMarkAll()</code> has
-	 *            already
-	 *            been checked and returns <code>true</code>.
+	 * @param textArea The text area in which to mark occurrences.
+	 * @param context  The search context specifying the text to search for. It is
+	 *                 assumed that <code>context.getMarkAll()</code> has already
+	 *                 been checked and returns <code>true</code>.
 	 * @return The results of the operation.
 	 */
 	public static SearchResult markAll(RTextArea textArea, SearchContext context) {
@@ -633,21 +577,18 @@ public final class SearchEngine {
 		// }
 		// return new SearchResult();
 	}
-	
+
 	/**
-	 * Marks all instances of the specified text in this text area. This
-	 * method is typically only called directly in response to search events
-	 * of type <code>SearchEvent.Type.MARK_ALL</code>. "Mark all" behavior
-	 * is automatically performed when {@link #find(JTextArea, SearchContext)}
-	 * or #replace(RTextArea, SearchContext) is called.
+	 * Marks all instances of the specified text in this text area. This method is
+	 * typically only called directly in response to search events of type
+	 * <code>SearchEvent.Type.MARK_ALL</code>. "Mark all" behavior is automatically
+	 * performed when {@link #find(JTextArea, SearchContext)} or #replace(RTextArea,
+	 * SearchContext) is called.
 	 *
-	 * @param textArea
-	 *            The text area in which to mark occurrences.
-	 * @param context
-	 *            The search context specifying the text to search for.
-	 *            It is assumed that <code>context.getMarkAll()</code> has
-	 *            already
-	 *            been checked and returns <code>true</code>.
+	 * @param textArea The text area in which to mark occurrences.
+	 * @param context  The search context specifying the text to search for. It is
+	 *                 assumed that <code>context.getMarkAll()</code> has already
+	 *                 been checked and returns <code>true</code>.
 	 * @return The results of the operation.
 	 */
 	private static SearchResult markAllImpl(RTextArea textArea, SearchContext context) {
@@ -698,25 +639,22 @@ public final class SearchEngine {
 		}
 		return new SearchResult(null, 0, markAllCount);
 	}
-	
+
 	/**
-	 * Finds the next instance of the regular expression specified from
-	 * the caret position. If a match is found, it is replaced with
-	 * the specified replacement string.
+	 * Finds the next instance of the regular expression specified from the caret
+	 * position. If a match is found, it is replaced with the specified replacement
+	 * string.
 	 *
-	 * @param textArea
-	 *            The text area in which to search.
-	 * @param context
-	 *            What to search for and all search options.
+	 * @param textArea The text area in which to search.
+	 * @param context  What to search for and all search options.
 	 * @return The result of the operation.
-	 * @throws PatternSyntaxException
-	 *             If this is a regular expression search
-	 *             but the search text is an invalid regular expression.
-	 * @throws IndexOutOfBoundsException
-	 *             If this is a regular expression search
-	 *             but the replacement text references an invalid group (less
-	 *             than
-	 *             zero or greater than the number of groups matched).
+	 * @throws PatternSyntaxException    If this is a regular expression search but
+	 *                                   the search text is an invalid regular
+	 *                                   expression.
+	 * @throws IndexOutOfBoundsException If this is a regular expression search but
+	 *                                   the replacement text references an invalid
+	 *                                   group (less than zero or greater than the
+	 *                                   number of groups matched).
 	 * @see #replace(RTextArea, SearchContext)
 	 * @see #find(JTextArea, SearchContext)
 	 */
@@ -776,25 +714,22 @@ public final class SearchEngine {
 		int count = range != null ? 1 : 0;
 		return new SearchResult(range, count, markAllCount);
 	}
-	
+
 	/**
-	 * Finds the next instance of the text/regular expression specified from
-	 * the caret position. If a match is found, it is replaced with the
-	 * specified replacement string.
+	 * Finds the next instance of the text/regular expression specified from the
+	 * caret position. If a match is found, it is replaced with the specified
+	 * replacement string.
 	 *
-	 * @param textArea
-	 *            The text area in which to search.
-	 * @param context
-	 *            What to search for and all search options.
+	 * @param textArea The text area in which to search.
+	 * @param context  What to search for and all search options.
 	 * @return The result of the operation.
-	 * @throws PatternSyntaxException
-	 *             If this is a regular expression search
-	 *             but the search text is an invalid regular expression.
-	 * @throws IndexOutOfBoundsException
-	 *             If this is a regular expression search
-	 *             but the replacement text references an invalid group (less
-	 *             than
-	 *             zero or greater than the number of groups matched).
+	 * @throws PatternSyntaxException    If this is a regular expression search but
+	 *                                   the search text is an invalid regular
+	 *                                   expression.
+	 * @throws IndexOutOfBoundsException If this is a regular expression search but
+	 *                                   the replacement text references an invalid
+	 *                                   group (less than zero or greater than the
+	 *                                   number of groups matched).
 	 * @see #replaceAll(RTextArea, SearchContext)
 	 * @see #find(JTextArea, SearchContext)
 	 */
@@ -847,24 +782,21 @@ public final class SearchEngine {
 			textArea.endAtomicEdit();
 		}
 	}
-	
+
 	/**
-	 * Replaces all instances of the text/regular expression specified in
-	 * the specified document with the specified replacement.
+	 * Replaces all instances of the text/regular expression specified in the
+	 * specified document with the specified replacement.
 	 *
-	 * @param textArea
-	 *            The text area in which to search.
-	 * @param context
-	 *            What to search for and all search options.
+	 * @param textArea The text area in which to search.
+	 * @param context  What to search for and all search options.
 	 * @return The result of the operation.
-	 * @throws PatternSyntaxException
-	 *             If this is a regular expression search
-	 *             but the replacement text is an invalid regular expression.
-	 * @throws IndexOutOfBoundsException
-	 *             If this is a regular expression search
-	 *             but the replacement text references an invalid group (less
-	 *             than
-	 *             zero or greater than the number of groups matched).
+	 * @throws PatternSyntaxException    If this is a regular expression search but
+	 *                                   the replacement text is an invalid regular
+	 *                                   expression.
+	 * @throws IndexOutOfBoundsException If this is a regular expression search but
+	 *                                   the replacement text references an invalid
+	 *                                   group (less than zero or greater than the
+	 *                                   number of groups matched).
 	 * @see #replace(RTextArea, SearchContext)
 	 * @see #find(JTextArea, SearchContext)
 	 */
