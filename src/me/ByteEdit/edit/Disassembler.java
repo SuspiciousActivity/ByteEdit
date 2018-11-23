@@ -371,7 +371,7 @@ public class Disassembler {
 			case "FieldInsnNode": {
 				FieldInsnNode node = (FieldInsnNode) n;
 				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " "
-						+ UnicodeUtils.escapeWithSpaces(node.owner) + "/" + UnicodeUtils.escapeWithSpaces(node.name) + "\n";
+						+ UnicodeUtils.escapeWithSpaces(node.owner) + "/" + UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
 			}
 			case "LabelNode": {
 				LabelNode node = (LabelNode) n;
@@ -428,8 +428,9 @@ public class Disassembler {
 			}
 			case "InvokeDynamicInsnNode": {
 				InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: " + UnicodeUtils.escapeWithSpaces(node.name)
-						+ "\n\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
+				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
+						+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
+						+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
 						+ UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: " + UnicodeUtils.escapeWithSpaces(node.bsm.getOwner())
 						+ "\n\t\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: " + node.bsm.isInterface()
 						+ "\n\t\t\t\ttag: " + node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
@@ -455,9 +456,10 @@ public class Disassembler {
 						s += "\n\t\t\t\t]\n";
 					} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
 						Handle h = (Handle) l;
-						s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: " + UnicodeUtils.escapeWithSpaces(h.getName()) + "\n\t\t\t\t\towner: "
-								+ UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(h.getDesc())
-								+ "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: " + h.getTag();
+						s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: " + UnicodeUtils.escapeWithSpaces(h.getName()).replace("/", "\\u002F")
+								+ "\n\t\t\t\t\towner: " + UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: "
+								+ UnicodeUtils.escapeWithSpaces(h.getDesc()) + "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: "
+								+ h.getTag();
 						s += "\n\t\t\t\t]\n";
 					} else {
 						s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
@@ -469,7 +471,7 @@ public class Disassembler {
 			case "MethodInsnNode": {
 				MethodInsnNode node = (MethodInsnNode) n;
 				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " "
-						+ UnicodeUtils.escapeWithSpaces(node.owner) + "/" + UnicodeUtils.escapeWithSpaces(node.name) + "\n";
+						+ UnicodeUtils.escapeWithSpaces(node.owner) + "/" + UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
 			}
 			case "TypeInsnNode": {
 				TypeInsnNode node = (TypeInsnNode) n;

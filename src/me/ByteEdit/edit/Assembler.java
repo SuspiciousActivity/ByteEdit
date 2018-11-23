@@ -323,7 +323,6 @@ public class Assembler {
 									.add(new TryCatchBlockNode(_start, _end, _handler, sp[0].equals("null") ? null : UnicodeUtils.unescape(sp[0])));
 						}
 						clazz.methods.add(node);
-						// signature = null;
 					} else if (!s.startsWith("\t")) {
 						s = s.substring(0, s.length() - 2);
 						if (s.contains(" throws ")) {
@@ -460,7 +459,7 @@ public class Assembler {
 						} else if (!rofl.startsWith("(")) {
 							int index = rofl.indexOf(";");
 							list.add(new String[] { rofl.substring(0, index) + ";", rofl.substring(index).substring(2) });
-						} else { // other type with casting
+						} else {
 							list.add(ClassUtil.getCastedValue(rofl.split(" ")[1], rofl.split("\\) ")[0].substring(1)));
 						}
 					}
@@ -473,7 +472,7 @@ public class Assembler {
 					} else if (!value.startsWith("(")) {
 						int index = value.indexOf(";");
 						node.values.add(new String[] { value.substring(0, index) + ";", value.substring(index).substring(2) });
-					} else { // other type with casting
+					} else {
 						node.values.add(ClassUtil.getCastedValue(value.split(" ")[1], value.split("\\) ")[0].substring(1)));
 					}
 				}
@@ -575,7 +574,7 @@ public class Assembler {
 					for (String asd : l.split(", ")) {
 						if (!asd.startsWith("(")) {
 							arr.add(UnicodeUtils.unescape(asd));
-						} else { // other type with casting
+						} else {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);
 								boolean found = false;
@@ -614,7 +613,7 @@ public class Assembler {
 					for (String asd : st.split(", ")) {
 						if (!asd.startsWith("(")) {
 							arr.add(UnicodeUtils.unescape(asd));
-						} else { // other type with casting
+						} else {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);
 								boolean found = false;
