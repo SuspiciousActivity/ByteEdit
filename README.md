@@ -12,6 +12,8 @@ To open a class, press CTRL + T.
 
 To change settings like auto-computation of stack frames and max locals/stack press CTRL + O.
 
-To go to the method definition of the selected line's invoke-method press CTRL + G.
+To go to the field/method definition in the selected line press CTRL + G.
 
 To (un-)escape unicode characters, press CTRL + U.
+
+To rename a field/method with attention to references in the selected line, press CTRL + R.

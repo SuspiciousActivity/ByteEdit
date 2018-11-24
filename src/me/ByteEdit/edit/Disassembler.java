@@ -70,7 +70,7 @@ public class Disassembler {
 
 	}
 
-	public static DisassembleTuple disassemble(ClassNode classNode, MethodNode methodToFind) {
+	public static DisassembleTuple disassemble(ClassNode classNode, Object nodeToFind) {
 		if (classNode == null) {
 			return new DisassembleTuple("ClassNode is null! This is not a valid java class file!");
 		}
@@ -228,6 +228,9 @@ public class Disassembler {
 						s += "\n";
 					}
 				}
+				if (fn.equals(nodeToFind)) {
+					lineFound = s.split("\\n").length;
+				}
 				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + UnicodeUtils.escapeWithSpaces(fn.desc) + " "
 						+ UnicodeUtils.escapeWithSpaces(fn.name);
 				if (fn.value != null) {
@@ -303,7 +306,7 @@ public class Disassembler {
 							s += "\n";
 						}
 					}
-					if (mn.equals(methodToFind)) {
+					if (mn.equals(nodeToFind)) {
 						lineFound = s.split("\\n").length;
 					}
 					s += "\t" + ClassUtil.getAccessFlagsFull(mn.access) + UnicodeUtils.escapeWithSpaces(mn.name) + " "

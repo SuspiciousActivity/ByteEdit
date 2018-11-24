@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
@@ -67,9 +68,11 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.boxes.OptionBox;
+import me.ByteEdit.boxes.RenameBox;
 import me.ByteEdit.boxes.SearchBox;
 import me.ByteEdit.boxes.TypeOpenBox;
 import me.ByteEdit.boxes.UnicodeBox;
@@ -94,6 +97,7 @@ public class Main extends JFrame {
 	public static TypeOpenBox typeOpenBox;
 	public static OptionBox optionBox;
 	public static UnicodeBox unicodeBox;
+	public static RenameBox renameBox;
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static Theme theme;
@@ -169,6 +173,7 @@ public class Main extends JFrame {
 		typeOpenBox = new TypeOpenBox();
 		optionBox = new OptionBox();
 		unicodeBox = new UnicodeBox();
+		renameBox = new RenameBox();
 		setTitle("ByteEdit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 407),
@@ -267,6 +272,13 @@ public class Main extends JFrame {
 								} catch (IOException e1) {
 									e1.printStackTrace();
 								}
+								txtByteEditView.setText("");
+								currentNodeName = null;
+								searchBox.setVisible(false);
+								typeOpenBox.setVisible(false);
+								optionBox.setVisible(false);
+								unicodeBox.setVisible(false);
+								renameBox.setVisible(false);
 								isChangingFile = false;
 							}
 							dtde.dropComplete(true);
@@ -300,7 +312,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.getKeyCode() == 116 && currentNodeName != null) {
+				if (e.getKeyCode() == 116 && currentNodeName != null) { // F5
 					try {
 						ClassNode classNode = classNodes.get(currentNodeName);
 						int prev = txtByteEditView.getCaretPosition();
@@ -316,7 +328,9 @@ public class Main extends JFrame {
 						}
 						txtByteEditView.setText(dis);
 						txtByteEditView.setCaretPosition(prev);
-					} catch (Exception e2) {}
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
 				}
 			}
 		});
@@ -326,6 +340,7 @@ public class Main extends JFrame {
 		KeyStroke ctrlG = KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
 		// global
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
 
@@ -385,6 +400,17 @@ public class Main extends JFrame {
 				}
 			}
 		}, ctrlG, JComponent.WHEN_FOCUSED);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					renameSelected();
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}, ctrlR, JComponent.WHEN_FOCUSED);
 		txtByteEditView.setEditable(true);
 		txtByteEditView.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		txtByteEditView.setCodeFoldingEnabled(true);
@@ -445,6 +471,84 @@ public class Main extends JFrame {
 				return;
 			}
 			selectFile(className + ".class");
+		} else if (line.startsWith("getstatic ") || line.startsWith("putstatic ") || line.startsWith("getfield ") || line.startsWith("putfield ")) {
+			String[] split = line.split(" ");
+			String desc = UnicodeUtils.unescape(split[1]);
+			String className = UnicodeUtils.unescape(split[2]);
+			String[] nameSplit = className.split("/");
+			String fieldName = nameSplit[nameSplit.length - 1];
+			className = className.substring(0, className.length() - fieldName.length() - 1);
+			ClassNode classNode = classNodes.get(className + ".class");
+			if (classNode == null) {
+				return;
+			}
+			for (FieldNode fn : classNode.fields) {
+				if (fn.name.equals(fieldName) && fn.desc.equals(desc)) {
+					while (classNode.outerClass != null) {
+						classNode = classNodes.get(classNode.outerClass + ".class");
+					}
+					int lineFound = selectFileWithSearch(classNode.name + ".class", fn);
+					if (lineFound != -1) {
+						Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	private final Pattern renameableFieldPattern = Pattern.compile("^\t(?:[a-z]+ |0x[0-9a-fA-F]+ )*?(\\[*(?:V|Z|C|B|S|I|F|J|D|L.+?;)) ([^ ]+) ?.*");
+	private final Pattern renameableMethodPattern = Pattern
+			.compile("^\t(?:[a-z]+ |0x[0-9a-fA-F]+ )*?([^ ]+) (\\((?:\\[*(?:V|Z|C|B|S|I|F|J|D|L.+?;))*\\)[^ ]+) .*\\{");
+
+	public void renameSelected() throws BadLocationException {
+		int lineStart = txtByteEditView.getLineStartOffsetOfCurrentLine();
+		int lineEnd = txtByteEditView.getLineEndOffsetOfCurrentLine() - 1;
+		String line = txtByteEditView.getText(lineStart, lineEnd - lineStart);
+		Matcher m = renameableFieldPattern.matcher(line);
+		if (m.find()) {
+			setRenameInfo(m, lineEnd);
+		} else {
+			m = renameableMethodPattern.matcher(line);
+			if (m.find()) {
+				if (ClassUtil.isObjectClassMethod(m.group(1), m.group(2), false)) {
+					JOptionPane.showMessageDialog(null, "This method can not be renamed!", "Error!", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				setRenameInfo(m, lineEnd);
+			}
+		}
+	}
+
+	public void setRenameInfo(Matcher m, int lineEnd) throws BadLocationException {
+		String[] arr = txtByteEditView.getText(0, lineEnd).split("\n");
+		int lastClassLine = 0;
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i].startsWith("// #Class")) {
+				lastClassLine = i;
+			}
+		}
+		while (lastClassLine < arr.length && arr[lastClassLine].startsWith("// ")) {
+			lastClassLine++;
+		}
+		if (lastClassLine < arr.length) {
+			String s = arr[lastClassLine];
+			s = s.substring(0, s.length() - 2);
+			if (s.contains(" implements "))
+				s = s.substring(0, s.lastIndexOf(" implements "));
+			if (s.contains(" extends "))
+				s = s.substring(0, s.lastIndexOf(" extends "));
+			String[] split = s.split(" ");
+			String className = UnicodeUtils.unescape(split[split.length - 1]);
+			renameBox.className = className;
+			String name = m.pattern() == renameableFieldPattern ? m.group(2) : m.group(1);
+			String desc = m.pattern() == renameableFieldPattern ? m.group(1) : m.group(2);
+			renameBox.name = name;
+			renameBox.desc = desc;
+			renameBox.txtName.setText(name);
+			renameBox.txtDesc.setText(desc);
+			renameBox.setVisible(true);
+			renameBox.txtName.requestFocusInWindow();
 		}
 	}
 
@@ -463,13 +567,13 @@ public class Main extends JFrame {
 		}
 	}
 
-	public static int selectFileWithSearch(String s, MethodNode methodToFind) {
+	public static int selectFileWithSearch(String s, Object nodeToFind) {
 		if (s.endsWith(".class")) {
 			currentNodeName = s;
 			int lineFound = -1;
 			ClassNode classNode = classNodes.get(s);
 			String dis = "";
-			DisassembleTuple tuple = Disassembler.disassemble(classNode, methodToFind);
+			DisassembleTuple tuple = Disassembler.disassemble(classNode, nodeToFind);
 			if (tuple.getLine() != -1) {
 				lineFound = dis.split("\\n").length + tuple.getLine() - 1;
 			}
@@ -479,7 +583,7 @@ public class Main extends JFrame {
 				if (key.contains("$")) {
 					String[] split = key.split("\\$");
 					if (split[0].equals(substr)) {
-						tuple = Disassembler.disassemble(classNodes.get(key), methodToFind);
+						tuple = Disassembler.disassemble(classNodes.get(key), nodeToFind);
 						if (tuple.getLine() != -1) {
 							lineFound = dis.split("\\n").length + tuple.getLine() + 1;
 						}

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import org.objectweb.asm.Type;
 
 public class ClassUtil {
-	
+
 	public static final int ACC_PUBLIC = 0x0001;
 	public static final int ACC_PRIVATE = 0x0002;
 	public static final int ACC_PROTECTED = 0x0004;
@@ -25,7 +25,41 @@ public class ClassUtil {
 	public static final int ACC_ANNOTATION = 0x2000;
 	public static final int ACC_ENUM = 0x4000;
 	public static final int ACC_MANDATED = 0x8000;
-	
+
+	public static boolean isObjectClassMethod(String name, String desc, boolean forbidInits) {
+		switch (name) {
+			case "<init>":
+			case "<clinit>":
+				if (forbidInits) {
+					return true;
+				}
+			case "notifyAll":
+			case "notify":
+				if (desc.equals("()V")) {
+					return true;
+				}
+				break;
+			case "wait":
+				if (desc.equals("()V") || desc.equals("(J)V") || desc.equals("(JI)V")) {
+					return true;
+				}
+				break;
+			case "equals":
+				if (desc.equals("(Ljava/lang/Object;)Z")) {
+					return true;
+				}
+				break;
+			case "hashCode":
+				if (desc.equals("()I")) {
+					return true;
+				}
+				break;
+			default:
+				break;
+		}
+		return false;
+	}
+
 	public static int getIDFromClassNameForType(String s) {
 		s = s.toUpperCase();
 		switch (s) {
@@ -64,7 +98,7 @@ public class ClassUtil {
 			}
 		}
 	}
-	
+
 	public static String getClassNameFromType(Type type) {
 		switch (type.getSort()) {
 			case 0: {
@@ -103,7 +137,7 @@ public class ClassUtil {
 		}
 		return Integer.toString(type.getSort());
 	}
-	
+
 	public static String getArrayTypeByID(int id) {
 		switch (id) {
 			case 4:
@@ -126,7 +160,7 @@ public class ClassUtil {
 				return Integer.toString(id);
 		}
 	}
-	
+
 	public static int getArrayIDByType(String type) {
 		switch (type) {
 			case "Z":
@@ -149,7 +183,7 @@ public class ClassUtil {
 				return Integer.parseInt(type);
 		}
 	}
-	
+
 	public static String getAccessFlagsClass(int access) {
 		String s = "";
 		if ((ACC_PUBLIC & access) != 0) {
@@ -175,7 +209,7 @@ public class ClassUtil {
 		}
 		return s;
 	}
-	
+
 	public static String getAccessFlagsFull(int access) {
 		int acc = 0;
 		String s = "";
@@ -249,7 +283,7 @@ public class ClassUtil {
 			return "0x" + Integer.toHexString(access) + " ";
 		}
 	}
-	
+
 	/**
 	 * @return { JavaType, Import }
 	 */
@@ -308,7 +342,7 @@ public class ClassUtil {
 		}
 		return new String[] { type, importName };
 	}
-	
+
 	/**
 	 * @return { ReturnValue, ParameterValues, Imports } getrennt durch ";"
 	 */
@@ -411,7 +445,7 @@ public class ClassUtil {
 		}
 		return new String[] { returnType[0], parameterStr, importStr };
 	}
-	
+
 	public static int countMethodParams(String desc) {
 		int count = 0;
 		String parameterType = desc.split("\\)")[0].substring(1);
@@ -446,7 +480,7 @@ public class ClassUtil {
 		}
 		return count;
 	}
-	
+
 	public static String getDecompiledValue(Object o, String desc, boolean escapeSpaces) {
 		switch (o.getClass().getName()) {
 			case "java.lang.String": {
@@ -468,11 +502,11 @@ public class ClassUtil {
 				return o.toString();
 		}
 	}
-	
+
 	public static String getDecompiledValue(Object o, String desc) {
 		return getDecompiledValue(o, desc, false);
 	}
-	
+
 	public static Object getCastedValue(String o, String className) {
 		switch (className) {
 			case "java/lang/String": {
@@ -503,7 +537,7 @@ public class ClassUtil {
 				return o.toString();
 		}
 	}
-	
+
 	public static String getSimpleDesc(String type) {
 		String desc = "";
 		for (int i = 0; i < countArraySize(type); i++) {
@@ -517,7 +551,7 @@ public class ClassUtil {
 		}
 		return desc;
 	}
-	
+
 	private static int countArraySize(String type) {
 		int size = 0;
 		for (byte b : type.getBytes()) {
@@ -527,7 +561,7 @@ public class ClassUtil {
 		}
 		return size;
 	}
-	
+
 	public static final HashMap<String, String> VARS = new HashMap<>();
 	static {
 		VARS.put("byte", "B");
@@ -540,7 +574,7 @@ public class ClassUtil {
 		VARS.put("boolean", "Z");
 		VARS.put("void", "V");
 	}
-	
+
 	public static int externalArrayTypeDimensionCount(String s) {
 		int i = 0;
 		int j = "[]".length();
@@ -551,7 +585,7 @@ public class ClassUtil {
 		}
 		return i;
 	}
-	
+
 	public static String internalMethodDescriptor(String returnType, String methodArgs) {
 		returnType = returnType.replace(".", "/");
 		methodArgs = methodArgs.replace(".", "/");

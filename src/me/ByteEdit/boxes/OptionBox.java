@@ -1,6 +1,5 @@
 package me.ByteEdit.boxes;
 
-import java.awt.EventQueue;
 import java.awt.Toolkit;
 
 import javax.swing.JCheckBox;
@@ -10,31 +9,11 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 public class OptionBox extends JFrame {
-	
+
 	private JPanel contentPane;
 	public JCheckBox chckbxComputeFrames;
 	public JCheckBox chckbxComputeMax;
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			
-			public void run() {
-				try {
-					OptionBox frame = new OptionBox();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	
-	/**
-	 * Create the frame.
-	 */
+
 	public OptionBox() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
