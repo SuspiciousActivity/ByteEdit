@@ -645,13 +645,17 @@ public class Main extends JFrame {
 				for (ClassNode e : classes) {
 					for (MethodNode mn : e.methods) {
 						if (mn.name.equals("main") && mn.desc.equals("([Ljava/lang/String;)V") && mn.access == acc) {
-							name = e.name.replace("/", ".");
+							name = e.name.replace('/', '.');
 							break;
 						}
 					}
 				}
-				String val = "Manifest-Version: 1.0\n" + "Class-Path: .\n" + "Main-Class: " + name + "\n\n";
-				OTHER_FILES.put("META-INF/MANIFEST.MF", val.getBytes());
+				name = JOptionPane.showInputDialog(INSTANCE,
+						"If you want a runnable jar file, please enter the class name.\nIf you only want a library, leave it empty.", name);
+				if (name != null && !name.isEmpty()) {
+					String val = "Manifest-Version: 1.0\n" + "Class-Path: .\n" + "Main-Class: " + name.replace('/', '.') + "\n\n";
+					OTHER_FILES.put("META-INF/MANIFEST.MF", val.getBytes());
+				}
 			}
 			for (Entry<String, byte[]> entry : OTHER_FILES.entrySet()) {
 				JarEntry ent = new JarEntry(entry.getKey());
