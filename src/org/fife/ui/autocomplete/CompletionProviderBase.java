@@ -26,7 +26,7 @@ import javax.swing.text.Segment;
  * @see AbstractCompletionProvider
  */
 public abstract class CompletionProviderBase implements CompletionProvider {
-	
+
 	/**
 	 * The parent completion provider.
 	 */
@@ -66,11 +66,11 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	private Segment s = new Segment();
 	protected static final String EMPTY_STRING = "";
 	/**
-	 * Comparator used to sort completions by their relevance before sorting
-	 * them lexicographically.
+	 * Comparator used to sort completions by their relevance before sorting them
+	 * lexicographically.
 	 */
 	private static final Comparator<Completion> sortByRelevanceComparator = new SortByRelevanceComparator();
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -79,7 +79,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 		paramListEnd = paramListStart = 0;
 		paramListSeparator = null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -112,17 +112,15 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 		}
 		return completions;
 	}
-	
+
 	/**
 	 * Does the dirty work of creating a list of completions.
 	 *
-	 * @param comp
-	 *            The text component to look in.
-	 * @return The list of possible completions, or an empty list if there
-	 *         are none.
+	 * @param comp The text component to look in.
+	 * @return The list of possible completions, or an empty list if there are none.
 	 */
 	protected abstract List<Completion> getCompletionsImpl(JTextComponent comp);
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -130,7 +128,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public ListCellRenderer getListCellRenderer() {
 		return listCellRenderer;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -138,7 +136,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public ParameterChoicesProvider getParameterChoicesProvider() {
 		return paramChoicesProvider;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -146,7 +144,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public char getParameterListEnd() {
 		return paramListEnd;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -154,7 +152,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public String getParameterListSeparator() {
 		return paramListSeparator;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -162,7 +160,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public char getParameterListStart() {
 		return paramListStart;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -170,7 +168,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public CompletionProvider getParent() {
 		return parent;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -186,38 +184,33 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 		}
 		return (autoActivateAfterLetters && Character.isLetter(ch)) || (autoActivateChars != null && autoActivateChars.indexOf(ch) > -1);
 	}
-	
+
 	/**
 	 * Sets the characters that auto-activation should occur after. A Java
-	 * completion provider, for example, might want to set <code>others</code>
-	 * to "<code>.</code>", to allow auto-activation for members of an object.
+	 * completion provider, for example, might want to set <code>others</code> to
+	 * "<code>.</code>", to allow auto-activation for members of an object.
 	 *
-	 * @param letters
-	 *            Whether auto-activation should occur after any letter.
-	 * @param others
-	 *            A string of (non-letter) chars that auto-activation should
-	 *            occur after. This may be <code>null</code>.
+	 * @param letters Whether auto-activation should occur after any letter.
+	 * @param others  A string of (non-letter) chars that auto-activation should
+	 *                occur after. This may be <code>null</code>.
 	 */
 	public void setAutoActivationRules(boolean letters, String others) {
 		autoActivateAfterLetters = letters;
 		autoActivateChars = others;
 	}
-	
+
 	/**
-	 * Sets the param choices provider. This is used when a user
-	 * code-completes a parameterized completion, such as a function or method.
-	 * For any parameter to the function/method, this object can return
-	 * possible completions.
+	 * Sets the param choices provider. This is used when a user code-completes a
+	 * parameterized completion, such as a function or method. For any parameter to
+	 * the function/method, this object can return possible completions.
 	 *
-	 * @param pcp
-	 *            The parameter choices provider, or <code>null</code> for
-	 *            none.
+	 * @param pcp The parameter choices provider, or <code>null</code> for none.
 	 * @see #getParameterChoicesProvider()
 	 */
 	public void setParameterChoicesProvider(ParameterChoicesProvider pcp) {
 		paramChoicesProvider = pcp;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -225,7 +218,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 	public void setListCellRenderer(ListCellRenderer r) {
 		listCellRenderer = r;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -244,7 +237,7 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 		paramListSeparator = separator;
 		paramListEnd = listEnd;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

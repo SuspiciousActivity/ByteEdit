@@ -139,16 +139,18 @@ public class Disassembler {
 			}
 			s += "// #Class v:" + classNode.version + "\n";
 			s += "// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n";
-			s += "// #OuterMethod: "
-					+ (classNode.outerMethod == null ? "null"
-							: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " " + UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
+			s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null"
+					: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
+							+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
 					+ "\n";
 			s += "// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n";
 			s += "// #InnerClasses:\n";
 			if (classNode.innerClasses != null) {
 				for (InnerClassNode icn : classNode.innerClasses) {
-					s += "// " + UnicodeUtils.escapeWithSpaces(icn.name) + " " + UnicodeUtils.escapeWithSpaces(icn.outerName) + " "
-							+ UnicodeUtils.escapeWithSpaces(icn.innerName) + " 0x" + Integer.toHexString(icn.access) + "\n";
+					s += "// " + UnicodeUtils.escapeWithSpaces(icn.name) + " "
+							+ UnicodeUtils.escapeWithSpaces(icn.outerName) + " "
+							+ UnicodeUtils.escapeWithSpaces(icn.innerName) + " 0x" + Integer.toHexString(icn.access)
+							+ "\n";
 				}
 			}
 			s += ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escapeWithSpaces(classNode.name) + " ";
@@ -165,7 +167,9 @@ public class Disassembler {
 				if (!interfaceStr.isEmpty())
 					s += "implements " + interfaceStr + " ";
 			}
-			s += "{\n// #SourceFile: " + (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile)) + "\n\n// #Fields\n";
+			s += "{\n// #SourceFile: "
+					+ (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile))
+					+ "\n\n// #Fields\n";
 			for (FieldNode fn : classNode.fields) {
 				if (fn.signature != null)
 					s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(fn.signature) + "\n";
@@ -231,8 +235,8 @@ public class Disassembler {
 				if (fn.equals(nodeToFind)) {
 					lineFound = s.split("\\n").length;
 				}
-				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient") + UnicodeUtils.escapeWithSpaces(fn.desc) + " "
-						+ UnicodeUtils.escapeWithSpaces(fn.name);
+				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient")
+						+ UnicodeUtils.escapeWithSpaces(fn.desc) + " " + UnicodeUtils.escapeWithSpaces(fn.name);
 				if (fn.value != null) {
 					s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc, true);
 				}
@@ -327,16 +331,19 @@ public class Disassembler {
 					s += dis[0];
 					s += "\t}\n\n";
 				} catch (Exception e) {
-					s += "\t\t// Method couldn't be disassembled:\n\t\t// " + e.getClass().getName() + ": " + e.getMessage() + "\n"
-							+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\t\t// \tat ").replace("[", "\t\t// \tat ").replace("]", "")
+					s += "\t\t// Method couldn't be disassembled:\n\t\t// "
+							+ e.getClass().getName() + ": " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace())
+									.replace(", ", "\n\t\t// \tat ").replace("[", "\t\t// \tat ").replace("]", "")
 							+ "\n\t}\n\n";
 				}
 			}
 			s += "}\n";
 			return new DisassembleTuple(s, lineFound);
 		} catch (Throwable e) {
-			return new DisassembleTuple("Class couldn't be decompiled:\n" + e.getClass().getName() + ": " + e.getMessage() + "\n"
-					+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\tat ").replace("[", "\tat ").replace("]", "") + "\n");
+			return new DisassembleTuple("Class couldn't be decompiled:\n" + e.getClass().getName() + ": "
+					+ e.getMessage() + "\n"
+					+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\tat ").replace("[", "\tat ").replace("]", "")
+					+ "\n");
 		}
 	}
 
@@ -352,15 +359,17 @@ public class Disassembler {
 		}
 		if (mn.localVariables != null) {
 			for (LocalVariableNode lvn : mn.localVariables) {
-				localVarTable += "\t// " + UnicodeUtils.escapeWithSpaces(lvn.name) + ": " + UnicodeUtils.escapeWithSpaces(lvn.desc) + " i:"
-						+ lvn.index + " s:" + labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + " sig:"
+				localVarTable += "\t// " + UnicodeUtils.escapeWithSpaces(lvn.name) + ": "
+						+ UnicodeUtils.escapeWithSpaces(lvn.desc) + " i:" + lvn.index + " s:"
+						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + " sig:"
 						+ UnicodeUtils.escapeWithSpaces(lvn.signature) + "\n";
 			}
 		}
 		if (mn.tryCatchBlocks != null) {
 			for (TryCatchBlockNode tcbn : mn.tryCatchBlocks) {
-				tryCatchTable += "\t// " + UnicodeUtils.escapeWithSpaces(tcbn.type) + " s:" + labels.get(tcbn.start.getLabel()) + " e:"
-						+ labels.get(tcbn.end.getLabel()) + " h:" + labels.get(tcbn.handler.getLabel()) + "\n";
+				tryCatchTable += "\t// " + UnicodeUtils.escapeWithSpaces(tcbn.type) + " s:"
+						+ labels.get(tcbn.start.getLabel()) + " e:" + labels.get(tcbn.end.getLabel()) + " h:"
+						+ labels.get(tcbn.handler.getLabel()) + "\n";
 			}
 		}
 		for (AbstractInsnNode n : mn.instructions.toArray()) {
@@ -371,208 +380,242 @@ public class Disassembler {
 
 	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels) {
 		switch (n.getClass().getSimpleName()) {
-			case "FieldInsnNode": {
-				FieldInsnNode node = (FieldInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " "
-						+ UnicodeUtils.escapeWithSpaces(node.owner) + "/" + UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
+		case "FieldInsnNode": {
+			FieldInsnNode node = (FieldInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
+					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
+		}
+		case "LabelNode": {
+			LabelNode node = (LabelNode) n;
+			return "\t\t// label " + labels.get(node.getLabel()) + "\n";
+		}
+		case "FrameNode": {
+			FrameNode node = (FrameNode) n;
+			String type = "";
+			switch (node.type) {
+			case Opcodes.F_NEW:
+				type = "NEW";
+				break;
+			case Opcodes.F_FULL:
+				type = "FULL";
+				break;
+			case Opcodes.F_APPEND:
+				type = "APPEND";
+				break;
+			case Opcodes.F_CHOP:
+				type = "CHOP";
+				break;
+			case Opcodes.F_SAME:
+				type = "SAME";
+				break;
+			case Opcodes.F_SAME1:
+				type = "SAME1";
+				break;
 			}
-			case "LabelNode": {
-				LabelNode node = (LabelNode) n;
-				return "\t\t// label " + labels.get(node.getLabel()) + "\n";
-			}
-			case "FrameNode": {
-				FrameNode node = (FrameNode) n;
-				String s = "\t\t// frame " + node.type + " l:";
-				ArrayList<String> arr = new ArrayList<>();
-				if (node.local != null) {
-					for (Object o : node.local) {
-						if (o == null) {
-							arr.add(null);
-						} else {
-							if (o instanceof String) {
-								arr.add(UnicodeUtils.escapeWithSpaces((String) o));
-							} else if (o instanceof LabelNode) {
-								arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
-							} else {
-								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
-							}
-						}
-					}
-					s += arr.toString();
-				} else {
-					s += "null";
-				}
-				arr.clear();
-				s += " s:";
-				if (node.stack != null) {
-					for (Object o : node.stack) {
-						if (o == null) {
-							arr.add(null);
-						} else {
-							if (o instanceof String) {
-								arr.add(UnicodeUtils.escapeWithSpaces((String) o));
-							} else if (o instanceof LabelNode) {
-								arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
-							} else {
-								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
-							}
-						}
-					}
-					s += arr.toString();
-				} else {
-					s += "null";
-				}
-				s += "\n";
-				return s;
-			}
-			case "LineNumberNode": {
-				LineNumberNode node = (LineNumberNode) n;
-				return "\t\t// line " + node.line + " " + labels.get(node.start.getLabel()) + "\n";
-			}
-			case "InvokeDynamicInsnNode": {
-				InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
-						+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
-						+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
-						+ UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: " + UnicodeUtils.escapeWithSpaces(node.bsm.getOwner())
-						+ "\n\t\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: " + node.bsm.isInterface()
-						+ "\n\t\t\t\ttag: " + node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
-				for (Object l : node.bsmArgs) {
-					if (l.getClass().getName().equals("org.objectweb.asm.Type")) {
-						Type type = (Type) l;
-						int valueBegin = 0;
-						int valueEnd = 0;
-						String buf = null;
-						try {
-							Field f_off = Type.class.getDeclaredField("valueBegin");
-							f_off.setAccessible(true);
-							valueBegin = f_off.getInt(type);
-							Field f_len = Type.class.getDeclaredField("valueEnd");
-							f_len.setAccessible(true);
-							valueEnd = f_len.getInt(type);
-							Field f_buf = Type.class.getDeclaredField("valueBuffer");
-							f_buf.setAccessible(true);
-							buf = (String) f_buf.get(type);
-						} catch (Exception e) {}
-						s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type) + "\n\t\t\t\t\tstart: " + valueBegin
-								+ "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "");
-						s += "\n\t\t\t\t]\n";
-					} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
-						Handle h = (Handle) l;
-						s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: " + UnicodeUtils.escapeWithSpaces(h.getName()).replace("/", "\\u002F")
-								+ "\n\t\t\t\t\towner: " + UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: "
-								+ UnicodeUtils.escapeWithSpaces(h.getDesc()) + "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: "
-								+ h.getTag();
-						s += "\n\t\t\t\t]\n";
+			String s = "\t\t// frame " + type + " l:";
+			ArrayList<String> arr = new ArrayList<>();
+			if (node.local != null) {
+				for (Object o : node.local) {
+					if (o == null) {
+						arr.add(null);
 					} else {
-						s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
+						if (o instanceof String) {
+							arr.add(UnicodeUtils.escapeWithSpaces((String) o));
+						} else if (o instanceof LabelNode) {
+							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
+						} else {
+							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
+						}
 					}
 				}
-				s += "\t\t\t]\n\t\t]\n";
-				return s;
+				s += arr.toString();
+			} else {
+				s += "null";
 			}
-			case "MethodInsnNode": {
-				MethodInsnNode node = (MethodInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " "
-						+ UnicodeUtils.escapeWithSpaces(node.owner) + "/" + UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
-			}
-			case "TypeInsnNode": {
-				TypeInsnNode node = (TypeInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + "\n";
-			}
-			case "MultiANewArrayInsnNode": {
-				MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + UnicodeUtils.escapeWithSpaces(node.desc) + " " + node.dims
-						+ "\n";
-			}
-			case "LdcInsnNode": {
-				LdcInsnNode node = (LdcInsnNode) n;
-				switch (node.cst.getClass().getSimpleName()) {
-					case "String":
-					case "Double":
-					case "Integer":
-					case "Float":
-					case "Long": {
-						return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + ClassUtil.getDecompiledValue(node.cst, "") + "\n";
-					}
-					case "Type": {
-						Type type = (Type) node.cst;
-						int valueBegin = 0;
-						int valueEnd = 0;
-						String buf = null;
-						try {
-							Field f_off = Type.class.getDeclaredField("valueBegin");
-							f_off.setAccessible(true);
-							valueBegin = f_off.getInt(type);
-							Field f_len = Type.class.getDeclaredField("valueEnd");
-							f_len.setAccessible(true);
-							valueEnd = f_len.getInt(type);
-							Field f_buf = Type.class.getDeclaredField("valueBuffer");
-							f_buf.setAccessible(true);
-							buf = (String) f_buf.get(type);
-						} catch (Exception e) {}
-						String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
-								+ ClassUtil.getClassNameFromType(type) + "\n\t\t\tstart: " + valueBegin + "\n\t\t\tend: " + valueEnd + "\n\t\t\tbuf: "
-								+ ClassUtil.getDecompiledValue(buf, "");
-						s += "\n\t\t]\n";
-						return s;
-					}
-					default: {
-						return "\t\tUNRESOLVED TYPE! " + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-								+ node.cst.getClass().getName().replace(".", "/") + " " + node.cst + "\n";
+			arr.clear();
+			s += " s:";
+			if (node.stack != null) {
+				for (Object o : node.stack) {
+					if (o == null) {
+						arr.add(null);
+					} else {
+						if (o instanceof String) {
+							arr.add(UnicodeUtils.escapeWithSpaces((String) o));
+						} else if (o instanceof LabelNode) {
+							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
+						} else {
+							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
+						}
 					}
 				}
+				s += arr.toString();
+			} else {
+				s += "null";
 			}
-			case "VarInsnNode": {
-				VarInsnNode node = (VarInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + "\n";
-			}
-			case "InsnNode": {
-				InsnNode node = (InsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + "\n";
-			}
-			case "IntInsnNode": {
-				IntInsnNode node = (IntInsnNode) n;
-				if (n.getOpcode() == Opcodes.NEWARRAY) {
-					return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + ClassUtil.getArrayTypeByID(node.operand) + "\n";
+			s += "\n";
+			return s;
+		}
+		case "LineNumberNode": {
+			LineNumberNode node = (LineNumberNode) n;
+			return "\t\t// line " + node.line + " " + labels.get(node.start.getLabel()) + "\n";
+		}
+		case "InvokeDynamicInsnNode": {
+			InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
+			String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
+					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
+					+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
+					+ UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: "
+					+ UnicodeUtils.escapeWithSpaces(node.bsm.getOwner()) + "\n\t\t\t\tdesc: "
+					+ UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: "
+					+ node.bsm.isInterface() + "\n\t\t\t\ttag: " + node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
+			for (Object l : node.bsmArgs) {
+				if (l.getClass().getName().equals("org.objectweb.asm.Type")) {
+					Type type = (Type) l;
+					int valueBegin = 0;
+					int valueEnd = 0;
+					String buf = null;
+					try {
+						Field f_off = Type.class.getDeclaredField("valueBegin");
+						f_off.setAccessible(true);
+						valueBegin = f_off.getInt(type);
+						Field f_len = Type.class.getDeclaredField("valueEnd");
+						f_len.setAccessible(true);
+						valueEnd = f_len.getInt(type);
+						Field f_buf = Type.class.getDeclaredField("valueBuffer");
+						f_buf.setAccessible(true);
+						buf = (String) f_buf.get(type);
+					} catch (Exception e) {
+					}
+					s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type)
+							+ "\n\t\t\t\t\tstart: " + valueBegin + "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: "
+							+ ClassUtil.getDecompiledValue(buf, "");
+					s += "\n\t\t\t\t]\n";
+				} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
+					Handle h = (Handle) l;
+					s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: "
+							+ UnicodeUtils.escapeWithSpaces(h.getName()).replace("/", "\\u002F") + "\n\t\t\t\t\towner: "
+							+ UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: "
+							+ UnicodeUtils.escapeWithSpaces(h.getDesc()) + "\n\t\t\t\t\tisInterface: " + h.isInterface()
+							+ "\n\t\t\t\t\ttag: " + h.getTag();
+					s += "\n\t\t\t\t]\n";
 				} else {
-					return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
+					s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
 				}
 			}
-			case "JumpInsnNode": {
-				JumpInsnNode node = (JumpInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + labels.get(node.label.getLabel()) + "\n";
+			s += "\t\t\t]\n\t\t]\n";
+			return s;
+		}
+		case "MethodInsnNode": {
+			MethodInsnNode node = (MethodInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
+					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
+		}
+		case "TypeInsnNode": {
+			TypeInsnNode node = (TypeInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+					+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n";
+		}
+		case "MultiANewArrayInsnNode": {
+			MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + node.dims + "\n";
+		}
+		case "LdcInsnNode": {
+			LdcInsnNode node = (LdcInsnNode) n;
+			switch (node.cst.getClass().getSimpleName()) {
+			case "String":
+			case "Double":
+			case "Integer":
+			case "Float":
+			case "Long": {
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+						+ ClassUtil.getDecompiledValue(node.cst, "") + "\n";
 			}
-			case "TableSwitchInsnNode": {
-				TableSwitchInsnNode node = (TableSwitchInsnNode) n;
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min + "\n\t\t\tmax: " + node.max
-						+ "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel()) + "\n\t\t\tlabels: [\n";
-				for (LabelNode l : node.labels) {
-					s += "\t\t\t\t" + labels.get(l.getLabel()) + "\n";
+			case "Type": {
+				Type type = (Type) node.cst;
+				int valueBegin = 0;
+				int valueEnd = 0;
+				String buf = null;
+				try {
+					Field f_off = Type.class.getDeclaredField("valueBegin");
+					f_off.setAccessible(true);
+					valueBegin = f_off.getInt(type);
+					Field f_len = Type.class.getDeclaredField("valueEnd");
+					f_len.setAccessible(true);
+					valueEnd = f_len.getInt(type);
+					Field f_buf = Type.class.getDeclaredField("valueBuffer");
+					f_buf.setAccessible(true);
+					buf = (String) f_buf.get(type);
+				} catch (Exception e) {
 				}
-				s += "\t\t\t]\n\t\t]\n";
+				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
+						+ ClassUtil.getClassNameFromType(type) + "\n\t\t\tstart: " + valueBegin + "\n\t\t\tend: "
+						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "");
+				s += "\n\t\t]\n";
 				return s;
 			}
-			case "LookupSwitchInsnNode": {
-				LookupSwitchInsnNode node = (LookupSwitchInsnNode) n;
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tdefault: " + labels.get(node.dflt.getLabel())
-						+ "\n\t\t\tkeys: [\n";
-				for (Integer l : node.keys) {
-					s += "\t\t\t\t" + l + "\n";
-				}
-				s += "\t\t\t]" + "\n\t\t\tlabels: [\n";
-				for (LabelNode l : node.labels) {
-					s += "\t\t\t\t" + labels.get(l.getLabel()) + "\n";
-				}
-				s += "\t\t\t]\n\t\t]\n";
-				return s;
+			default: {
+				return "\t\tUNRESOLVED TYPE! " + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+						+ node.cst.getClass().getName().replace(".", "/") + " " + node.cst + "\n";
 			}
-			case "IincInsnNode": {
-				IincInsnNode node = (IincInsnNode) n;
-				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " " + node.incr + "\n";
 			}
-			default:
-				return "\t\tNOT HANDLED! " + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + n.getClass().getSimpleName() + "\n";
+		}
+		case "VarInsnNode": {
+			VarInsnNode node = (VarInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + "\n";
+		}
+		case "InsnNode": {
+			InsnNode node = (InsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + "\n";
+		}
+		case "IntInsnNode": {
+			IntInsnNode node = (IntInsnNode) n;
+			if (n.getOpcode() == Opcodes.NEWARRAY) {
+				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
+						+ ClassUtil.getArrayTypeByID(node.operand) + "\n";
+			} else {
+				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
+			}
+		}
+		case "JumpInsnNode": {
+			JumpInsnNode node = (JumpInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + labels.get(node.label.getLabel())
+					+ "\n";
+		}
+		case "TableSwitchInsnNode": {
+			TableSwitchInsnNode node = (TableSwitchInsnNode) n;
+			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min
+					+ "\n\t\t\tmax: " + node.max + "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel())
+					+ "\n\t\t\tlabels: [\n";
+			for (LabelNode l : node.labels) {
+				s += "\t\t\t\t" + labels.get(l.getLabel()) + "\n";
+			}
+			s += "\t\t\t]\n\t\t]\n";
+			return s;
+		}
+		case "LookupSwitchInsnNode": {
+			LookupSwitchInsnNode node = (LookupSwitchInsnNode) n;
+			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tdefault: "
+					+ labels.get(node.dflt.getLabel()) + "\n\t\t\tkeys: [\n";
+			for (Integer l : node.keys) {
+				s += "\t\t\t\t" + l + "\n";
+			}
+			s += "\t\t\t]" + "\n\t\t\tlabels: [\n";
+			for (LabelNode l : node.labels) {
+				s += "\t\t\t\t" + labels.get(l.getLabel()) + "\n";
+			}
+			s += "\t\t\t]\n\t\t]\n";
+			return s;
+		}
+		case "IincInsnNode": {
+			IincInsnNode node = (IincInsnNode) n;
+			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " " + node.incr + "\n";
+		}
+		default:
+			return "\t\tNOT HANDLED! " + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
+					+ n.getClass().getSimpleName() + "\n";
 		}
 	}
 

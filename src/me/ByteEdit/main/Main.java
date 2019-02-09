@@ -178,6 +178,8 @@ public class Main extends JFrame {
 		provider.addCompletion(new ShorthandCompletion(provider, "method",
 				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}",
 				null, "<html><b><u>method</u></b><br>Creates an example method</html>"));
+		provider.addCompletion(new ShorthandCompletion(provider, "frame", "frame FULL l:[] s:[]", null,
+				"<html><b><u>frame</u></b><br>Creates a stack map frame</html>"));
 		return provider;
 	}
 
