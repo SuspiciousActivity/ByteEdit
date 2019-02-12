@@ -421,9 +421,15 @@ public class Disassembler {
 						arr.add(null);
 					} else {
 						if (o instanceof String) {
-							arr.add(UnicodeUtils.escapeWithSpaces((String) o));
+							arr.add("L" + UnicodeUtils.escapeWithSpaces((String) o) + ";");
 						} else if (o instanceof LabelNode) {
 							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
+						} else if (o instanceof Integer) {
+							String frameType = ClassUtil.getFrameTypeByID(((Integer) o).intValue());
+							if (frameType != null)
+								arr.add(frameType);
+							else
+								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
 						} else {
 							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
 						}
@@ -441,9 +447,15 @@ public class Disassembler {
 						arr.add(null);
 					} else {
 						if (o instanceof String) {
-							arr.add(UnicodeUtils.escapeWithSpaces((String) o));
+							arr.add("L" + UnicodeUtils.escapeWithSpaces((String) o) + ";");
 						} else if (o instanceof LabelNode) {
 							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
+						} else if (o instanceof Integer) {
+							String frameType = ClassUtil.getFrameTypeByID(((Integer) o).intValue());
+							if (frameType != null)
+								arr.add(frameType);
+							else
+								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
 						} else {
 							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
 						}

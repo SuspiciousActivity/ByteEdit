@@ -581,7 +581,14 @@ public class Assembler {
 				} else {
 					for (String asd : l.split(", ")) {
 						if (!asd.startsWith("(")) {
-							arr.add(UnicodeUtils.unescape(asd));
+							int frameType = ClassUtil.getFrameTypeByName(asd);
+							if (frameType != -1)
+								arr.add(new Integer(frameType));
+							else {
+								String frame = UnicodeUtils.unescape(asd);
+								frame = frame.substring(1, frame.length() - 1);
+								arr.add(frame);
+							}
 						} else {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);
@@ -620,7 +627,14 @@ public class Assembler {
 				} else {
 					for (String asd : st.split(", ")) {
 						if (!asd.startsWith("(")) {
-							arr.add(UnicodeUtils.unescape(asd));
+							int frameType = ClassUtil.getFrameTypeByName(asd);
+							if (frameType != -1)
+								arr.add(new Integer(frameType));
+							else {
+								String frame = UnicodeUtils.unescape(asd);
+								frame = frame.substring(1, frame.length() - 1);
+								arr.add(frame);
+							}
 						} else {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);

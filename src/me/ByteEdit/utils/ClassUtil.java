@@ -28,34 +28,34 @@ public class ClassUtil {
 
 	public static boolean isObjectClassMethod(String name, String desc, boolean forbidInits) {
 		switch (name) {
-			case "<init>":
-			case "<clinit>":
-				if (forbidInits) {
-					return true;
-				}
-			case "notifyAll":
-			case "notify":
-				if (desc.equals("()V")) {
-					return true;
-				}
-				break;
-			case "wait":
-				if (desc.equals("()V") || desc.equals("(J)V") || desc.equals("(JI)V")) {
-					return true;
-				}
-				break;
-			case "equals":
-				if (desc.equals("(Ljava/lang/Object;)Z")) {
-					return true;
-				}
-				break;
-			case "hashCode":
-				if (desc.equals("()I")) {
-					return true;
-				}
-				break;
-			default:
-				break;
+		case "<init>":
+		case "<clinit>":
+			if (forbidInits) {
+				return true;
+			}
+		case "notifyAll":
+		case "notify":
+			if (desc.equals("()V")) {
+				return true;
+			}
+			break;
+		case "wait":
+			if (desc.equals("()V") || desc.equals("(J)V") || desc.equals("(JI)V")) {
+				return true;
+			}
+			break;
+		case "equals":
+			if (desc.equals("(Ljava/lang/Object;)Z")) {
+				return true;
+			}
+			break;
+		case "hashCode":
+			if (desc.equals("()I")) {
+				return true;
+			}
+			break;
+		default:
+			break;
 		}
 		return false;
 	}
@@ -63,125 +63,165 @@ public class ClassUtil {
 	public static int getIDFromClassNameForType(String s) {
 		s = s.toUpperCase();
 		switch (s) {
-			case "V": {
-				return 0;
-			}
-			case "Z": {
-				return 1;
-			}
-			case "C": {
-				return 2;
-			}
-			case "B": {
-				return 3;
-			}
-			case "S": {
-				return 4;
-			}
-			case "I": {
-				return 5;
-			}
-			case "F": {
-				return 6;
-			}
-			case "J": {
-				return 7;
-			}
-			case "D": {
-				return 8;
-			}
-			case "NAME": {
-				return 10;
-			}
-			default: {
-				return Integer.parseInt(s);
-			}
+		case "V": {
+			return 0;
+		}
+		case "Z": {
+			return 1;
+		}
+		case "C": {
+			return 2;
+		}
+		case "B": {
+			return 3;
+		}
+		case "S": {
+			return 4;
+		}
+		case "I": {
+			return 5;
+		}
+		case "F": {
+			return 6;
+		}
+		case "J": {
+			return 7;
+		}
+		case "D": {
+			return 8;
+		}
+		case "NAME": {
+			return 10;
+		}
+		default: {
+			return Integer.parseInt(s);
+		}
 		}
 	}
 
 	public static String getClassNameFromType(Type type) {
 		switch (type.getSort()) {
-			case 0: {
-				return "V";
-			}
-			case 1: {
-				return "Z";
-			}
-			case 2: {
-				return "C";
-			}
-			case 3: {
-				return "B";
-			}
-			case 4: {
-				return "S";
-			}
-			case 5: {
-				return "I";
-			}
-			case 6: {
-				return "F";
-			}
-			case 7: {
-				return "J";
-			}
-			case 8: {
-				return "D";
-			}
-			case 9: {
-				return getClassNameFromType(type.getElementType());
-			}
-			case 10: {
-				return "Name";
-			}
+		case 0: {
+			return "V";
+		}
+		case 1: {
+			return "Z";
+		}
+		case 2: {
+			return "C";
+		}
+		case 3: {
+			return "B";
+		}
+		case 4: {
+			return "S";
+		}
+		case 5: {
+			return "I";
+		}
+		case 6: {
+			return "F";
+		}
+		case 7: {
+			return "J";
+		}
+		case 8: {
+			return "D";
+		}
+		case 9: {
+			return getClassNameFromType(type.getElementType());
+		}
+		case 10: {
+			return "Name";
+		}
 		}
 		return Integer.toString(type.getSort());
 	}
 
 	public static String getArrayTypeByID(int id) {
 		switch (id) {
-			case 4:
-				return "Z";
-			case 5:
-				return "C";
-			case 6:
-				return "F";
-			case 7:
-				return "D";
-			case 8:
-				return "B";
-			case 9:
-				return "S";
-			case 10:
-				return "I";
-			case 11:
-				return "J";
-			default:
-				return Integer.toString(id);
+		case 4:
+			return "Z";
+		case 5:
+			return "C";
+		case 6:
+			return "F";
+		case 7:
+			return "D";
+		case 8:
+			return "B";
+		case 9:
+			return "S";
+		case 10:
+			return "I";
+		case 11:
+			return "J";
+		default:
+			return Integer.toString(id);
 		}
 	}
 
 	public static int getArrayIDByType(String type) {
 		switch (type) {
-			case "Z":
-				return 4;
-			case "C":
-				return 5;
-			case "F":
-				return 6;
-			case "D":
-				return 7;
-			case "B":
-				return 8;
-			case "S":
-				return 9;
-			case "I":
-				return 10;
-			case "J":
-				return 11;
-			default:
-				return Integer.parseInt(type);
+		case "Z":
+			return 4;
+		case "C":
+			return 5;
+		case "F":
+			return 6;
+		case "D":
+			return 7;
+		case "B":
+			return 8;
+		case "S":
+			return 9;
+		case "I":
+			return 10;
+		case "J":
+			return 11;
+		default:
+			return Integer.parseInt(type);
 		}
+	}
+
+	public static String getFrameTypeByID(int type) {
+		switch (type) {
+		case 0:
+			return "top";
+		case 1:
+			return "int";
+		case 2:
+			return "float";
+		case 3:
+			return "double";
+		case 4:
+			return "long";
+		case 5:
+			return "null";
+		case 6:
+			return "uninitializedThis";
+		}
+		return null;
+	}
+
+	public static int getFrameTypeByName(String type) {
+		switch (type) {
+			case "top":
+				return 0;
+			case "int":
+				return 1;
+			case "float":
+				return 2;
+			case "double":
+				return 3;
+			case "long":
+				return 4;
+			case "null":
+				return 5;
+			case "uninitializedThis":
+				return 6;
+		}
+		return -1;
 	}
 
 	public static String getAccessFlagsClass(int access) {
@@ -192,7 +232,8 @@ public class ClassUtil {
 		if ((ACC_FINAL & access) != 0) {
 			s += "final ";
 		}
-		if ((ACC_ABSTRACT & access) != 0 && (ACC_ANNOTATION & access) == 0 && (ACC_ENUM & access) == 0 && (ACC_INTERFACE & access) == 0) {
+		if ((ACC_ABSTRACT & access) != 0 && (ACC_ANNOTATION & access) == 0 && (ACC_ENUM & access) == 0
+				&& (ACC_INTERFACE & access) == 0) {
 			s += "abstract ";
 		}
 		if ((ACC_SYNTHETIC & access) != 0) {
@@ -296,46 +337,46 @@ public class ClassUtil {
 			desc = desc.substring(1);
 		}
 		switch (desc.substring(0, 1)) {
-			case "B":
-				type = "byte";
-				break;
-			case "Z":
-				type = "boolean";
-				break;
-			case "I":
-				type = "int";
-				break;
-			case "J":
-				type = "long";
-				break;
-			case "C":
-				type = "char";
-				break;
-			case "D":
-				type = "double";
-				break;
-			case "F":
-				type = "float";
-				break;
-			case "S":
-				type = "short";
-				break;
-			case "V":
-				type = "void";
-				break;
-			case "L": {
-				importName = desc.substring(1, desc.length() - 1).replace("/", ".");
-				if (!importName.contains(".")) {
-					type = importName;
-					importName = null;
-				} else {
-					type = importName.split("\\.")[importName.split("\\.").length - 1];
-				}
-				break;
+		case "B":
+			type = "byte";
+			break;
+		case "Z":
+			type = "boolean";
+			break;
+		case "I":
+			type = "int";
+			break;
+		case "J":
+			type = "long";
+			break;
+		case "C":
+			type = "char";
+			break;
+		case "D":
+			type = "double";
+			break;
+		case "F":
+			type = "float";
+			break;
+		case "S":
+			type = "short";
+			break;
+		case "V":
+			type = "void";
+			break;
+		case "L": {
+			importName = desc.substring(1, desc.length() - 1).replace("/", ".");
+			if (!importName.contains(".")) {
+				type = importName;
+				importName = null;
+			} else {
+				type = importName.split("\\.")[importName.split("\\.").length - 1];
 			}
-			default:
-				type = "ERROR";
-				break;
+			break;
+		}
+		default:
+			type = "ERROR";
+			break;
 		}
 		for (int i = 0; i < arrSize; i++) {
 			type += "[]";
@@ -362,65 +403,65 @@ public class ClassUtil {
 				parameterType = parameterType.substring(1);
 			}
 			switch (parameterType.substring(0, 1)) {
-				case "B":
-					type = "byte";
-					parameterType = parameterType.substring(1);
-					break;
-				case "Z":
-					type = "boolean";
-					parameterType = parameterType.substring(1);
-					break;
-				case "I":
-					type = "int";
-					parameterType = parameterType.substring(1);
-					break;
-				case "J":
-					type = "long";
-					parameterType = parameterType.substring(1);
-					break;
-				case "C":
-					type = "char";
-					parameterType = parameterType.substring(1);
-					break;
-				case "D":
-					type = "double";
-					parameterType = parameterType.substring(1);
-					break;
-				case "F":
-					type = "float";
-					parameterType = parameterType.substring(1);
-					break;
-				case "S":
-					type = "short";
-					parameterType = parameterType.substring(1);
-					break;
-				case "V":
-					type = "void";
-					parameterType = parameterType.substring(1);
-					break;
-				case "L": {
-					String rofl = "";
-					while (!parameterType.startsWith(";")) {
-						rofl += parameterType.substring(0, 1);
-						parameterType = parameterType.substring(1);
-					}
+			case "B":
+				type = "byte";
+				parameterType = parameterType.substring(1);
+				break;
+			case "Z":
+				type = "boolean";
+				parameterType = parameterType.substring(1);
+				break;
+			case "I":
+				type = "int";
+				parameterType = parameterType.substring(1);
+				break;
+			case "J":
+				type = "long";
+				parameterType = parameterType.substring(1);
+				break;
+			case "C":
+				type = "char";
+				parameterType = parameterType.substring(1);
+				break;
+			case "D":
+				type = "double";
+				parameterType = parameterType.substring(1);
+				break;
+			case "F":
+				type = "float";
+				parameterType = parameterType.substring(1);
+				break;
+			case "S":
+				type = "short";
+				parameterType = parameterType.substring(1);
+				break;
+			case "V":
+				type = "void";
+				parameterType = parameterType.substring(1);
+				break;
+			case "L": {
+				String rofl = "";
+				while (!parameterType.startsWith(";")) {
 					rofl += parameterType.substring(0, 1);
 					parameterType = parameterType.substring(1);
-					String importName = rofl.substring(1, rofl.length() - 1).replace("/", ".");
-					if (!importName.contains(".")) {
-						type = importName;
-						importName = null;
-					} else {
-						type = importName.split("\\.")[importName.split("\\.").length - 1];
-					}
-					if (importName != null) {
-						imports.add(importName);
-					}
-					break;
 				}
-				default:
-					type = "ERROR";
-					break;
+				rofl += parameterType.substring(0, 1);
+				parameterType = parameterType.substring(1);
+				String importName = rofl.substring(1, rofl.length() - 1).replace("/", ".");
+				if (!importName.contains(".")) {
+					type = importName;
+					importName = null;
+				} else {
+					type = importName.split("\\.")[importName.split("\\.").length - 1];
+				}
+				if (importName != null) {
+					imports.add(importName);
+				}
+				break;
+			}
+			default:
+				type = "ERROR";
+				break;
 			}
 			for (int i = 0; i < arrSize; i++) {
 				type += "[]";
@@ -454,28 +495,28 @@ public class ClassUtil {
 				parameterType = parameterType.substring(1);
 			}
 			switch (parameterType.substring(0, 1)) {
-				case "B":
-				case "Z":
-				case "I":
-				case "J":
-				case "C":
-				case "D":
-				case "F":
-				case "S":
-				case "V":
+			case "B":
+			case "Z":
+			case "I":
+			case "J":
+			case "C":
+			case "D":
+			case "F":
+			case "S":
+			case "V":
+				parameterType = parameterType.substring(1);
+				count++;
+				break;
+			case "L": {
+				while (!parameterType.startsWith(";")) {
 					parameterType = parameterType.substring(1);
-					count++;
-					break;
-				case "L": {
-					while (!parameterType.startsWith(";")) {
-						parameterType = parameterType.substring(1);
-					}
-					parameterType = parameterType.substring(1);
-					count++;
-					break;
 				}
-				default:
-					break;
+				parameterType = parameterType.substring(1);
+				count++;
+				break;
+			}
+			default:
+				break;
 			}
 		}
 		return count;
@@ -483,23 +524,24 @@ public class ClassUtil {
 
 	public static String getDecompiledValue(Object o, String desc, boolean escapeSpaces) {
 		switch (o.getClass().getName()) {
-			case "java.lang.String": {
-				return "\"" + (escapeSpaces ? UnicodeUtils.escapeWithSpaces((String) o) : UnicodeUtils.escape((String) o)) + "\"";
+		case "java.lang.String": {
+			return "\"" + (escapeSpaces ? UnicodeUtils.escapeWithSpaces((String) o) : UnicodeUtils.escape((String) o))
+					+ "\"";
+		}
+		case "java.lang.Integer": {
+			if (desc.equals("Z")) {
+				return ((int) o) == 0 ? "false" : "true";
 			}
-			case "java.lang.Integer": {
-				if (desc.equals("Z")) {
-					return ((int) o) == 0 ? "false" : "true";
-				}
-				return o.toString();
-			}
-			case "java.lang.Long": {
-				return o.toString() + "l";
-			}
-			case "java.lang.Float": {
-				return o.toString() + "f";
-			}
-			default:
-				return o.toString();
+			return o.toString();
+		}
+		case "java.lang.Long": {
+			return o.toString() + "l";
+		}
+		case "java.lang.Float": {
+			return o.toString() + "f";
+		}
+		default:
+			return o.toString();
 		}
 	}
 
@@ -509,32 +551,32 @@ public class ClassUtil {
 
 	public static Object getCastedValue(String o, String className) {
 		switch (className) {
-			case "java/lang/String": {
-				return o;
-			}
-			case "java/lang/Integer": {
-				return Integer.parseInt(o);
-			}
-			case "java/lang/Long": {
-				return Long.parseLong(o);
-			}
-			case "java/lang/Float": {
-				return Float.parseFloat(o);
-			}
-			case "java/lang/Double": {
-				return Double.parseDouble(o);
-			}
-			case "java/lang/Boolean": {
-				return Boolean.parseBoolean(o);
-			}
-			case "java/lang/Short": {
-				return Short.parseShort(o);
-			}
-			case "java/lang/Byte": {
-				return Byte.parseByte(o);
-			}
-			default:
-				return o.toString();
+		case "java/lang/String": {
+			return o;
+		}
+		case "java/lang/Integer": {
+			return Integer.parseInt(o);
+		}
+		case "java/lang/Long": {
+			return Long.parseLong(o);
+		}
+		case "java/lang/Float": {
+			return Float.parseFloat(o);
+		}
+		case "java/lang/Double": {
+			return Double.parseDouble(o);
+		}
+		case "java/lang/Boolean": {
+			return Boolean.parseBoolean(o);
+		}
+		case "java/lang/Short": {
+			return Short.parseShort(o);
+		}
+		case "java/lang/Byte": {
+			return Byte.parseByte(o);
+		}
+		default:
+			return o.toString();
 		}
 	}
 
