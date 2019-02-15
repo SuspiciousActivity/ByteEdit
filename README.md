@@ -17,3 +17,5 @@ To go to the field/method definition in the selected line press CTRL + G.
 To (un-)escape unicode characters, press CTRL + U.
 
 To rename a field/method with attention to references in the selected line, press CTRL + R.
+
+To quickly compile some java code, press CTRL + E.

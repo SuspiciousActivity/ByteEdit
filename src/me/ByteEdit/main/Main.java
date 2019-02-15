@@ -71,6 +71,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import me.ByteEdit.boxes.CompilationBox;
 import me.ByteEdit.boxes.OptionBox;
 import me.ByteEdit.boxes.RenameBox;
 import me.ByteEdit.boxes.SearchBox;
@@ -98,6 +99,7 @@ public class Main extends JFrame {
 	public static OptionBox optionBox;
 	public static UnicodeBox unicodeBox;
 	public static RenameBox renameBox;
+	public static CompilationBox compilationBox;
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static Theme theme;
@@ -188,11 +190,17 @@ public class Main extends JFrame {
 	 */
 	public Main() {
 		INSTANCE = this;
+		try {
+			theme = Theme.load(getClass().getClassLoader().getResourceAsStream("org/fife/eclipse.xml"));
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
 		searchBox = new SearchBox();
 		typeOpenBox = new TypeOpenBox();
 		optionBox = new OptionBox();
 		unicodeBox = new UnicodeBox();
 		renameBox = new RenameBox();
+		compilationBox = new CompilationBox();
 		setTitle("ByteEdit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 407),
@@ -218,11 +226,6 @@ public class Main extends JFrame {
 		ac.setShowDescWindow(true);
 		FoldParserManager.get().addFoldParserMapping(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE,
 				new CurlyFoldParser(false, true));
-		try {
-			Theme theme = Theme.load(getClass().getClassLoader().getResourceAsStream("org/fife/eclipse.xml"));
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		}
 		tree = new JTree(new DefaultTreeModel(null));
 		tree.addKeyListener(new KeyAdapter() {
 
@@ -301,6 +304,7 @@ public class Main extends JFrame {
 								optionBox.setVisible(false);
 								unicodeBox.setVisible(false);
 								renameBox.setVisible(false);
+								compilationBox.setVisible(false);
 								isChangingFile = false;
 							}
 							dtde.dropComplete(true);
@@ -367,6 +371,7 @@ public class Main extends JFrame {
 		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlE = KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK);
 		// global
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
 
@@ -400,6 +405,13 @@ public class Main extends JFrame {
 				unicodeBox.setVisible(true);
 			}
 		}, ctrlU, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				compilationBox.setVisible(true);
+			}
+		}, ctrlE, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		// specific
 		tree.registerKeyboardAction(new ActionListener() {
 
@@ -441,12 +453,7 @@ public class Main extends JFrame {
 		txtByteEditView.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		txtByteEditView.setCodeFoldingEnabled(true);
 		scrollPane_ByteEdit = new RTextScrollPane();
-		try {
-			theme = Theme.load(getClass().getClassLoader().getResourceAsStream("org/fife/eclipse.xml"));
-			theme.apply(txtByteEditView);
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		}
+		theme.apply(txtByteEditView);
 
 		splitPane.setRightComponent(scrollPane_ByteEdit);
 		txtByteEditView.setBackground(Color.LIGHT_GRAY);
