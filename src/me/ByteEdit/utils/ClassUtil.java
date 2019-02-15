@@ -189,13 +189,13 @@ public class ClassUtil {
 		case 0:
 			return "top";
 		case 1:
-			return "int";
+			return "I";
 		case 2:
-			return "float";
+			return "F";
 		case 3:
-			return "double";
+			return "D";
 		case 4:
-			return "long";
+			return "J";
 		case 5:
 			return "null";
 		case 6:
@@ -208,13 +208,13 @@ public class ClassUtil {
 		switch (type) {
 			case "top":
 				return 0;
-			case "int":
+			case "I":
 				return 1;
-			case "float":
+			case "F":
 				return 2;
-			case "double":
+			case "D":
 				return 3;
-			case "long":
+			case "J":
 				return 4;
 			case "null":
 				return 5;

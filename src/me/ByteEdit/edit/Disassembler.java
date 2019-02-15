@@ -421,7 +421,7 @@ public class Disassembler {
 						arr.add(null);
 					} else {
 						if (o instanceof String) {
-							arr.add("L" + UnicodeUtils.escapeWithSpaces((String) o) + ";");
+							arr.add("\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"");
 						} else if (o instanceof LabelNode) {
 							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 						} else if (o instanceof Integer) {
@@ -447,7 +447,7 @@ public class Disassembler {
 						arr.add(null);
 					} else {
 						if (o instanceof String) {
-							arr.add("L" + UnicodeUtils.escapeWithSpaces((String) o) + ";");
+							arr.add("\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"");
 						} else if (o instanceof LabelNode) {
 							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 						} else if (o instanceof Integer) {
