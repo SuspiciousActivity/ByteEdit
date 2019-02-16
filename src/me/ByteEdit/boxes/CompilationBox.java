@@ -15,25 +15,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.tools.FileObject;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -113,11 +105,13 @@ public class CompilationBox extends JFrame {
 						}
 					}
 
-					compiler.getTask(outWriter, null, null, Arrays.asList("-d", tmpFolder.getAbsolutePath()), null,
-							Arrays.asList(new JavaSourceFromString("Compiled", source))).call();
+					compiler.getTask(outWriter, null, null,
+							Arrays.asList("-d", tmpFolder.getAbsolutePath(), "-classpath",
+									Main.jarFile.getAbsolutePath()),
+							null, Arrays.asList(new JavaSourceFromString("Compiled", source))).call();
 					String res = out.toString();
-					File clazz = new File(tmpFolder, "Compiled.class");
 					if (res.isEmpty()) {
+						File clazz = new File(tmpFolder, "Compiled.class");
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
 						InputStream is = new FileInputStream(clazz);
 						byte[] tmp = new byte[1024];
@@ -129,13 +123,31 @@ public class CompilationBox extends JFrame {
 						ClassReader read = new ClassReader(baos.toByteArray());
 						ClassNode node = new ClassNode();
 						read.accept(node, 0);
-						compSuccess.textArea.setText(Disassembler.disassemble(node));
+						String dis = Disassembler.disassemble(node);
+						File[] files = tmpFolder.listFiles();
+						if (files != null)
+							for (File f : files) {
+								if (f.getName().equals("Compiled.class"))
+									continue;
+								baos = new ByteArrayOutputStream();
+								is = new FileInputStream(f);
+								while ((r = is.read(tmp)) > 0) {
+									baos.write(tmp, 0, r);
+								}
+								is.close();
+								read = new ClassReader(baos.toByteArray());
+								node = new ClassNode();
+								read.accept(node, 0);
+								dis += "\n" + Disassembler.disassemble(node);
+							}
+						compSuccess.textArea.setText(dis);
 						compSuccess.setVisible(true);
 					} else {
-						Main.showError(res);
+						JOptionPane.showMessageDialog(CompilationBox.this, res, "Error!", JOptionPane.ERROR_MESSAGE);
 					}
-					if (clazz.exists())
-						Files.delete(clazz.toPath());
+					for (File f : tmpFolder.listFiles()) {
+						Files.delete(f.toPath());
+					}
 					Files.delete(tmpFolder.toPath());
 				} catch (IOException e1) {
 					e1.printStackTrace();

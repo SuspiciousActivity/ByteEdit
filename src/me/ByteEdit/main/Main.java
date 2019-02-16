@@ -89,7 +89,7 @@ public class Main extends JFrame {
 	public static Main INSTANCE;
 	private JPanel contentPane;
 	private boolean isChangingFile;
-	private static File jarFile;
+	public static File jarFile;
 	public static HashMap<String, byte[]> OTHER_FILES = new HashMap<>();
 	public static HashMap<String, ClassNode> classNodes = new HashMap<>();
 	public static String currentNodeName;
