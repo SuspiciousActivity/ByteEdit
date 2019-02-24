@@ -72,6 +72,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.boxes.CompilationBox;
+import me.ByteEdit.boxes.GlobalSearchBox;
 import me.ByteEdit.boxes.OptionBox;
 import me.ByteEdit.boxes.RenameBox;
 import me.ByteEdit.boxes.SearchBox;
@@ -94,6 +95,7 @@ public class Main extends JFrame {
 	public static HashMap<String, ClassNode> classNodes = new HashMap<>();
 	public static String currentNodeName;
 	public static RSyntaxTextArea txtByteEditView;
+	public static GlobalSearchBox globalSearchBox;
 	public static SearchBox searchBox;
 	public static TypeOpenBox typeOpenBox;
 	public static OptionBox optionBox;
@@ -195,6 +197,7 @@ public class Main extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
+		globalSearchBox = new GlobalSearchBox();
 		searchBox = new SearchBox();
 		typeOpenBox = new TypeOpenBox();
 		optionBox = new OptionBox();
@@ -299,6 +302,7 @@ public class Main extends JFrame {
 								}
 								txtByteEditView.setText("");
 								currentNodeName = null;
+								globalSearchBox.setVisible(false);
 								searchBox.setVisible(false);
 								typeOpenBox.setVisible(false);
 								optionBox.setVisible(false);
@@ -373,6 +377,15 @@ public class Main extends JFrame {
 		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlE = KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK);
 		// global
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				globalSearchBox.setVisible(true);
+//				globalSearchBox.txtFind.requestFocusInWindow();
+//				globalSearchBox.txtFind.select(0, searchBox.txtFind.getText().length());
+			}
+		}, ctrlG, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
 
 			@Override
