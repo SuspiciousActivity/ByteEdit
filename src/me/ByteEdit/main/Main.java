@@ -234,7 +234,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.getKeyCode() == 116 && jarFile != null) {
+				if (e.getKeyCode() == 116 && jarFile != null) { // F5
 					try {
 						isChangingFile = true;
 						try {
@@ -246,6 +246,30 @@ public class Main extends JFrame {
 					} catch (Throwable t) {
 						t.printStackTrace();
 						showError(t);
+					}
+				} else if (e.getKeyCode() == 127) { // del
+					if (tree.getSelectionPath() == null)
+						return;
+					String s = "";
+					boolean b = false;
+					for (Object o : tree.getSelectionPath().getPath()) {
+						DefaultMutableTreeNode path = (DefaultMutableTreeNode) o;
+						if (!b) {
+							b = true;
+							continue;
+						}
+						s += (s.isEmpty() || s.replace("/", "").isEmpty() ? "" : "/")
+								+ (path.toString().isEmpty() ? "/" : path.toString());
+					}
+					if (s.isEmpty() || s.endsWith("/"))
+						return;
+					if (JOptionPane.showConfirmDialog(INSTANCE, "Do you want to delete\n\"" + s + "\"?", "Delete",
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						classNodes.remove(s);
+						ArchiveTreeModel model = (ArchiveTreeModel) tree.getModel();
+						model.paths.remove(s);
+						model.refresh();
+						model.reload();
 					}
 				}
 			}
@@ -382,8 +406,8 @@ public class Main extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				globalSearchBox.setVisible(true);
-//				globalSearchBox.txtFind.requestFocusInWindow();
-//				globalSearchBox.txtFind.select(0, searchBox.txtFind.getText().length());
+				globalSearchBox.txtString.requestFocusInWindow();
+				globalSearchBox.txtString.select(0, globalSearchBox.txtString.getText().length());
 			}
 		}, ctrlG, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
@@ -612,6 +636,15 @@ public class Main extends JFrame {
 			}
 			if (classNodes.replace(node.name + ".class", node) == null) {
 				classNodes.put(node.name + ".class", node);
+				ArchiveTreeModel model;
+				if (tree.getModel().getClass().equals(DefaultTreeModel.class)) {
+					tree.setModel(model = new ArchiveTreeModel());
+				} else {
+					model = (ArchiveTreeModel) tree.getModel();
+				}
+				model.paths.add(node.name + ".class");
+				model.refresh();
+				model.reload();
 			}
 		}
 	}
@@ -684,9 +717,8 @@ public class Main extends JFrame {
 	public void save(File jar, Collection<ClassNode> classes) {
 		try {
 			final JarOutputStream output = new JarOutputStream(new FileOutputStream(jar));
-			boolean refreshTree = false;
-			if (tree.getModel().getClass().equals(DefaultTreeModel.class)) {
-				refreshTree = true;
+			if (tree.getModel().getClass().equals(DefaultTreeModel.class)
+					|| ((ArchiveTreeModel) tree.getModel()).newCreated) {
 				int acc = ClassUtil.ACC_PUBLIC | ClassUtil.ACC_STATIC;
 				String name = "";
 				for (ClassNode e : classes) {
@@ -705,6 +737,8 @@ public class Main extends JFrame {
 							+ "\n\n";
 					OTHER_FILES.put("META-INF/MANIFEST.MF", val.getBytes());
 				}
+				if (tree.getModel() instanceof ArchiveTreeModel)
+					((ArchiveTreeModel) tree.getModel()).newCreated = false;
 			}
 			for (Entry<String, byte[]> entry : OTHER_FILES.entrySet()) {
 				JarEntry ent = new JarEntry(entry.getKey());
@@ -728,16 +762,6 @@ public class Main extends JFrame {
 			}
 			output.finish();
 			output.close();
-			if (refreshTree) {
-				isChangingFile = true;
-				jarFile = jar;
-				try {
-					tree.setModel(new ArchiveTreeModel(new JarFile(jarFile)));
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				isChangingFile = false;
-			}
 		} catch (Throwable e) {
 			e.printStackTrace();
 			showError(e);
@@ -752,6 +776,7 @@ public class Main extends JFrame {
 				break;
 			s += "\tat " + ste + "\n";
 		}
+		JOptionPane.showMessageDialog(INSTANCE, s, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static void showError(String s) {
@@ -760,12 +785,19 @@ public class Main extends JFrame {
 
 	class ArchiveTreeModel extends DefaultTreeModel {
 
+		public ArrayList<String> paths = new ArrayList<>();
+		public boolean newCreated = false;
+
+		public ArchiveTreeModel() {
+			super(new DefaultMutableTreeNode("New"));
+			newCreated = true;
+		}
+
 		public ArchiveTreeModel(JarFile jar) {
 			super(new DefaultMutableTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
 					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
 							- 1]));
 			try {
-				ArrayList<String> paths = new ArrayList<>();
 				classNodes.clear();
 				OTHER_FILES.clear();
 				Enumeration<JarEntry> enumeration = jar.entries();
@@ -798,25 +830,30 @@ public class Main extends JFrame {
 					}
 				}
 				jar.close();
-				Collections.sort(paths);
-				for (String s : paths) {
-					String[] elements = s.split("/");
-					DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getRoot();
-					for (int i = 0; i < elements.length; i++) {
-						String token = elements[i];
-						DefaultMutableTreeNode nextNode = findNode(currentNode, token);
-						if (nextNode == null) {
-							nextNode = new DefaultMutableTreeNode(token);
-							currentNode.add(nextNode);
-						}
-						currentNode = nextNode;
-					}
-				}
+				refresh();
 			} catch (Throwable e) {
 				classNodes.clear();
 				OTHER_FILES.clear();
 				e.printStackTrace();
 				showError(e);
+			}
+		}
+
+		public void refresh() {
+			setRoot(new DefaultMutableTreeNode(((DefaultMutableTreeNode) getRoot()).toString()));
+			Collections.sort(paths);
+			for (String s : paths) {
+				String[] elements = s.split("/");
+				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getRoot();
+				for (int i = 0; i < elements.length; i++) {
+					String token = elements[i];
+					DefaultMutableTreeNode nextNode = findNode(currentNode, token);
+					if (nextNode == null) {
+						nextNode = new DefaultMutableTreeNode(token);
+						currentNode.add(nextNode);
+					}
+					currentNode = nextNode;
+				}
 			}
 		}
 
