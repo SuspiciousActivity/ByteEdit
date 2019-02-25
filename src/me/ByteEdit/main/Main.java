@@ -756,7 +756,7 @@ public class Main extends JFrame {
 			for (ClassNode element : classes) {
 				ClassWriter writer = new ClassWriter(computeFlags);
 				element.accept(writer);
-				output.putNextEntry(new JarEntry(element.name.replaceAll("\\.", "/") + ".class"));
+				output.putNextEntry(new JarEntry(element.name + ".class"));
 				output.write(writer.toByteArray());
 				output.closeEntry();
 			}
@@ -811,8 +811,6 @@ public class Main extends JFrame {
 							paths.add(next.getName());
 						} else if (next.getName().startsWith("$") || next.getName().contains("$$")
 								|| next.getName().endsWith("$")) { // obfuscated
-																	// with
-																	// $
 							paths.add(next.getName());
 						}
 						ClassReader reader;
