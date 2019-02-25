@@ -152,7 +152,7 @@ public class GlobalSearchBox extends JFrame {
 							if (ignoreCase) {
 								s = s.toLowerCase();
 							}
-							if (s.startsWith(str)) {
+							if (s.contains(str)) {
 								set.add(new Info(cn.name, mn.name, mn.desc, mn));
 							}
 						}
