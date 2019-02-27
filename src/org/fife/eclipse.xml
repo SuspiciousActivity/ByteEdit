@@ -14,7 +14,7 @@
    <!--  General editor colors. -->
    <background color="ffffff"/>
    <caret color="000000"/>
-   <selection bg="default" fg="default"/>
+   <selection bg="dddddd" fg="000000"/>
    <currentLineHighlight color="dddddd" fade="false"/>
    <marginLine fg="b0b4b9"/>
    <markAllHighlight color="6b8189"/> <!-- TODO: Fix me -->
@@ -39,7 +39,7 @@
       <style token="RESERVED_WORD" fg="7f0055" bold="true"/>
       <style token="RESERVED_WORD_2" fg="7f0055" bold="true"/>
       <style token="ANNOTATION" fg="808080"/>
-      <style token="COMMENT_DOCUMENTATION" fg="3f5fbf"/>
+      <style token="COMMENT_DOCUMENTATION" fg="3f7f5f"/>
       <style token="COMMENT_EOL" fg="3f7f5f"/>
       <style token="COMMENT_MULTILINE" fg="3f7f5f"/>
       <style token="COMMENT_KEYWORD" fg="7F9FBF" bold="true"/>

@@ -187,13 +187,20 @@ public class Main extends JFrame {
 		return provider;
 	}
 
+	public static boolean dark = true;
+
 	/**
 	 * Create the frame.
 	 */
 	public Main() {
 		INSTANCE = this;
+		File light = new File(System.getProperty("java.io.tmpdir") + File.pathSeparator + "ByteEditLight.conf");
+		if (light.exists()) {
+			dark = false;
+		}
 		try {
-			theme = Theme.load(getClass().getClassLoader().getResourceAsStream("org/fife/eclipse.xml"));
+			theme = Theme.load(getClass().getClassLoader()
+					.getResourceAsStream(dark ? "org/fife/eclipse_dark.xml" : "org/fife/eclipse.xml"));
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
@@ -214,12 +221,12 @@ public class Main extends JFrame {
 			e.printStackTrace();
 		}
 		contentPane = new JPanel();
-		contentPane.setBackground(Color.GRAY);
+		contentPane.setBackground(dark ? Color.DARK_GRAY : Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new GridLayout(0, 1, 0, 0));
 		JSplitPane splitPane = new JSplitPane();
-		splitPane.setBackground(Color.GRAY);
+		splitPane.setBackground(dark ? Color.DARK_GRAY : Color.GRAY);
 		splitPane.setResizeWeight(0.2);
 		contentPane.add(splitPane);
 		JScrollPane scrollPane = new JScrollPane();
@@ -275,13 +282,13 @@ public class Main extends JFrame {
 			}
 		});
 		tree.setFont(new Font("Verdana", Font.PLAIN, 11));
-		tree.setBackground(Color.LIGHT_GRAY);
+		tree.setBackground(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		if (tree.getCellRenderer() instanceof DefaultTreeCellRenderer) {
 			final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) (tree.getCellRenderer());
-			renderer.setBackgroundNonSelectionColor(Color.LIGHT_GRAY);
+			renderer.setBackgroundNonSelectionColor(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 			renderer.setBackgroundSelectionColor(Color.GRAY);
-			renderer.setTextNonSelectionColor(Color.BLACK);
-			renderer.setTextSelectionColor(Color.BLACK);
+			renderer.setTextNonSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
+			renderer.setTextSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
 		}
 		scrollPane.setViewportView(tree);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
@@ -400,7 +407,25 @@ public class Main extends JFrame {
 		KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlE = KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK);
+		KeyStroke ctrlB = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK);
 		// global
+		txtByteEditView.registerKeyboardAction(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (light.exists())
+					light.delete();
+				else
+					try {
+						light.createNewFile();
+					} catch (IOException e1) {
+					}
+				dark = !dark;
+				JOptionPane.showMessageDialog(Main.this,
+						"Theme switched to " + (dark ? "Dark" : "Light") + ".\nPlease restart ByteEdit.",
+						"Theme changed", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}, ctrlB, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
 
 			@Override
@@ -493,11 +518,11 @@ public class Main extends JFrame {
 		theme.apply(txtByteEditView);
 
 		splitPane.setRightComponent(scrollPane_ByteEdit);
-		txtByteEditView.setBackground(Color.LIGHT_GRAY);
+		txtByteEditView.setBackground(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		scrollPane_ByteEdit.setViewportView(txtByteEditView);
 		scrollPane_ByteEdit.setLineNumbersEnabled(true);
 		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
-		scrollPane_ByteEdit.getGutter().setBackground(Color.LIGHT_GRAY);
+		scrollPane_ByteEdit.getGutter().setBackground(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 	}
 
 	private final Pattern jumpableInstructionPattern = Pattern.compile("^\t\t(?!//|\t+).+ .+");

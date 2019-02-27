@@ -56,7 +56,7 @@ public class CompilationBox extends JFrame {
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 400),
 				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 200), 800, 400);
 		contentPane = new JPanel();
-		contentPane.setBackground(Color.GRAY);
+		contentPane.setBackground(Main.dark ? Color.DARK_GRAY : Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -65,13 +65,13 @@ public class CompilationBox extends JFrame {
 		textArea.setEditable(true);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
-		textArea.setBackground(Color.LIGHT_GRAY);
+		textArea.setBackground(Main.dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 
 		RTextScrollPane scrollPane = new RTextScrollPane();
 		scrollPane.setViewportView(textArea);
 		scrollPane.setLineNumbersEnabled(true);
 		scrollPane.setFoldIndicatorEnabled(true);
-		scrollPane.getGutter().setBackground(Color.LIGHT_GRAY);
+		scrollPane.getGutter().setBackground(Main.dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		contentPane.add(scrollPane);
 
 		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
@@ -106,8 +106,10 @@ public class CompilationBox extends JFrame {
 					}
 
 					compiler.getTask(outWriter, null, null,
-							Arrays.asList("-d", tmpFolder.getAbsolutePath(), "-classpath",
-									Main.jarFile.getAbsolutePath()),
+							Main.jarFile != null
+									? Arrays.asList("-d", tmpFolder.getAbsolutePath(), "-classpath",
+											Main.jarFile.getAbsolutePath())
+									: Arrays.asList("-d", tmpFolder.getAbsolutePath()),
 							null, Arrays.asList(new JavaSourceFromString("Compiled", source))).call();
 					String res = out.toString();
 					if (res.isEmpty()) {

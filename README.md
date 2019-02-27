@@ -19,3 +19,5 @@ To (un-)escape unicode characters, press CTRL + U.
 To rename a field/method with attention to references in the selected line, press CTRL + R.
 
 To quickly compile some java code, press CTRL + E.
+
+To switch between light and dark theme, press CTRL + B.
