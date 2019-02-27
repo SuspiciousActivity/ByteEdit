@@ -272,9 +272,22 @@ public class Main extends JFrame {
 						return;
 					if (JOptionPane.showConfirmDialog(INSTANCE, "Do you want to delete\n\"" + s + "\"?", "Delete",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						classNodes.remove(s);
+						String substr = s.substring(0, s.length() - 6);
+						ArrayList<String> toRemove = new ArrayList<>();
+						for (String key : Main.classNodes.keySet()) {
+							if (key.contains("$")) {
+								String[] split = key.split("\\$");
+								if (split[0].equals(substr)) {
+									toRemove.add(key);
+								}
+							}
+						}
 						ArchiveTreeModel model = (ArchiveTreeModel) tree.getModel();
+						classNodes.remove(s);
 						model.paths.remove(s);
+						for (String rem : toRemove) {
+							classNodes.remove(rem);
+						}
 						model.refresh();
 						model.reload();
 					}
@@ -667,11 +680,12 @@ public class Main extends JFrame {
 				} else {
 					model = (ArchiveTreeModel) tree.getModel();
 				}
-				if (node.name.contains("/") ? (!node.name.split("/")[node.name.split("/").length - 1].contains("$"))
-						: (!node.name.contains("$"))) {
-					model.paths.add(node.name + ".class");
-				} else if (node.name.startsWith("$") || node.name.contains("$$") || node.name.endsWith("$")) { // obfuscated
-					model.paths.add(node.name + ".class");
+				String name = node.name + ".class";
+				if (name.contains("/") ? (!name.split("/")[name.split("/").length - 1].contains("$"))
+						: (!name.contains("$"))) {
+					model.paths.add(name);
+				} else if (name.startsWith("$") || name.contains("$$") || name.endsWith("$")) { // obfuscated
+					model.paths.add(name);
 				}
 				model.refresh();
 				model.reload();
