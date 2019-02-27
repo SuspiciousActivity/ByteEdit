@@ -79,7 +79,7 @@ public class RenameBox extends JFrame {
 					JOptionPane.showMessageDialog(null, "Desc not set!", "Error!", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				ClassNode clazz = Main.classNodes.get(className.replace("/", ".") + ".class");
+				ClassNode clazz = Main.classNodes.get(className + ".class");
 				if (clazz == null) {
 					JOptionPane.showMessageDialog(null, "ClassNode not found!", "Error!", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -94,7 +94,7 @@ public class RenameBox extends JFrame {
 					if (newDesc.startsWith("(")) { // method
 						ClassNode lastHit = clazz;
 						while (clazz != null && clazz.superName != null) {
-							ClassNode tmp = Main.classNodes.get(clazz.superName.replace("/", ".") + ".class");
+							ClassNode tmp = Main.classNodes.get(clazz.superName + ".class");
 							if (tmp != null) {
 								boolean found = false;
 								for (MethodNode mn : clazz.methods) {
@@ -127,7 +127,7 @@ public class RenameBox extends JFrame {
 										extendsMyClass = true;
 										break;
 									}
-									ClassNode tmp = Main.classNodes.get(checkCN.superName.replace("/", ".") + ".class");
+									ClassNode tmp = Main.classNodes.get(checkCN.superName + ".class");
 									if (tmp != null) {
 										checkCN = tmp;
 									} else {
@@ -138,8 +138,8 @@ public class RenameBox extends JFrame {
 							for (MethodNode mn : cn.methods) {
 								if (extendsMyClass) {
 									if (mn.name.equals(newName) && mn.desc.equals(newDesc)) {
-										JOptionPane.showMessageDialog(null, "Method already exists in " + cn.name + "!", "Error!",
-												JOptionPane.ERROR_MESSAGE);
+										JOptionPane.showMessageDialog(null, "Method already exists in " + cn.name + "!",
+												"Error!", JOptionPane.ERROR_MESSAGE);
 										return;
 									}
 									if (mn.name.equals(name) && mn.desc.equals(desc)) {
@@ -149,7 +149,8 @@ public class RenameBox extends JFrame {
 								for (AbstractInsnNode ain : mn.instructions.toArray()) {
 									if (ain instanceof MethodInsnNode) {
 										MethodInsnNode min = (MethodInsnNode) ain;
-										if (min.name.equals(name) && min.desc.equals(desc) && min.owner.equals(clazz.name)) {
+										if (min.name.equals(name) && min.desc.equals(desc)
+												&& min.owner.equals(clazz.name)) {
 											minsToRename.add(min);
 										}
 									}
@@ -165,7 +166,8 @@ public class RenameBox extends JFrame {
 							min.desc = newDesc;
 						}
 					} else {
-						JOptionPane.showMessageDialog(null, "New Desc is not a method desc!", "Error!", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "New Desc is not a method desc!", "Error!",
+								JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				} else {
@@ -173,7 +175,8 @@ public class RenameBox extends JFrame {
 						FieldNode currentFN = null;
 						for (FieldNode fn : clazz.fields) {
 							if (fn.name.equals(newName) && fn.desc.equals(newDesc)) {
-								JOptionPane.showMessageDialog(null, "Field already exists!", "Error!", JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(null, "Field already exists!", "Error!",
+										JOptionPane.ERROR_MESSAGE);
 								return;
 							}
 							if (fn.name.equals(name) && fn.desc.equals(desc)) {
@@ -181,7 +184,8 @@ public class RenameBox extends JFrame {
 							}
 						}
 						if (currentFN == null) {
-							JOptionPane.showMessageDialog(null, "Field not found?!", "Error!", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null, "Field not found?!", "Error!",
+									JOptionPane.ERROR_MESSAGE);
 							return;
 						}
 						currentFN.name = newName;
@@ -191,7 +195,8 @@ public class RenameBox extends JFrame {
 								for (AbstractInsnNode ain : mn.instructions.toArray()) {
 									if (ain instanceof FieldInsnNode) {
 										FieldInsnNode fin = (FieldInsnNode) ain;
-										if (fin.name.equals(name) && fin.desc.equals(desc) && fin.owner.equals(className)) {
+										if (fin.name.equals(name) && fin.desc.equals(desc)
+												&& fin.owner.equals(className)) {
 											fin.name = newName;
 											fin.desc = newDesc;
 										}
@@ -200,7 +205,8 @@ public class RenameBox extends JFrame {
 							}
 						}
 					} else {
-						JOptionPane.showMessageDialog(null, "New Desc is not a field desc!", "Error!", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "New Desc is not a field desc!", "Error!",
+								JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
