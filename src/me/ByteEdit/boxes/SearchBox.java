@@ -4,6 +4,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
@@ -111,7 +112,8 @@ public class SearchBox extends JFrame {
 				: Main.txtByteEditView.getText().substring(startPos).toLowerCase();
 		int index = txt.indexOf(chckbxCaseSensitive.isSelected() ? toFind : toFind.toLowerCase());
 		if (index == -1) {
-			txt = chckbxCaseSensitive.isSelected() ? Main.txtByteEditView.getText() : Main.txtByteEditView.getText().toLowerCase();
+			txt = chckbxCaseSensitive.isSelected() ? Main.txtByteEditView.getText()
+					: Main.txtByteEditView.getText().toLowerCase();
 			index = txt.indexOf(chckbxCaseSensitive.isSelected() ? toFind : toFind.toLowerCase());
 			startPos = 0;
 			if (index == -1) {
@@ -141,7 +143,9 @@ public class SearchBox extends JFrame {
 		if (chckbxCaseSensitive.isSelected()) {
 			Main.txtByteEditView.replaceRange(txt.replace(toFind, toReplace), 0, txt.length());
 		} else {
-			Main.txtByteEditView.replaceRange(txt.replaceAll("(?i)" + Pattern.quote(toFind), toReplace), 0, txt.length());
+			Main.txtByteEditView.replaceRange(
+					txt.replaceAll("(?i)" + Pattern.quote(toFind), Matcher.quoteReplacement(toReplace)), 0,
+					txt.length());
 		}
 		Main.txtByteEditView.setCaretPosition(prev);
 	}

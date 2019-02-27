@@ -422,10 +422,10 @@ public class Assembler {
 			System.err.println("Error at line: " + read.currentLine);
 			try {
 				Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(read.currentLine));
-				Main.showError(e.getMessage());
 			} catch (BadLocationException e1) {
 				System.err.println("Can't show line!");
 			}
+			Main.showError(e.getMessage());
 			e.printStackTrace();
 			return null;
 		} finally {

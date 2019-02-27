@@ -667,7 +667,12 @@ public class Main extends JFrame {
 				} else {
 					model = (ArchiveTreeModel) tree.getModel();
 				}
-				model.paths.add(node.name + ".class");
+				if (node.name.contains("/") ? (!node.name.split("/")[node.name.split("/").length - 1].contains("$"))
+						: (!node.name.contains("$"))) {
+					model.paths.add(node.name + ".class");
+				} else if (node.name.startsWith("$") || node.name.contains("$$") || node.name.endsWith("$")) { // obfuscated
+					model.paths.add(node.name + ".class");
+				}
 				model.refresh();
 				model.reload();
 			}
