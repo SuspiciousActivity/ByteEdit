@@ -286,10 +286,6 @@ public class ClassUtil {
 			s += "native ";
 			acc ^= ACC_NATIVE;
 		}
-		if ((ACC_INTERFACE & access) != 0) {
-			s += "interface ";
-			acc ^= ACC_INTERFACE;
-		}
 		if ((ACC_ABSTRACT & access) != 0) {
 			s += "abstract ";
 			acc ^= ACC_ABSTRACT;
@@ -306,6 +302,14 @@ public class ClassUtil {
 			s += "bridge ";
 			acc ^= ACC_BRIDGE;
 		}
+		if ((ACC_MANDATED & access) != 0) {
+			s += "mandated ";
+			acc ^= ACC_MANDATED;
+		}
+		if ((ACC_INTERFACE & access) != 0) {
+			s += "interface ";
+			acc ^= ACC_INTERFACE;
+		}
 		if ((ACC_ANNOTATION & access) != 0) {
 			s += "annotation ";
 			acc ^= ACC_ANNOTATION;
@@ -313,10 +317,6 @@ public class ClassUtil {
 		if ((ACC_ENUM & access) != 0) {
 			s += "enum ";
 			acc ^= ACC_ENUM;
-		}
-		if ((ACC_MANDATED & access) != 0) {
-			s += "mandated ";
-			acc ^= ACC_MANDATED;
 		}
 		if (acc == access) {
 			return s;

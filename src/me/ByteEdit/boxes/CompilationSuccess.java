@@ -61,7 +61,7 @@ public class CompilationSuccess extends JFrame {
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 400),
 				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 200), 800, 400);
 		contentPane = new JPanel();
-		contentPane.setBackground(Main.dark ? Color.DARK_GRAY : Color.GRAY);
+		contentPane.setBackground(Main.dark ? new Color(0x2F2F2F) : Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -70,13 +70,13 @@ public class CompilationSuccess extends JFrame {
 		textArea.setEditable(true);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		textArea.setCodeFoldingEnabled(true);
-		textArea.setBackground(Main.dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		textArea.setBackground(Main.dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 
 		RTextScrollPane scrollPane = new RTextScrollPane();
 		scrollPane.setViewportView(textArea);
 		scrollPane.setLineNumbersEnabled(true);
 		scrollPane.setFoldIndicatorEnabled(true);
-		scrollPane.getGutter().setBackground(Main.dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		scrollPane.getGutter().setBackground(Main.dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 		contentPane.add(scrollPane);
 	}
 }

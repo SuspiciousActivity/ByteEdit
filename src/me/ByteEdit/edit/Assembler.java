@@ -80,10 +80,66 @@ public class Assembler {
 					clazz.innerClasses = new ArrayList<>();
 				} else {
 					String split[] = s.split(" ");
+					int access = 0;
+					String cons = s
+							.substring(
+									split[0].length() + split[1].length() + split[2].length() + split[3].length() + 3)
+							.trim();
+					if (cons.startsWith("0x")) {
+						access = Integer.parseInt(cons.substring(2), 16);
+					} else {
+						if (cons.contains("public")) {
+							access ^= ClassUtil.ACC_PUBLIC;
+						}
+						if (cons.contains("private")) {
+							access ^= ClassUtil.ACC_PRIVATE;
+						}
+						if (cons.contains("protected")) {
+							access ^= ClassUtil.ACC_PROTECTED;
+						}
+						if (cons.contains("static")) {
+							access ^= ClassUtil.ACC_STATIC;
+						}
+						if (cons.contains("final")) {
+							access ^= ClassUtil.ACC_FINAL;
+						}
+						if (cons.contains("synchronized")) {
+							access ^= ClassUtil.ACC_SYNCHRONIZED;
+						}
+						if (cons.contains("bridge")) {
+							access ^= ClassUtil.ACC_BRIDGE;
+						}
+						if (cons.contains("transient")) {
+							access ^= ClassUtil.ACC_VARARGS;
+						}
+						if (cons.contains("native")) {
+							access ^= ClassUtil.ACC_NATIVE;
+						}
+						if (cons.contains("interface")) {
+							access ^= ClassUtil.ACC_INTERFACE;
+						}
+						if (cons.contains("abstract")) {
+							access ^= ClassUtil.ACC_ABSTRACT;
+						}
+						if (cons.contains("strictfp")) {
+							access ^= ClassUtil.ACC_STRICTFP;
+						}
+						if (cons.contains("synthetic")) {
+							access ^= ClassUtil.ACC_SYNTHETIC;
+						}
+						if (cons.contains("annotation")) {
+							access ^= ClassUtil.ACC_ANNOTATION;
+						}
+						if (cons.contains("enum")) {
+							access ^= ClassUtil.ACC_ENUM;
+						}
+						if (cons.contains("mandated")) {
+							access ^= ClassUtil.ACC_MANDATED;
+						}
+					}
 					clazz.innerClasses.add(new InnerClassNode(UnicodeUtils.unescape(split[1]),
 							split[2].equals("null") ? null : UnicodeUtils.unescape(split[2]),
-							split[3].equals("null") ? null : UnicodeUtils.unescape(split[3]),
-							Integer.parseInt(split[4].substring(2), 16)));
+							split[3].equals("null") ? null : UnicodeUtils.unescape(split[3]), access));
 				}
 			}
 			{

@@ -177,7 +177,7 @@ public class Main extends JFrame {
 				"getstatic Ljava/io/PrintStream; java/lang/System/out\n\t\tldc \"text\"\n\t\tinvokevirtual (Ljava/lang/String;)V java/io/PrintStream/println",
 				null, "<html><b><u>sysout</u></b><br>Writes a System.out.println(\"text\"); as bytecode</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "clazz",
-				"// #Annotations\n// #Class v:52\n// #Signature: null\n// #OuterClass: null\n// #InnerClasses:\npublic class Main extends java/lang/Object {\n// #SourceFile: Main.java\n\n// #Fields\n\n// #Methods\n\n}\n",
+				"// #Annotations:\n// #Class v:52\n// #Signature: null\n// #OuterClass: null\n// #InnerClasses:\npublic class Main extends java/lang/Object {\n// #SourceFile: Main.java\n\n// #Fields\n\n// #Methods\n\n}\n",
 				null, "<html><b><u>clazz</u></b><br>Creates an example class</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "method",
 				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}",
@@ -221,12 +221,12 @@ public class Main extends JFrame {
 			e.printStackTrace();
 		}
 		contentPane = new JPanel();
-		contentPane.setBackground(dark ? Color.DARK_GRAY : Color.GRAY);
+		contentPane.setBackground(dark ? new Color(0x2F2F2F) : Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new GridLayout(0, 1, 0, 0));
 		JSplitPane splitPane = new JSplitPane();
-		splitPane.setBackground(dark ? Color.DARK_GRAY : Color.GRAY);
+		splitPane.setBackground(dark ? new Color(0x2F2F2F) : Color.GRAY);
 		splitPane.setResizeWeight(0.2);
 		contentPane.add(splitPane);
 		JScrollPane scrollPane = new JScrollPane();
@@ -295,10 +295,10 @@ public class Main extends JFrame {
 			}
 		});
 		tree.setFont(new Font("Verdana", Font.PLAIN, 11));
-		tree.setBackground(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		tree.setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 		if (tree.getCellRenderer() instanceof DefaultTreeCellRenderer) {
 			final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) (tree.getCellRenderer());
-			renderer.setBackgroundNonSelectionColor(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+			renderer.setBackgroundNonSelectionColor(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 			renderer.setBackgroundSelectionColor(Color.GRAY);
 			renderer.setTextNonSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
 			renderer.setTextSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
@@ -531,11 +531,11 @@ public class Main extends JFrame {
 		theme.apply(txtByteEditView);
 
 		splitPane.setRightComponent(scrollPane_ByteEdit);
-		txtByteEditView.setBackground(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		txtByteEditView.setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 		scrollPane_ByteEdit.setViewportView(txtByteEditView);
 		scrollPane_ByteEdit.setLineNumbersEnabled(true);
 		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
-		scrollPane_ByteEdit.getGutter().setBackground(dark ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+		scrollPane_ByteEdit.getGutter().setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 	}
 
 	private final Pattern jumpableInstructionPattern = Pattern.compile("^\t\t(?!//|\t+).+ .+");
@@ -665,7 +665,7 @@ public class Main extends JFrame {
 
 	private void saveCurrentClassNode() {
 		String txt = txtByteEditView.getText();
-		for (String s : txt.split("\\/\\/ #Annotations\n")) {
+		for (String s : txt.split("\\/\\/ #Annotations:\n")) {
 			if (s.isEmpty())
 				continue;
 			ClassNode node = Assembler.assemble(s);

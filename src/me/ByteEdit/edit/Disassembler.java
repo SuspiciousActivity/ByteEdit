@@ -77,7 +77,7 @@ public class Disassembler {
 		try {
 			int lineFound = -1;
 			String s = "";
-			s += "// #Annotations\n";
+			s += "// #Annotations:\n";
 			if (classNode.visibleAnnotations != null && !classNode.visibleAnnotations.isEmpty()) {
 				for (AnnotationNode annotationNode : classNode.visibleAnnotations) {
 					s += "@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
@@ -138,19 +138,22 @@ public class Disassembler {
 				}
 			}
 			s += "// #Class v:" + classNode.version + "\n";
-			s += "// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n";
-			s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null"
-					: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
-							+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
-					+ "\n";
-			s += "// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n";
+			if (classNode.signature != null)
+				s += "// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n";
+			if (classNode.outerMethod != null)
+				s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null"
+						: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
+								+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
+						+ "\n";
+			if (classNode.outerClass != null)
+				s += "// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n";
 			s += "// #InnerClasses:\n";
 			if (classNode.innerClasses != null) {
 				for (InnerClassNode icn : classNode.innerClasses) {
 					s += "// " + UnicodeUtils.escapeWithSpaces(icn.name) + " "
 							+ UnicodeUtils.escapeWithSpaces(icn.outerName) + " "
-							+ UnicodeUtils.escapeWithSpaces(icn.innerName) + " 0x" + Integer.toHexString(icn.access)
-							+ "\n";
+							+ UnicodeUtils.escapeWithSpaces(icn.innerName)
+							+ (icn.access == 0 ? "" : " " + ClassUtil.getAccessFlagsFull(icn.access).trim()) + "\n";
 				}
 			}
 			s += ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escapeWithSpaces(classNode.name) + " ";
@@ -350,14 +353,15 @@ public class Disassembler {
 	private static String[] disassembleMethod(String className, MethodNode mn) {
 		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
 		String s = "";
-		String localVarTable = "\t// #LocalVars:\n";
-		String tryCatchTable = "\t// #TryCatch:\n";
+		String localVarTable = "";
+		String tryCatchTable = "";
 		for (AbstractInsnNode n : mn.instructions.toArray()) {
 			if (n instanceof LabelNode) {
 				labels.put(((LabelNode) n).getLabel(), labels.size() + 1);
 			}
 		}
-		if (mn.localVariables != null) {
+		if (mn.localVariables != null && !mn.localVariables.isEmpty()) {
+			localVarTable = "\t// #LocalVars:\n";
 			for (LocalVariableNode lvn : mn.localVariables) {
 				localVarTable += "\t// " + UnicodeUtils.escapeWithSpaces(lvn.name) + ": "
 						+ UnicodeUtils.escapeWithSpaces(lvn.desc) + " i:" + lvn.index + " s:"
@@ -365,7 +369,8 @@ public class Disassembler {
 						+ UnicodeUtils.escapeWithSpaces(lvn.signature) + "\n";
 			}
 		}
-		if (mn.tryCatchBlocks != null) {
+		if (mn.tryCatchBlocks != null && !mn.tryCatchBlocks.isEmpty()) {
+			tryCatchTable = "\t// #TryCatch:\n";
 			for (TryCatchBlockNode tcbn : mn.tryCatchBlocks) {
 				tryCatchTable += "\t// " + UnicodeUtils.escapeWithSpaces(tcbn.type) + " s:"
 						+ labels.get(tcbn.start.getLabel()) + " e:" + labels.get(tcbn.end.getLabel()) + " h:"

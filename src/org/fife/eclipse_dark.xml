@@ -70,10 +70,10 @@
       <style token="VARIABLE" fg="ff9900" bold="true"/>
       <style token="WHITESPACE" fg="eeeeee"/>
       
-      <style token="ERROR_IDENTIFIER" fg="eeeeee" bg="ffcccc"/>
-      <style token="ERROR_NUMBER_FORMAT" fg="eeeeee" bg="ffcccc"/>
-      <style token="ERROR_STRING_DOUBLE" fg="eeeeee" bg="ffcccc"/>
-      <style token="ERROR_CHAR" fg="eeeeee" bg="ffcccc"/>
+      <style token="ERROR_IDENTIFIER" fg="eeeeee" bg="003333"/>
+      <style token="ERROR_NUMBER_FORMAT" fg="eeeeee" bg="003333"/>
+      <style token="ERROR_STRING_DOUBLE" fg="eeeeee" bg="003333"/>
+      <style token="ERROR_CHAR" fg="eeeeee" bg="003333"/>
    </tokenStyles>
 
 </RSyntaxTheme>

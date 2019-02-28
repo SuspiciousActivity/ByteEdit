@@ -819,7 +819,7 @@ public class ErrorStrip extends JPanel {
 			// highest priority (e.g. parsing errors will usually be red).
 			Color borderColor = getColor();
 			if (borderColor == null) {
-				borderColor = Color.DARK_GRAY;
+				borderColor = new Color(0x2F2F2F);
 			}
 			Color fillColor = getBrighterColor(borderColor);
 			int w = getWidth();

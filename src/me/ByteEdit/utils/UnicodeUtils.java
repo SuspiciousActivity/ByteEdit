@@ -81,7 +81,14 @@ public class UnicodeUtils {
 		if (s == null) {
 			return null;
 		}
-		return escape(s).replace(" ", "\\u0020");
+		s = escape(s).replace(" ", "\\u0020");
+		if (s.startsWith("/")) {
+			s = "\\u002F" + s.substring(1);
+		}
+		if (s.endsWith("/")) {
+			s = s.substring(0, s.length() - 1) + "\\u002F";
+		}
+		return s;
 	}
 	
 	public static String escape(String s) {

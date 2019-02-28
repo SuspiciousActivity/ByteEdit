@@ -136,7 +136,7 @@ public class RTextAreaUI extends BasicTextAreaUI {
 			if (c == null) { // Not Nimbus, but still need a value - fallback
 				c = UIManager.getColor("textInactiveText");
 				if (c == null) {
-					c = new ColorUIResource(Color.DARK_GRAY);
+					c = new ColorUIResource(new Color(0x2F2F2F));
 				}
 			}
 			editor.setDisabledTextColor(c);
