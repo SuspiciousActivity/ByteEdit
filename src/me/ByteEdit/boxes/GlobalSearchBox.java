@@ -27,6 +27,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.boxes.GlobalSearchOpenBox.Info;
 import me.ByteEdit.main.Main;
+import me.ByteEdit.utils.UnicodeUtils;
 
 public class GlobalSearchBox extends JFrame {
 
@@ -160,9 +161,9 @@ public class GlobalSearchBox extends JFrame {
 				}
 			}
 		} else {
-			String owner = txtOwner.getText();
-			String name = txtName.getText();
-			String desc = txtDesc.getText();
+			String owner = UnicodeUtils.unescape(txtOwner.getText());
+			String name = UnicodeUtils.unescape(txtName.getText());
+			String desc = UnicodeUtils.unescape(txtDesc.getText());
 			for (ClassNode cn : Main.classNodes.values()) {
 				for (MethodNode mn : cn.methods) {
 					for (AbstractInsnNode insn : mn.instructions.toArray()) {

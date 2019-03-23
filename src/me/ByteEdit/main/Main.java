@@ -49,7 +49,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -257,19 +256,7 @@ public class Main extends JFrame {
 				} else if (e.getKeyCode() == 127) { // del
 					if (tree.getSelectionPath() == null)
 						return;
-					String s = "";
-					boolean b = false;
-					for (Object o : tree.getSelectionPath().getPath()) {
-						DefaultMutableTreeNode path = (DefaultMutableTreeNode) o;
-						if (!b) {
-							b = true;
-							continue;
-						}
-						s += (s.isEmpty() || s.replace("/", "").isEmpty() ? "" : "/")
-								+ (path.toString().isEmpty() ? "/" : path.toString());
-					}
-					if (s.isEmpty() || s.endsWith("/"))
-						return;
+					String s = ((ByteEditTreeNode) tree.getSelectionPath().getLastPathComponent()).path;
 					if (JOptionPane.showConfirmDialog(INSTANCE, "Do you want to delete\n\"" + s + "\"?", "Delete",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						String substr = s.substring(0, s.length() - 6);
@@ -308,18 +295,7 @@ public class Main extends JFrame {
 
 			public void valueChanged(TreeSelectionEvent e) {
 				if (!isChangingFile) {
-					String s = "";
-					boolean b = false;
-					for (Object o : e.getPath().getPath()) {
-						DefaultMutableTreeNode path = (DefaultMutableTreeNode) o;
-						if (!b) {
-							b = true;
-							continue;
-						}
-						s += (s.isEmpty() || s.replace("/", "").isEmpty() ? "" : "/")
-								+ (path.toString().isEmpty() ? "/" : path.toString());
-					}
-					selectFile(s);
+					selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path);
 				}
 			}
 		});
@@ -555,6 +531,10 @@ public class Main extends JFrame {
 			String[] nameSplit = className.split("/");
 			String methodName = nameSplit[nameSplit.length - 1];
 			className = className.substring(0, className.length() - methodName.length() - 1);
+			while (className.endsWith("/")) {
+				methodName = "/" + methodName;
+				className = className.substring(0, className.length() - 1);
+			}
 			ClassNode classNode = classNodes.get(className + ".class");
 			if (classNode == null) {
 				return;
@@ -587,6 +567,10 @@ public class Main extends JFrame {
 			String[] nameSplit = className.split("/");
 			String fieldName = nameSplit[nameSplit.length - 1];
 			className = className.substring(0, className.length() - fieldName.length() - 1);
+			while (className.endsWith("/")) {
+				fieldName = "/" + fieldName;
+				className = className.substring(0, className.length() - 1);
+			}
 			ClassNode classNode = classNodes.get(className + ".class");
 			if (classNode == null) {
 				return;
@@ -652,8 +636,8 @@ public class Main extends JFrame {
 			String[] split = s.split(" ");
 			String className = UnicodeUtils.unescape(split[split.length - 1]);
 			renameBox.className = className;
-			String name = m.pattern() == renameableFieldPattern ? m.group(2) : m.group(1);
-			String desc = m.pattern() == renameableFieldPattern ? m.group(1) : m.group(2);
+			String name = UnicodeUtils.unescape(m.pattern() == renameableFieldPattern ? m.group(2) : m.group(1));
+			String desc = UnicodeUtils.unescape(m.pattern() == renameableFieldPattern ? m.group(1) : m.group(2));
 			renameBox.name = name;
 			renameBox.desc = desc;
 			renameBox.txtName.setText(name);
@@ -833,12 +817,12 @@ public class Main extends JFrame {
 		public boolean newCreated = false;
 
 		public ArchiveTreeModel() {
-			super(new DefaultMutableTreeNode("New"));
+			super(new ByteEditTreeNode("New"));
 			newCreated = true;
 		}
 
 		public ArchiveTreeModel(JarFile jar) {
-			super(new DefaultMutableTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
+			super(new ByteEditTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
 					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
 							- 1]));
 			try {
@@ -882,16 +866,16 @@ public class Main extends JFrame {
 		}
 
 		public void refresh() {
-			setRoot(new DefaultMutableTreeNode(((DefaultMutableTreeNode) getRoot()).toString()));
+			setRoot(new ByteEditTreeNode(((ByteEditTreeNode) getRoot()).toString()));
 			Collections.sort(paths);
 			for (String s : paths) {
 				String[] elements = s.split("/");
-				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getRoot();
+				ByteEditTreeNode currentNode = (ByteEditTreeNode) getRoot();
 				for (int i = 0; i < elements.length; i++) {
 					String token = elements[i];
-					DefaultMutableTreeNode nextNode = findNode(currentNode, token);
+					ByteEditTreeNode nextNode = findNode(currentNode, token);
 					if (nextNode == null) {
-						nextNode = new DefaultMutableTreeNode(token);
+						nextNode = new ByteEditTreeNode(token, s);
 						currentNode.add(nextNode);
 					}
 					currentNode = nextNode;
@@ -899,10 +883,10 @@ public class Main extends JFrame {
 			}
 		}
 
-		private DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name) {
+		private ByteEditTreeNode findNode(ByteEditTreeNode parent, String name) {
 			Enumeration<?> e = parent.children();
 			while (e.hasMoreElements()) {
-				DefaultMutableTreeNode element = (DefaultMutableTreeNode) e.nextElement();
+				ByteEditTreeNode element = (ByteEditTreeNode) e.nextElement();
 				if (element.getUserObject().equals(name)) {
 					return element;
 				}
