@@ -12,7 +12,8 @@ public class ByteEditTreeNode extends DefaultMutableTreeNode {
 
 	public ByteEditTreeNode(String name, String path) {
 		this(name);
-		this.path = path;
+		if (name.endsWith(".class"))
+			this.path = path;
 	}
 
 }

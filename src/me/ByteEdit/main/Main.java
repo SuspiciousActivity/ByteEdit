@@ -832,7 +832,7 @@ public class Main extends JFrame {
 				while (enumeration.hasMoreElements()) {
 					JarEntry next = enumeration.nextElement();
 					byte[] data = IOUtils.toByteArray(jar.getInputStream(next));
-					if (next.getName().endsWith(".class")) {
+					if (!next.getName().startsWith("META-INF") && next.getName().endsWith(".class")) {
 						if (next.getName().contains("/")
 								? (!next.getName().split("/")[next.getName().split("/").length - 1].contains("$"))
 								: (!next.getName().contains("$"))) {

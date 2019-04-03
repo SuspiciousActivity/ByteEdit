@@ -1524,7 +1524,7 @@ public class Assembler {
 				return new IntInsnNode(188, ClassUtil.getArrayIDByType(split[1]));
 			}
 			case "anewarray": {
-				return new TypeInsnNode(189, split[1]);
+				return new TypeInsnNode(189, UnicodeUtils.unescape(split[1]));
 			}
 			case "arraylength": {
 				return new InsnNode(190);
@@ -1533,10 +1533,10 @@ public class Assembler {
 				return new InsnNode(191);
 			}
 			case "checkcast": {
-				return new TypeInsnNode(192, split[1]);
+				return new TypeInsnNode(192, UnicodeUtils.unescape(split[1]));
 			}
 			case "instanceof": {
-				return new TypeInsnNode(193, split[1]);
+				return new TypeInsnNode(193, UnicodeUtils.unescape(split[1]));
 			}
 			case "monitorenter": {
 				return new InsnNode(194);
