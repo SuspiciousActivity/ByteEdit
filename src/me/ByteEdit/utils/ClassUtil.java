@@ -206,20 +206,20 @@ public class ClassUtil {
 
 	public static int getFrameTypeByName(String type) {
 		switch (type) {
-			case "top":
-				return 0;
-			case "I":
-				return 1;
-			case "F":
-				return 2;
-			case "D":
-				return 3;
-			case "J":
-				return 4;
-			case "null":
-				return 5;
-			case "uninitializedThis":
-				return 6;
+		case "top":
+			return 0;
+		case "I":
+			return 1;
+		case "F":
+			return 2;
+		case "D":
+			return 3;
+		case "J":
+			return 4;
+		case "null":
+			return 5;
+		case "uninitializedThis":
+			return 6;
 		}
 		return -1;
 	}

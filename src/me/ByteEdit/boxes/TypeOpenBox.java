@@ -19,6 +19,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import me.ByteEdit.main.Main;
+import me.ByteEdit.utils.UnicodeUtils;
 
 public class TypeOpenBox extends JFrame {
 
@@ -81,7 +82,7 @@ public class TypeOpenBox extends JFrame {
 				if (txtSearch.getText().isEmpty()) {
 					return;
 				}
-				String search = txtSearch.getText().toLowerCase();
+				String search = UnicodeUtils.unescape(txtSearch.getText()).toLowerCase();
 				if (search.contains("/")) {
 					for (String s : Main.classNodes.keySet()) {
 						String className = s.substring(0, s.length() - 6);

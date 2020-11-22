@@ -1,6 +1,5 @@
 package me.ByteEdit.edit;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -118,12 +117,14 @@ public class Disassembler {
 												}
 											}
 										} else {
-											s += "\"" + obj + "\"";
+											s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
 										}
 										s += ", ";
 									}
 									s = s.substring(0, s.length() - 2);
 									s += " }]";
+								} else if (o instanceof String) {
+									s += "\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"], ";
 								} else {
 									s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
 								}
@@ -216,7 +217,7 @@ public class Disassembler {
 													}
 												}
 											} else {
-												s += "\"" + obj + "\"";
+												s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
 											}
 											s += ", ";
 										}
@@ -294,7 +295,7 @@ public class Disassembler {
 														}
 													}
 												} else {
-													s += "\"" + obj + "\"";
+													s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
 												}
 												s += ", ";
 											}
@@ -384,18 +385,15 @@ public class Disassembler {
 	}
 
 	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels) {
-		switch (n.getClass().getSimpleName()) {
-		case "FieldInsnNode": {
+		if (FieldInsnNode.class.isInstance(n)) {
 			FieldInsnNode node = (FieldInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
 					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
-		}
-		case "LabelNode": {
+		} else if (LabelNode.class.isInstance(n)) {
 			LabelNode node = (LabelNode) n;
 			return "\t\t// label " + labels.get(node.getLabel()) + "\n";
-		}
-		case "FrameNode": {
+		} else if (FrameNode.class.isInstance(n)) {
 			FrameNode node = (FrameNode) n;
 			String type = "";
 			switch (node.type) {
@@ -472,12 +470,10 @@ public class Disassembler {
 			}
 			s += "\n";
 			return s;
-		}
-		case "LineNumberNode": {
+		} else if (LineNumberNode.class.isInstance(n)) {
 			LineNumberNode node = (LineNumberNode) n;
 			return "\t\t// line " + node.line + " " + labels.get(node.start.getLabel()) + "\n";
-		}
-		case "InvokeDynamicInsnNode": {
+		} else if (InvokeDynamicInsnNode.class.isInstance(n)) {
 			InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
 					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
@@ -485,25 +481,15 @@ public class Disassembler {
 					+ UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: "
 					+ UnicodeUtils.escapeWithSpaces(node.bsm.getOwner()) + "\n\t\t\t\tdesc: "
 					+ UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: "
-					+ node.bsm.isInterface() + "\n\t\t\t\ttag: " + node.bsm.getTag() + "\n\t\t\t]\n\t\t\targs: [\n";
+					+ node.bsm.isInterface() + "\n\t\t\t\ttag: " + OpcodesReverse.reverseHandleOpcode(node.bsm.getTag())
+					+ "\n\t\t\t]\n\t\t\targs: [\n";
 			for (Object l : node.bsmArgs) {
 				if (l.getClass().getName().equals("org.objectweb.asm.Type")) {
 					Type type = (Type) l;
-					int valueBegin = 0;
-					int valueEnd = 0;
-					String buf = null;
-					try {
-						Field f_off = Type.class.getDeclaredField("valueBegin");
-						f_off.setAccessible(true);
-						valueBegin = f_off.getInt(type);
-						Field f_len = Type.class.getDeclaredField("valueEnd");
-						f_len.setAccessible(true);
-						valueEnd = f_len.getInt(type);
-						Field f_buf = Type.class.getDeclaredField("valueBuffer");
-						f_buf.setAccessible(true);
-						buf = (String) f_buf.get(type);
-					} catch (Exception e) {
-					}
+					int valueBegin = type.valueBegin;
+					int valueEnd = type.valueEnd;
+					String buf = type.valueBuffer;
+					// Reflection
 					s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type)
 							+ "\n\t\t\t\t\tstart: " + valueBegin + "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: "
 							+ ClassUtil.getDecompiledValue(buf, "");
@@ -514,7 +500,7 @@ public class Disassembler {
 							+ UnicodeUtils.escapeWithSpaces(h.getName()).replace("/", "\\u002F") + "\n\t\t\t\t\towner: "
 							+ UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: "
 							+ UnicodeUtils.escapeWithSpaces(h.getDesc()) + "\n\t\t\t\t\tisInterface: " + h.isInterface()
-							+ "\n\t\t\t\t\ttag: " + h.getTag();
+							+ "\n\t\t\t\t\ttag: " + OpcodesReverse.reverseHandleOpcode(h.getTag());
 					s += "\n\t\t\t\t]\n";
 				} else {
 					s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
@@ -522,24 +508,20 @@ public class Disassembler {
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
-		}
-		case "MethodInsnNode": {
+		} else if (MethodInsnNode.class.isInstance(n)) {
 			MethodInsnNode node = (MethodInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
 					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
-		}
-		case "TypeInsnNode": {
+		} else if (TypeInsnNode.class.isInstance(n)) {
 			TypeInsnNode node = (TypeInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n";
-		}
-		case "MultiANewArrayInsnNode": {
+		} else if (MultiANewArrayInsnNode.class.isInstance(n)) {
 			MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + node.dims + "\n";
-		}
-		case "LdcInsnNode": {
+		} else if (LdcInsnNode.class.isInstance(n)) {
 			LdcInsnNode node = (LdcInsnNode) n;
 			switch (node.cst.getClass().getSimpleName()) {
 			case "String":
@@ -552,21 +534,10 @@ public class Disassembler {
 			}
 			case "Type": {
 				Type type = (Type) node.cst;
-				int valueBegin = 0;
-				int valueEnd = 0;
-				String buf = null;
-				try {
-					Field f_off = Type.class.getDeclaredField("valueBegin");
-					f_off.setAccessible(true);
-					valueBegin = f_off.getInt(type);
-					Field f_len = Type.class.getDeclaredField("valueEnd");
-					f_len.setAccessible(true);
-					valueEnd = f_len.getInt(type);
-					Field f_buf = Type.class.getDeclaredField("valueBuffer");
-					f_buf.setAccessible(true);
-					buf = (String) f_buf.get(type);
-				} catch (Exception e) {
-				}
+				int valueBegin = type.valueBegin;
+				int valueEnd = type.valueEnd;
+				String buf = type.valueBuffer;
+				// Reflection
 				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
 						+ ClassUtil.getClassNameFromType(type) + "\n\t\t\tstart: " + valueBegin + "\n\t\t\tend: "
 						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "");
@@ -578,16 +549,13 @@ public class Disassembler {
 						+ node.cst.getClass().getName().replace(".", "/") + " " + node.cst + "\n";
 			}
 			}
-		}
-		case "VarInsnNode": {
+		} else if (VarInsnNode.class.isInstance(n)) {
 			VarInsnNode node = (VarInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + "\n";
-		}
-		case "InsnNode": {
+		} else if (InsnNode.class.isInstance(n)) {
 			InsnNode node = (InsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + "\n";
-		}
-		case "IntInsnNode": {
+		} else if (IntInsnNode.class.isInstance(n)) {
 			IntInsnNode node = (IntInsnNode) n;
 			if (n.getOpcode() == Opcodes.NEWARRAY) {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
@@ -595,13 +563,11 @@ public class Disassembler {
 			} else {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
 			}
-		}
-		case "JumpInsnNode": {
+		} else if (JumpInsnNode.class.isInstance(n)) {
 			JumpInsnNode node = (JumpInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + labels.get(node.label.getLabel())
 					+ "\n";
-		}
-		case "TableSwitchInsnNode": {
+		} else if (TableSwitchInsnNode.class.isInstance(n)) {
 			TableSwitchInsnNode node = (TableSwitchInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min
 					+ "\n\t\t\tmax: " + node.max + "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel())
@@ -611,8 +577,7 @@ public class Disassembler {
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
-		}
-		case "LookupSwitchInsnNode": {
+		} else if (LookupSwitchInsnNode.class.isInstance(n)) {
 			LookupSwitchInsnNode node = (LookupSwitchInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tdefault: "
 					+ labels.get(node.dflt.getLabel()) + "\n\t\t\tkeys: [\n";
@@ -625,12 +590,10 @@ public class Disassembler {
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
-		}
-		case "IincInsnNode": {
+		} else if (IincInsnNode.class.isInstance(n)) {
 			IincInsnNode node = (IincInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " " + node.incr + "\n";
-		}
-		default:
+		} else {
 			return "\t\tNOT HANDLED! " + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
 					+ n.getClass().getSimpleName() + "\n";
 		}

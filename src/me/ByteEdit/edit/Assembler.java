@@ -1,7 +1,6 @@
 package me.ByteEdit.edit;
 
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +45,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import me.ByteEdit.main.Main;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.CustomBufferedReader;
+import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.SwitchIntContainer;
 import me.ByteEdit.utils.UnicodeUtils;
 
@@ -356,7 +356,7 @@ public class Assembler {
 									_end = new LabelNode(entry.getKey());
 								}
 							}
-							node.localVariables.add(new LocalVariableNode(sp[0],
+							node.localVariables.add(new LocalVariableNode(UnicodeUtils.unescape(sp[0]),
 									UnicodeUtils.unescape(sp[1].substring(1, sp[1].length() - 2)), signat, _start, _end,
 									Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
 						}
@@ -492,6 +492,31 @@ public class Assembler {
 		}
 	}
 
+	private static String[] splitWithStrings(String s) {
+		ArrayList<String> ret = new ArrayList<>();
+		String[] split = s.split(", ");
+		String building = null;
+
+		for (int i = 0; i < split.length; i++) {
+			if (split[i].startsWith("(")) {
+				ret.add(split[i]);
+			} else if (split[i].endsWith("\"")) {
+				if (building == null)
+					ret.add(split[i]);
+				else
+					ret.add(building + ", " + split[i]);
+				building = null;
+			} else {
+				if (building == null)
+					building = split[i];
+				else
+					building += ", " + split[i];
+			}
+		}
+
+		return ret.toArray(new String[0]);
+	}
+
 	private static AnnotationNode parseAnnotation(String s) {
 		s = s.substring(1);
 		String[] split = s.split(" ");
@@ -510,7 +535,7 @@ public class Assembler {
 				if (value.endsWith("]"))
 					value = value.substring(0, value.length() - 1);
 				if (value.startsWith("{ ")) {
-					String split3[] = value.substring(2, value.length() - 2).split(", ");
+					String split3[] = splitWithStrings(value.substring(2, value.length() - 2));
 					List<Object> list = new ArrayList<>();
 					for (String rofl : split3) {
 						rofl = UnicodeUtils.unescape(rofl);
@@ -790,13 +815,11 @@ public class Assembler {
 					if (str.startsWith("Type: ")) {
 						str = str.substring(8, str.length() - 2);
 						String[] split2 = str.split("\n\t");
-						Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, String.class, int.class,
-								int.class);
-						constr.setAccessible(true);
 						String type = split2[0].substring(7);
-						val = constr.newInstance(new Object[] { ClassUtil.getIDFromClassNameForType(type),
-								split2[3].substring(6, split2[3].length() - 1),
-								Integer.parseInt(split2[1].substring(7)), Integer.parseInt(split2[2].substring(5)) });
+						// Reflection
+						val = new Type(ClassUtil.getIDFromClassNameForType(type),
+								UnicodeUtils.unescape(split2[3].substring(6, split2[3].length() - 1)),
+								Integer.parseInt(split2[1].substring(7)), Integer.parseInt(split2[2].substring(5)));
 					} else if (str.startsWith("\"") && str.endsWith("\"")) {
 						val = UnicodeUtils.unescape(str.substring(1, str.length() - 1));
 					} else if (str.endsWith("l")) {
@@ -1472,18 +1495,16 @@ public class Assembler {
 					if (st.equals("]")) {
 						if (stage == 1) {
 							try {
-								Constructor<Type> constr = Type.class.getDeclaredConstructor(int.class, String.class,
-										int.class, int.class);
-								constr.setAccessible(true);
-								args.add(constr.newInstance(new Object[] { Integer.parseInt(vals.get(0).substring(6)),
+								// Reflection
+								args.add(new Type(ClassUtil.getIDFromClassNameForType(vals.get(0).substring(6)),
 										UnicodeUtils.unescape(vals.get(3).substring(6, vals.get(3).length() - 1)),
 										Integer.parseInt(vals.get(1).substring(7)),
-										Integer.parseInt(vals.get(2).substring(5)) }));
+										Integer.parseInt(vals.get(2).substring(5))));
 							} catch (Exception e) {
 								throw e;
 							}
 						} else if (stage == 2) {
-							args.add(new Handle(Integer.parseInt(vals.get(4).substring(5)),
+							args.add(new Handle(OpcodesReverse.getHandleOpcode(vals.get(4).substring(5)),
 									UnicodeUtils.unescape(vals.get(1).substring(7)),
 									UnicodeUtils.unescape(vals.get(0).substring(6)),
 									UnicodeUtils.unescape(vals.get(2).substring(6)),
@@ -1502,6 +1523,18 @@ public class Assembler {
 					} else if (stage == 2) {
 						st = st.substring(1);
 						vals.add(st);
+					} else if (stage == 0) {
+						if (st.startsWith("\"") && st.endsWith("\"")) {
+							args.add(UnicodeUtils.unescape(st.substring(1, st.length() - 1)));
+						} else if (st.endsWith("l")) {
+							args.add(Long.parseLong(st.substring(0, st.length() - 1)));
+						} else if (st.endsWith("f")) {
+							args.add(Float.parseFloat(st.substring(0, st.length() - 1)));
+						} else if (st.contains(".")) {
+							args.add(Double.parseDouble(st));
+						} else {
+							args.add(Integer.parseInt(st));
+						}
 					}
 				}
 				Object[] _args = new Object[args.size()];
@@ -1512,9 +1545,9 @@ public class Assembler {
 				}
 				return new InvokeDynamicInsnNode(UnicodeUtils.unescape(sp[0].substring(7)),
 						UnicodeUtils.unescape(sp[1].substring(6)),
-						new Handle(Integer.parseInt(sp[7].substring(6)), UnicodeUtils.unescape(sp[4].substring(8)),
-								UnicodeUtils.unescape(sp[3].substring(7)), UnicodeUtils.unescape(sp[5].substring(7)),
-								Boolean.parseBoolean(sp[6].substring(14))),
+						new Handle(OpcodesReverse.getHandleOpcode(sp[7].substring(6)),
+								UnicodeUtils.unescape(sp[4].substring(8)), UnicodeUtils.unescape(sp[3].substring(7)),
+								UnicodeUtils.unescape(sp[5].substring(7)), Boolean.parseBoolean(sp[6].substring(14))),
 						_args);
 			}
 			case "new": {

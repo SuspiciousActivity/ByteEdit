@@ -18,20 +18,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -45,14 +51,18 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
-import org.apache.commons.io.IOUtils;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -105,6 +115,8 @@ public class Main extends JFrame {
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static Theme theme;
 	public static File saveFolder;
+
+	public static HashSet<String> fakedFolders = new HashSet<>();
 
 	/**
 	 * Launch the application.
@@ -236,6 +248,8 @@ public class Main extends JFrame {
 		FoldParserManager.get().addFoldParserMapping(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE,
 				new CurlyFoldParser(false, true));
 		tree = new JTree(new DefaultTreeModel(null));
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.addTreeExpansionListener(new FurtherExpandingTreeExpansionListener());
 		tree.addKeyListener(new KeyAdapter() {
 
 			@Override
@@ -283,13 +297,15 @@ public class Main extends JFrame {
 		});
 		tree.setFont(new Font("Verdana", Font.PLAIN, 11));
 		tree.setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
-		if (tree.getCellRenderer() instanceof DefaultTreeCellRenderer) {
-			final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) (tree.getCellRenderer());
-			renderer.setBackgroundNonSelectionColor(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
-			renderer.setBackgroundSelectionColor(Color.GRAY);
-			renderer.setTextNonSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
-			renderer.setTextSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
-		}
+		tree.setCellRenderer(new DefaultTreeCellRenderer() {
+			{
+				putClientProperty("html.disable", Boolean.TRUE);
+				setBackgroundNonSelectionColor(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
+				setBackgroundSelectionColor(Color.GRAY);
+				setTextNonSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
+				setTextSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
+			}
+		});
 		scrollPane.setViewportView(tree);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
@@ -535,16 +551,16 @@ public class Main extends JFrame {
 				methodName = "/" + methodName;
 				className = className.substring(0, className.length() - 1);
 			}
-			ClassNode classNode = classNodes.get(className + ".class");
+			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
 			}
 			for (MethodNode mn : classNode.methods) {
 				if (mn.name.equals(methodName) && mn.desc.equals(desc)) {
 					while (classNode.outerClass != null) {
-						classNode = classNodes.get(classNode.outerClass + ".class");
+						classNode = classNodes.get(getFullName(classNode.outerClass));
 					}
-					int lineFound = selectFileWithSearch(classNode.name + ".class", mn);
+					int lineFound = selectFileWithSearch(getFullName(classNode.name), mn);
 					if (lineFound != -1) {
 						Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
 					}
@@ -554,11 +570,11 @@ public class Main extends JFrame {
 		} else if (line.startsWith("new ")) {
 			String[] split = line.split(" ");
 			String className = UnicodeUtils.unescape(split[1]);
-			ClassNode classNode = classNodes.get(className + ".class");
+			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
 			}
-			selectFile(className + ".class");
+			selectFile(getFullName(className));
 		} else if (line.startsWith("getstatic ") || line.startsWith("putstatic ") || line.startsWith("getfield ")
 				|| line.startsWith("putfield ")) {
 			String[] split = line.split(" ");
@@ -571,16 +587,16 @@ public class Main extends JFrame {
 				fieldName = "/" + fieldName;
 				className = className.substring(0, className.length() - 1);
 			}
-			ClassNode classNode = classNodes.get(className + ".class");
+			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
 			}
 			for (FieldNode fn : classNode.fields) {
 				if (fn.name.equals(fieldName) && fn.desc.equals(desc)) {
 					while (classNode.outerClass != null) {
-						classNode = classNodes.get(classNode.outerClass + ".class");
+						classNode = classNodes.get(getFullName(classNode.outerClass));
 					}
-					int lineFound = selectFileWithSearch(classNode.name + ".class", fn);
+					int lineFound = selectFileWithSearch(getFullName(classNode.name), fn);
 					if (lineFound != -1) {
 						Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
 					}
@@ -656,15 +672,15 @@ public class Main extends JFrame {
 			if (node == null) {
 				continue;
 			}
-			if (classNodes.replace(node.name + ".class", node) == null) {
-				classNodes.put(node.name + ".class", node);
+			if (classNodes.replace(getFullName(node.name), node) == null) {
+				classNodes.put(getFullName(node.name), node);
 				ArchiveTreeModel model;
 				if (tree.getModel().getClass().equals(DefaultTreeModel.class)) {
 					tree.setModel(model = new ArchiveTreeModel());
 				} else {
 					model = (ArchiveTreeModel) tree.getModel();
 				}
-				String name = node.name + ".class";
+				String name = getFullName(node.name);
 				if (name.contains("/") ? (!name.split("/")[name.split("/").length - 1].contains("$"))
 						: (!name.contains("$"))) {
 					model.paths.add(name);
@@ -678,10 +694,13 @@ public class Main extends JFrame {
 	}
 
 	public static int selectFileWithSearch(String s, Object nodeToFind) {
-		if (s.endsWith(".class")) {
+		if (s != null && (s.endsWith(".class")
+				|| (s.endsWith(".class/") && fakedFolders.contains(s.substring(0, s.length() - 7))))) {
 			currentNodeName = s;
 			int lineFound = -1;
 			ClassNode classNode = classNodes.get(s);
+			if (classNode == null)
+				return -1;
 			String dis = "";
 			DisassembleTuple tuple = Disassembler.disassemble(classNode, nodeToFind);
 			if (tuple.getLine() != -1) {
@@ -784,7 +803,7 @@ public class Main extends JFrame {
 			for (ClassNode element : classes) {
 				ClassWriter writer = new ClassWriter(computeFlags);
 				element.accept(writer);
-				output.putNextEntry(new JarEntry(element.name + ".class"));
+				output.putNextEntry(new JarEntry(getFullName(element.name)));
 				output.write(writer.toByteArray());
 				output.closeEntry();
 			}
@@ -811,6 +830,13 @@ public class Main extends JFrame {
 		JOptionPane.showMessageDialog(INSTANCE, s, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
 
+	public static String getFullName(String s) {
+		if (fakedFolders.contains(s))
+			return s + ".class/";
+		else
+			return s + ".class";
+	}
+
 	class ArchiveTreeModel extends DefaultTreeModel {
 
 		public ArrayList<String> paths = new ArrayList<>();
@@ -831,26 +857,26 @@ public class Main extends JFrame {
 				Enumeration<JarEntry> enumeration = jar.entries();
 				while (enumeration.hasMoreElements()) {
 					JarEntry next = enumeration.nextElement();
-					byte[] data = IOUtils.toByteArray(jar.getInputStream(next));
-					if (!next.getName().startsWith("META-INF") && next.getName().endsWith(".class")) {
-						if (next.getName().contains("/")
+					byte[] data = toByteArray(jar.getInputStream(next));
+					if (next.getSize() != 0 && !next.getName().startsWith("META-INF")
+							&& (next.getName().endsWith(".class") || next.getName().endsWith(".class/"))) {
+						if ((next.getName().contains("/")
 								? (!next.getName().split("/")[next.getName().split("/").length - 1].contains("$"))
-								: (!next.getName().contains("$"))) {
+								: (!next.getName().contains("$")))
+								|| (next.getName().startsWith("$") || next.getName().contains("$$")
+										|| next.getName().endsWith("$"))) {
 							paths.add(next.getName());
-						} else if (next.getName().startsWith("$") || next.getName().contains("$$")
-								|| next.getName().endsWith("$")) { // obfuscated
-							paths.add(next.getName());
+							if (next.getName().endsWith(".class/") && next.getSize() != 0)
+								fakedFolders.add(next.getName().substring(0, next.getName().length() - 7));
 						}
-						ClassReader reader;
 						try {
-							reader = new ClassReader(data);
+							ClassReader reader = new ClassReader(data);
+							ClassNode node = new ClassNode();
+							reader.accept(node, 0);
+							classNodes.put(next.getName(), node);
 						} catch (Exception e) {
 							OTHER_FILES.put(next.getName(), data);
-							continue;
 						}
-						ClassNode node = new ClassNode();
-						reader.accept(node, 0);
-						classNodes.put(next.getName(), node);
 					} else {
 						OTHER_FILES.put(next.getName(), data);
 					}
@@ -865,10 +891,58 @@ public class Main extends JFrame {
 			}
 		}
 
+		private int getSlashCount(String s) {
+			int count = 0;
+			for (char c : s.toCharArray()) {
+				if (c == '/')
+					count++;
+			}
+			return count;
+		}
+
 		public void refresh() {
 			setRoot(new ByteEditTreeNode(((ByteEditTreeNode) getRoot()).toString()));
-			Collections.sort(paths);
-			for (String s : paths) {
+			Collections.sort(paths, String.CASE_INSENSITIVE_ORDER);
+			Collections.sort(paths, new Comparator<String>() {
+				public int compare(String s1, String s2) {
+					return getSlashCount(s2) - getSlashCount(s1);
+				}
+			});
+
+			List<String> tmp = new ArrayList<>(paths);
+
+			List<String> folders = tmp.stream().map(s -> {
+				int idx = s.lastIndexOf('/');
+				if (idx == s.length() - 1)
+					idx = s.lastIndexOf('/', idx - 1);
+				if (idx == -1)
+					return s;
+				return s.substring(0, idx);
+			}).distinct().sorted(new Comparator<String>() {
+				@Override
+				public int compare(String s, String s2) {
+					// From String#compareToIgnoreCase(String)
+					int n = s.length();
+					int n2 = s2.length();
+					int n3 = Math.min(n, n2);
+					for (int i = 0; i < n3; ++i) {
+						char c;
+						char c2 = s.charAt(i);
+						if (c2 == (c = s2.charAt(i))
+								|| (c2 = Character.toUpperCase(c2)) == (c = Character.toUpperCase(c))
+								|| (c2 = Character.toLowerCase(c2)) == (c = Character.toLowerCase(c)))
+							continue;
+						return c2 - c;
+					}
+					// Other way around
+					return n2 - n;
+				}
+			}).collect(Collectors.toList());
+
+			tmp.removeAll(folders);
+			tmp.addAll(0, folders);
+
+			for (String s : tmp) {
 				String[] elements = s.split("/");
 				ByteEditTreeNode currentNode = (ByteEditTreeNode) getRoot();
 				for (int i = 0; i < elements.length; i++) {
@@ -892,6 +966,37 @@ public class Main extends JFrame {
 				}
 			}
 			return null;
+		}
+	}
+
+	private static class FurtherExpandingTreeExpansionListener implements TreeExpansionListener {
+		public void treeExpanded(TreeExpansionEvent event) {
+			TreePath treePath = event.getPath();
+			Object expandedTreePathObject = treePath.getLastPathComponent();
+			if (!(expandedTreePathObject instanceof TreeNode))
+				return;
+			TreeNode expandedTreeNode = (TreeNode) expandedTreePathObject;
+			if (expandedTreeNode.getChildCount() == 1) {
+				TreeNode descendantTreeNode = expandedTreeNode.getChildAt(0);
+				if (descendantTreeNode.isLeaf())
+					return;
+				TreePath nextTreePath = treePath.pathByAddingChild(descendantTreeNode);
+				tree.expandPath(nextTreePath);
+			}
+		}
+
+		public void treeCollapsed(TreeExpansionEvent event) {
+		}
+	}
+
+	public static byte[] toByteArray(final InputStream input) throws IOException {
+		try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[4096];
+			int read;
+			while ((read = input.read(buffer)) != -1) {
+				output.write(buffer, 0, read);
+			}
+			return output.toByteArray();
 		}
 	}
 }

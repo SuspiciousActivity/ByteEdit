@@ -79,7 +79,7 @@ public class RenameBox extends JFrame {
 					JOptionPane.showMessageDialog(null, "Desc not set!", "Error!", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				ClassNode clazz = Main.classNodes.get(className + ".class");
+				ClassNode clazz = Main.classNodes.get(Main.getFullName(className));
 				if (clazz == null) {
 					JOptionPane.showMessageDialog(null, "ClassNode not found!", "Error!", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -94,7 +94,7 @@ public class RenameBox extends JFrame {
 					if (newDesc.startsWith("(")) { // method
 						ClassNode lastHit = clazz;
 						while (clazz != null && clazz.superName != null) {
-							ClassNode tmp = Main.classNodes.get(clazz.superName + ".class");
+							ClassNode tmp = Main.classNodes.get(Main.getFullName(clazz.superName));
 							if (tmp != null) {
 								boolean found = false;
 								for (MethodNode mn : clazz.methods) {
@@ -127,7 +127,7 @@ public class RenameBox extends JFrame {
 										extendsMyClass = true;
 										break;
 									}
-									ClassNode tmp = Main.classNodes.get(checkCN.superName + ".class");
+									ClassNode tmp = Main.classNodes.get(Main.getFullName(checkCN.superName));
 									if (tmp != null) {
 										checkCN = tmp;
 									} else {
@@ -230,6 +230,7 @@ public class RenameBox extends JFrame {
 				}
 				name = newName;
 				desc = newDesc;
+				RenameBox.this.setVisible(false);
 			}
 		});
 		btnRename.setBounds(345, 237, 89, 23);

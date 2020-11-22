@@ -14,7 +14,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.main.Main;
@@ -79,7 +78,7 @@ public class GlobalSearchOpenBox extends JFrame {
 			this.name = name;
 			this.desc = desc;
 			this.mn = mn;
-			nodePath = owner + ".class";
+			nodePath = Main.getFullName(owner);
 		}
 
 		@Override

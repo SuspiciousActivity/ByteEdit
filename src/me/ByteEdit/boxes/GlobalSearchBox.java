@@ -141,7 +141,7 @@ public class GlobalSearchBox extends JFrame {
 		openBox.model.clear();
 		Set<Info> set = new HashSet<>();
 		if (!txtString.getText().isEmpty()) {
-			String str = txtString.getText();
+			String str = UnicodeUtils.unescape(txtString.getText());
 			if (ignoreCase) {
 				str = str.toLowerCase();
 			}
@@ -162,19 +162,24 @@ public class GlobalSearchBox extends JFrame {
 			}
 		} else {
 			String owner = UnicodeUtils.unescape(txtOwner.getText());
+			boolean wildCardOwner = owner.isEmpty();
 			String name = UnicodeUtils.unescape(txtName.getText());
+			boolean wildCardName = name.isEmpty();
 			String desc = UnicodeUtils.unescape(txtDesc.getText());
+			boolean wildCardDesc = desc.isEmpty();
 			for (ClassNode cn : Main.classNodes.values()) {
 				for (MethodNode mn : cn.methods) {
 					for (AbstractInsnNode insn : mn.instructions.toArray()) {
 						if (insn instanceof FieldInsnNode) {
-							if (((FieldInsnNode) insn).owner.equals(owner) && ((FieldInsnNode) insn).name.equals(name)
-									&& ((FieldInsnNode) insn).desc.equals(desc)) {
+							if ((wildCardOwner || ((FieldInsnNode) insn).owner.equals(owner))
+									&& (wildCardName || ((FieldInsnNode) insn).name.equals(name))
+									&& (wildCardDesc || ((FieldInsnNode) insn).desc.equals(desc))) {
 								set.add(new Info(cn.name, mn.name, mn.desc, mn));
 							}
 						} else if (insn instanceof MethodInsnNode) {
-							if (((MethodInsnNode) insn).owner.equals(owner) && ((MethodInsnNode) insn).name.equals(name)
-									&& ((MethodInsnNode) insn).desc.equals(desc)) {
+							if ((wildCardOwner || ((MethodInsnNode) insn).owner.equals(owner))
+									&& (wildCardName || ((MethodInsnNode) insn).name.equals(name))
+									&& (wildCardDesc || ((MethodInsnNode) insn).desc.equals(desc))) {
 								set.add(new Info(cn.name, mn.name, mn.desc, mn));
 							}
 						}
