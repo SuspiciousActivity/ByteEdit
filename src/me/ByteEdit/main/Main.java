@@ -98,7 +98,7 @@ public class Main extends JFrame {
 
 	public static Main INSTANCE;
 	private JPanel contentPane;
-	private boolean isChangingFile;
+	private volatile boolean isChangingFile;
 	public static File jarFile;
 	public static HashMap<String, byte[]> OTHER_FILES = new HashMap<>();
 	public static HashMap<String, ClassNode> classNodes = new HashMap<>();
@@ -117,6 +117,8 @@ public class Main extends JFrame {
 	public static File saveFolder;
 
 	public static HashSet<String> fakedFolders = new HashSet<>();
+
+	public static final Object treeLock = new Object();
 
 	/**
 	 * Launch the application.
@@ -255,17 +257,35 @@ public class Main extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && jarFile != null) { // F5
-					try {
-						isChangingFile = true;
-						try {
-							tree.setModel(new ArchiveTreeModel(new JarFile(jarFile)));
-						} catch (IOException e1) {
-							e1.printStackTrace();
+					synchronized (treeLock) {
+						if (isChangingFile) {
+							return;
 						}
-						isChangingFile = false;
-					} catch (Throwable t) {
-						t.printStackTrace();
-						showError(t);
+						try {
+							isChangingFile = true;
+							Main.this.setTitle("ByteEdit - Reloading...");
+							new Thread(new Runnable() {
+								public void run() {
+									try {
+										ArchiveTreeModel model = new ArchiveTreeModel(new JarFile(jarFile));
+										EventQueue.invokeLater(new Runnable() {
+											public void run() {
+												synchronized (treeLock) {
+													tree.setModel(model);
+													isChangingFile = false;
+													Main.this.setTitle("ByteEdit");
+												}
+											}
+										});
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}).start();
+						} catch (Throwable t) {
+							t.printStackTrace();
+							showError(t);
+						}
 					}
 				} else if (e.getKeyCode() == 127) { // del
 					if (tree.getSelectionPath() == null)
@@ -310,8 +330,10 @@ public class Main extends JFrame {
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
 			public void valueChanged(TreeSelectionEvent e) {
-				if (!isChangingFile) {
-					selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path);
+				synchronized (treeLock) {
+					if (!isChangingFile) {
+						selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path);
+					}
 				}
 			}
 		});
@@ -319,41 +341,65 @@ public class Main extends JFrame {
 
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
-				try {
-					Transferable tr = dtde.getTransferable();
-					DataFlavor[] flavors = tr.getTransferDataFlavors();
-					for (int i = 0; i < flavors.length; i++) {
-						if (flavors[i].isFlavorJavaFileListType()) {
-							dtde.acceptDrop(dtde.getDropAction());
-							java.util.List<File> files = (java.util.List<File>) tr.getTransferData(flavors[i]);
-							final File file = files.get(0);
-							if (file.getName().endsWith(".jar")) {
-								jarFile = file;
-								saveFolder = file.getParentFile();
-								isChangingFile = true;
-								try {
-									tree.setModel(new ArchiveTreeModel(new JarFile(jarFile)));
-								} catch (IOException e1) {
-									e1.printStackTrace();
-								}
-								txtByteEditView.setText("");
-								currentNodeName = null;
-								globalSearchBox.setVisible(false);
-								searchBox.setVisible(false);
-								typeOpenBox.setVisible(false);
-								optionBox.setVisible(false);
-								unicodeBox.setVisible(false);
-								renameBox.setVisible(false);
-								compilationBox.setVisible(false);
-								isChangingFile = false;
-							}
-							dtde.dropComplete(true);
-						}
+				synchronized (treeLock) {
+					if (isChangingFile) {
+						dtde.rejectDrop();
+						return;
 					}
-					return;
-				} catch (Throwable t) {
-					t.printStackTrace();
-					showError(t);
+					try {
+						Transferable tr = dtde.getTransferable();
+						DataFlavor[] flavors = tr.getTransferDataFlavors();
+						for (int i = 0; i < flavors.length; i++) {
+							if (flavors[i].isFlavorJavaFileListType()) {
+								dtde.acceptDrop(dtde.getDropAction());
+								java.util.List<File> files = (java.util.List<File>) tr.getTransferData(flavors[i]);
+								final File file = files.get(0);
+								if (file.getName().endsWith(".jar")) {
+									jarFile = file;
+									saveFolder = file.getParentFile();
+									isChangingFile = true;
+									try {
+										Main.this.setTitle("ByteEdit - Loading '" + jarFile.getCanonicalPath() + "'");
+									} catch (IOException ex) {
+										Main.this.setTitle("ByteEdit - Loading '" + jarFile.getAbsolutePath() + "'");
+									}
+									new Thread(new Runnable() {
+										public void run() {
+											try {
+												ArchiveTreeModel model = new ArchiveTreeModel(new JarFile(jarFile));
+												EventQueue.invokeLater(new Runnable() {
+													public void run() {
+														synchronized (treeLock) {
+															tree.setModel(model);
+															txtByteEditView.setText("");
+															currentNodeName = null;
+															globalSearchBox.setVisible(false);
+															searchBox.setVisible(false);
+															typeOpenBox.setVisible(false);
+															optionBox.setVisible(false);
+															unicodeBox.setVisible(false);
+															renameBox.setVisible(false);
+															compilationBox.setVisible(false);
+															isChangingFile = false;
+															Main.this.setTitle("ByteEdit");
+														}
+													}
+												});
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+										}
+									}).start();
+								}
+								dtde.dropComplete(true);
+								break;
+							}
+						}
+						return;
+					} catch (Throwable t) {
+						t.printStackTrace();
+						showError(t);
+					}
 				}
 				dtde.rejectDrop();
 			}
@@ -543,14 +589,10 @@ public class Main extends JFrame {
 		if (line.startsWith("invoke")) {
 			String[] split = line.split(" ");
 			String desc = UnicodeUtils.unescape(split[1]);
-			String className = UnicodeUtils.unescape(split[2]);
-			String[] nameSplit = className.split("/");
-			String methodName = nameSplit[nameSplit.length - 1];
-			className = className.substring(0, className.length() - methodName.length() - 1);
-			while (className.endsWith("/")) {
-				methodName = "/" + methodName;
-				className = className.substring(0, className.length() - 1);
-			}
+			String target = split[2];
+			int index = target.lastIndexOf("/");
+			String className = UnicodeUtils.unescape(target.substring(0, index));
+			String methodName = UnicodeUtils.unescape(target.substring(index + 1));
 			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
@@ -579,14 +621,10 @@ public class Main extends JFrame {
 				|| line.startsWith("putfield ")) {
 			String[] split = line.split(" ");
 			String desc = UnicodeUtils.unescape(split[1]);
-			String className = UnicodeUtils.unescape(split[2]);
-			String[] nameSplit = className.split("/");
-			String fieldName = nameSplit[nameSplit.length - 1];
-			className = className.substring(0, className.length() - fieldName.length() - 1);
-			while (className.endsWith("/")) {
-				fieldName = "/" + fieldName;
-				className = className.substring(0, className.length() - 1);
-			}
+			String target = split[2];
+			int index = target.lastIndexOf("/");
+			String className = UnicodeUtils.unescape(target.substring(0, index));
+			String fieldName = UnicodeUtils.unescape(target.substring(index + 1));
 			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
@@ -909,9 +947,10 @@ public class Main extends JFrame {
 				}
 			});
 
+			// Windows-like sorting (like file explorer)
 			List<String> tmp = new ArrayList<>(paths);
 
-			List<String> folders = tmp.stream().map(s -> {
+			List<String> folders = tmp.stream().filter(s -> s.contains("/")).map(s -> {
 				int idx = s.lastIndexOf('/');
 				if (idx == s.length() - 1)
 					idx = s.lastIndexOf('/', idx - 1);
