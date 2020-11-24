@@ -1,7 +1,6 @@
 package me.ByteEdit.boxes;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,7 +21,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.tools.JavaCompiler;
 import javax.tools.SimpleJavaFileObject;
@@ -36,6 +34,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 import me.ByteEdit.edit.Disassembler;
 import me.ByteEdit.main.Main;
+import me.ByteEdit.main.ThemeManager;
 
 public class CompilationBox extends JFrame {
 
@@ -46,32 +45,25 @@ public class CompilationBox extends JFrame {
 
 	public CompilationBox() {
 		compSuccess = new CompilationSuccess();
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ThemeManager.registerFrames(compSuccess);
 		setTitle("Java Compiler");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 400),
 				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 200), 800, 400);
 		contentPane = new JPanel();
-		contentPane.setBackground(Main.dark ? new Color(0x2F2F2F) : Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 
-		Main.theme.apply(textArea);
+		ThemeManager.registerTextArea(textArea);
 		textArea.setEditable(true);
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
-		textArea.setBackground(Main.dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 
 		RTextScrollPane scrollPane = new RTextScrollPane();
 		scrollPane.setViewportView(textArea);
 		scrollPane.setLineNumbersEnabled(true);
 		scrollPane.setFoldIndicatorEnabled(true);
-		scrollPane.getGutter().setBackground(Main.dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 		contentPane.add(scrollPane);
 
 		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);

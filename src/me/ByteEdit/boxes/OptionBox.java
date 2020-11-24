@@ -5,7 +5,6 @@ import java.awt.Toolkit;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 public class OptionBox extends JFrame {
@@ -15,11 +14,6 @@ public class OptionBox extends JFrame {
 	public JCheckBox chckbxComputeMax;
 
 	public OptionBox() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		setResizable(false);
 		setTitle("Options");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

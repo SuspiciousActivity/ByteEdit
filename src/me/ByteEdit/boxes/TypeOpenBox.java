@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -27,11 +26,6 @@ public class TypeOpenBox extends JFrame {
 	public JTextField txtSearch;
 
 	public TypeOpenBox() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		setResizable(false);
 		setTitle("Open Type");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

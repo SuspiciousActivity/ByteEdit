@@ -1,6 +1,5 @@
 package me.ByteEdit.main;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -49,7 +48,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -70,7 +68,6 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rsyntaxtextarea.folding.CurlyFoldParser;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -85,6 +82,7 @@ import me.ByteEdit.boxes.GlobalSearchBox;
 import me.ByteEdit.boxes.OptionBox;
 import me.ByteEdit.boxes.RenameBox;
 import me.ByteEdit.boxes.SearchBox;
+import me.ByteEdit.boxes.ThemeBox;
 import me.ByteEdit.boxes.TypeOpenBox;
 import me.ByteEdit.boxes.UnicodeBox;
 import me.ByteEdit.edit.Assembler;
@@ -111,9 +109,9 @@ public class Main extends JFrame {
 	public static UnicodeBox unicodeBox;
 	public static RenameBox renameBox;
 	public static CompilationBox compilationBox;
+	public static ThemeBox themeBox;
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
-	public static Theme theme;
 	public static File saveFolder;
 
 	public static HashSet<String> fakedFolders = new HashSet<>();
@@ -130,11 +128,13 @@ public class Main extends JFrame {
 				try {
 					Main frame = new Main();
 					frame.setVisible(true);
+					ThemeManager.applyRSTATheme();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+
 	}
 
 	/**
@@ -200,23 +200,12 @@ public class Main extends JFrame {
 		return provider;
 	}
 
-	public static boolean dark = true;
-
 	/**
 	 * Create the frame.
 	 */
 	public Main() {
 		INSTANCE = this;
-		File light = new File(System.getProperty("java.io.tmpdir") + File.pathSeparator + "ByteEditLight.conf");
-		if (light.exists()) {
-			dark = false;
-		}
-		try {
-			theme = Theme.load(getClass().getClassLoader()
-					.getResourceAsStream(dark ? "org/fife/eclipse_dark.xml" : "org/fife/eclipse.xml"));
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		}
+		ThemeManager.registerFrames(this);
 		globalSearchBox = new GlobalSearchBox();
 		searchBox = new SearchBox();
 		typeOpenBox = new TypeOpenBox();
@@ -224,22 +213,25 @@ public class Main extends JFrame {
 		unicodeBox = new UnicodeBox();
 		renameBox = new RenameBox();
 		compilationBox = new CompilationBox();
+		themeBox = new ThemeBox();
+		ThemeManager.registerFrames(globalSearchBox);
+		ThemeManager.registerFrames(searchBox);
+		ThemeManager.registerFrames(typeOpenBox);
+		ThemeManager.registerFrames(optionBox);
+		ThemeManager.registerFrames(unicodeBox);
+		ThemeManager.registerFrames(renameBox);
+		ThemeManager.registerFrames(compilationBox);
+		ThemeManager.registerFrames(themeBox);
+		ThemeManager.load();
 		setTitle("ByteEdit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 407),
 				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 237), 814, 474);
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		contentPane = new JPanel();
-		contentPane.setBackground(dark ? new Color(0x2F2F2F) : Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new GridLayout(0, 1, 0, 0));
 		JSplitPane splitPane = new JSplitPane();
-		splitPane.setBackground(dark ? new Color(0x2F2F2F) : Color.GRAY);
 		splitPane.setResizeWeight(0.2);
 		contentPane.add(splitPane);
 		JScrollPane scrollPane = new JScrollPane();
@@ -316,14 +308,9 @@ public class Main extends JFrame {
 			}
 		});
 		tree.setFont(new Font("Verdana", Font.PLAIN, 11));
-		tree.setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 		tree.setCellRenderer(new DefaultTreeCellRenderer() {
 			{
 				putClientProperty("html.disable", Boolean.TRUE);
-				setBackgroundNonSelectionColor(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
-				setBackgroundSelectionColor(Color.GRAY);
-				setTextNonSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
-				setTextSelectionColor(dark ? new Color(0xeeeeee) : Color.BLACK);
 			}
 		});
 		scrollPane.setViewportView(tree);
@@ -464,17 +451,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (light.exists())
-					light.delete();
-				else
-					try {
-						light.createNewFile();
-					} catch (IOException e1) {
-					}
-				dark = !dark;
-				JOptionPane.showMessageDialog(Main.this,
-						"Theme switched to " + (dark ? "Dark" : "Light") + ".\nPlease restart ByteEdit.",
-						"Theme changed", JOptionPane.INFORMATION_MESSAGE);
+				themeBox.setVisible(true);
 			}
 		}, ctrlB, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(new ActionListener() {
@@ -566,14 +543,12 @@ public class Main extends JFrame {
 		txtByteEditView.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		txtByteEditView.setCodeFoldingEnabled(true);
 		scrollPane_ByteEdit = new RTextScrollPane();
-		theme.apply(txtByteEditView);
+		ThemeManager.registerTextArea(txtByteEditView);
 
 		splitPane.setRightComponent(scrollPane_ByteEdit);
-		txtByteEditView.setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 		scrollPane_ByteEdit.setViewportView(txtByteEditView);
 		scrollPane_ByteEdit.setLineNumbersEnabled(true);
 		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
-		scrollPane_ByteEdit.getGutter().setBackground(dark ? new Color(0x2F2F2F) : Color.LIGHT_GRAY);
 	}
 
 	private final Pattern jumpableInstructionPattern = Pattern.compile("^\t\t(?!//|\t+).+ .+");
@@ -787,15 +762,50 @@ public class Main extends JFrame {
 		if (action == 0) {
 			final File file = fileChooser.getSelectedFile();
 			saveFolder = file.getParentFile();
+			boolean shouldSave = false;
 			if (file.exists()) {
 				int dialogResult = JOptionPane.showConfirmDialog(null, "This file already exists! Overwrite it?",
 						"Warning", JOptionPane.YES_NO_OPTION);
 				if (dialogResult == JOptionPane.YES_OPTION) {
 					save(file, classNodes.values());
+					shouldSave = true;
 				}
 			} else {
-				save(file, classNodes.values());
+				shouldSave = true;
 			}
+
+			if (shouldSave)
+				synchronized (treeLock) {
+					if (isChangingFile) {
+						return;
+					}
+					try {
+						isChangingFile = true;
+						try {
+							Main.this.setTitle("ByteEdit - Saving '" + file.getCanonicalPath() + "'");
+						} catch (IOException ex) {
+							Main.this.setTitle("ByteEdit - Saving '" + file.getAbsolutePath() + "'");
+						}
+						new Thread(new Runnable() {
+							public void run() {
+								synchronized (treeLock) {
+									save(file, classNodes.values());
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											synchronized (treeLock) {
+												isChangingFile = false;
+												Main.this.setTitle("ByteEdit");
+											}
+										}
+									});
+								}
+							}
+						}).start();
+					} catch (Throwable t) {
+						t.printStackTrace();
+						showError(t);
+					}
+				}
 		}
 	}
 

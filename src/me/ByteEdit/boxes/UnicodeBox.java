@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import me.ByteEdit.main.Main;
@@ -20,11 +19,6 @@ public class UnicodeBox extends JFrame {
 	private JPanel contentPane;
 
 	public UnicodeBox() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		setResizable(false);
 		setTitle("Unicode Converter");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -27,6 +26,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.boxes.GlobalSearchOpenBox.Info;
 import me.ByteEdit.main.Main;
+import me.ByteEdit.main.ThemeManager;
 import me.ByteEdit.utils.UnicodeUtils;
 
 public class GlobalSearchBox extends JFrame {
@@ -43,12 +43,8 @@ public class GlobalSearchBox extends JFrame {
 	private GlobalSearchOpenBox openBox;
 
 	public GlobalSearchBox() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		openBox = new GlobalSearchOpenBox();
+		ThemeManager.registerFrames(openBox);
 		setResizable(false);
 		setTitle("Global Search");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

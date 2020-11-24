@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import me.ByteEdit.main.Main;
@@ -28,11 +27,6 @@ public class SearchBox extends JFrame {
 	public JCheckBox chckbxCaseSensitive;
 
 	public SearchBox() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		setResizable(false);
 		setTitle("Find/Replace");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
