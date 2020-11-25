@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -40,6 +46,9 @@ import me.ByteEdit.utils.UnicodeUtils;
 
 public class Disassembler {
 
+	private static final ExecutorService exec = Executors
+			.newFixedThreadPool((Runtime.getRuntime().availableProcessors() + 1) / 2);
+
 	public static String disassemble(ClassNode classNode) {
 		return disassemble(classNode, null).getDisassembly();
 	}
@@ -74,12 +83,250 @@ public class Disassembler {
 			return new DisassembleTuple("ClassNode is null! This is not a valid java class file!");
 		}
 		try {
-			int lineFound = -1;
+			AtomicInteger lineFound = new AtomicInteger(-1);
+			StringContext ctx = new StringContext(16);
+			ctx.next("// #Annotations:\n");
+			ctx.next(doAnnotations(classNode.visibleAnnotations));
+			ctx.next("// #Class v:" + classNode.version + "\n");
+			if (classNode.signature != null)
+				ctx.next("// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n");
+			if (classNode.outerMethod != null)
+				ctx.next("// #OuterMethod: " + (classNode.outerMethod == null ? "null"
+						: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
+								+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
+						+ "\n");
+			if (classNode.outerClass != null)
+				ctx.next("// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n");
+			ctx.next("// #InnerClasses:\n");
+			if (classNode.innerClasses != null) {
+				String ics = "";
+				for (InnerClassNode icn : classNode.innerClasses) {
+					ics += "// " + UnicodeUtils.escapeWithSpaces(icn.name) + " "
+							+ UnicodeUtils.escapeWithSpaces(icn.outerName) + " "
+							+ UnicodeUtils.escapeWithSpaces(icn.innerName)
+							+ (icn.access == 0 ? "" : " " + ClassUtil.getAccessFlagsFull(icn.access).trim()) + "\n";
+				}
+				ctx.next(ics);
+			}
+			ctx.next(ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escapeWithSpaces(classNode.name)
+					+ " ");
+			ctx.next("extends " + UnicodeUtils.escapeWithSpaces(classNode.superName) + " ");
+			if (classNode.interfaces != null && !classNode.interfaces.isEmpty()) {
+				String interfaceStr = "";
+				for (String interfc : classNode.interfaces) {
+					if (interfaceStr.isEmpty()) {
+						interfaceStr += UnicodeUtils.escapeWithSpaces(interfc);
+					} else {
+						interfaceStr += ", " + UnicodeUtils.escapeWithSpaces(interfc);
+					}
+				}
+				if (!interfaceStr.isEmpty())
+					ctx.next("implements " + interfaceStr + " ");
+			}
+			ctx.next("{\n// #SourceFile: "
+					+ (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile))
+					+ "\n\n// #Fields\n");
+			ctx.next(doFields(classNode.fields, nodeToFind, lineFound));
+			ctx.next("\n// #Methods\n");
+			ctx.next(doMethods(classNode.methods, classNode.name, nodeToFind, lineFound));
+			ctx.next("}\n");
+			return new DisassembleTuple(ctx.finish(), lineFound.get());
+		} catch (Throwable e) {
+			return new DisassembleTuple("Class couldn't be decompiled:\n" + e.getClass().getName() + ": "
+					+ e.getMessage() + "\n"
+					+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\tat ").replace("[", "\tat ").replace("]", "")
+					+ "\n");
+		}
+	}
+
+	private static String doAnnotations(List<AnnotationNode> annotations) {
+		if (annotations == null)
+			return "";
+		StringContext ctx = new StringContext(annotations.size());
+		for (AnnotationNode annotationNode : annotations) {
+			String s = "@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
+			if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
+				s += " (";
+				boolean valBefore = true;
+				for (Object o : annotationNode.values) {
+					if (valBefore) {
+						s += o + " = [";
+						valBefore = false;
+						continue;
+					} else {
+						if (o instanceof String[]) {
+							String[] arr = (String[]) o;
+							boolean w8ing = false;
+							for (String rofl : arr) {
+								if (!w8ing) {
+									s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+									w8ing = true;
+								} else {
+									s += UnicodeUtils.escapeWithSpaces(rofl) + "]";
+								}
+							}
+							s += ", ";
+						} else if (o instanceof List) {
+							List list = (List) o;
+							s += "{ ";
+							for (Object obj : list) {
+								if (obj instanceof String[]) {
+									String[] arr = (String[]) obj;
+									boolean w8ing = false;
+									for (String rofl : arr) {
+										if (!w8ing) {
+											s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+											w8ing = true;
+										} else {
+											s += UnicodeUtils.escapeWithSpaces(rofl);
+										}
+									}
+								} else {
+									s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
+								}
+								s += ", ";
+							}
+							s = s.substring(0, s.length() - 2);
+							s += " }]";
+						} else if (o instanceof String) {
+							s += "\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"], ";
+						} else {
+							s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
+						}
+						valBefore = true;
+					}
+				}
+				if (s.endsWith(", "))
+					s = s.substring(0, s.length() - 2);
+				s += ")";
+			}
+			s += "\n";
+			ctx.next(s);
+		}
+		return ctx.finish();
+	}
+
+	private static String doMethods(List<MethodNode> methods, String className, Object nodeToFind,
+			AtomicInteger lineFound) throws InterruptedException, ExecutionException {
+		Future<String>[] futures = new Future[methods.size()];
+		for (int i = 0; i < futures.length; i++) {
+			MethodNode mn = methods.get(i);
+			futures[i] = exec.submit(new Callable<String>() {
+				@Override
+				public String call() throws Exception {
+					String ms = "";
+					try {
+						ms += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
+						if (mn.signature != null)
+							ms += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(mn.signature) + "\n";
+						String[] dis = disassembleMethod(className, mn);
+						ms += dis[2];
+						ms += dis[1];
+						if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty()) {
+							for (AnnotationNode annotationNode : mn.visibleAnnotations) {
+								ms += "\t@" + annotationNode.desc;
+								if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
+									ms += " (";
+									boolean valBefore = true;
+									for (Object o : annotationNode.values) {
+										if (valBefore) {
+											ms += o + " = [";
+											valBefore = false;
+											continue;
+										} else {
+											if (o instanceof String[]) {
+												String[] arr = (String[]) o;
+												boolean w8ing = false;
+												for (String rofl : arr) {
+													if (!w8ing) {
+														ms += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+														w8ing = true;
+													} else {
+														ms += UnicodeUtils.escapeWithSpaces(rofl) + "]";
+													}
+												}
+												ms += ", ";
+											} else if (o instanceof List) {
+												List list = (List) o;
+												ms += "{ ";
+												for (Object obj : list) {
+													if (obj instanceof String[]) {
+														String[] arr = (String[]) obj;
+														boolean w8ing = false;
+														for (String rofl : arr) {
+															if (!w8ing) {
+																ms += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+																w8ing = true;
+															} else {
+																ms += UnicodeUtils.escapeWithSpaces(rofl);
+															}
+														}
+													} else {
+														ms += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
+													}
+													ms += ", ";
+												}
+												ms = ms.substring(0, ms.length() - 2);
+												ms += " }]";
+											} else {
+												ms += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
+											}
+											valBefore = true;
+										}
+									}
+									if (ms.endsWith(", "))
+										ms = ms.substring(0, ms.length() - 2);
+									ms += ")";
+								}
+								ms += "\n";
+							}
+						}
+						if (mn.equals(nodeToFind)) {
+							lineFound.set(ms.split("\\n").length);
+						}
+						ms += "\t" + ClassUtil.getAccessFlagsFull(mn.access) + UnicodeUtils.escapeWithSpaces(mn.name)
+								+ " " + UnicodeUtils.escapeWithSpaces(mn.desc) + " ";
+						if (mn.exceptions != null && !mn.exceptions.isEmpty()) {
+							String exceptionStr = "";
+							for (String exc : mn.exceptions) {
+								if (exceptionStr.isEmpty()) {
+									exceptionStr += UnicodeUtils.escapeWithSpaces(exc);
+								} else {
+									exceptionStr += ", " + UnicodeUtils.escapeWithSpaces(exc);
+								}
+							}
+							if (!exceptionStr.isEmpty())
+								ms += "throws " + exceptionStr + " ";
+						}
+						ms += "{\n";
+						ms += dis[0];
+						ms += "\t}\n\n";
+					} catch (Exception e) {
+						ms += "\t\t// Method couldn't be disassembled:\n\t\t// " + e.getClass().getName() + ": "
+								+ e.getMessage() + "\n" + Arrays.toString(e.getStackTrace())
+										.replace(", ", "\n\t\t// \tat ").replace("[", "\t\t// \tat ").replace("]", "")
+								+ "\n\t}\n\n";
+					}
+					return ms;
+				}
+			});
+		}
+		StringContext ctx = new StringContext(futures.length);
+		for (Future<String> f : futures) {
+			ctx.next(f.get());
+		}
+		return ctx.finish();
+	}
+
+	private static String doFields(List<FieldNode> fields, Object nodeToFind, AtomicInteger lineFound) {
+		StringContext ctx = new StringContext(fields.size());
+		for (FieldNode fn : fields) {
 			String s = "";
-			s += "// #Annotations:\n";
-			if (classNode.visibleAnnotations != null && !classNode.visibleAnnotations.isEmpty()) {
-				for (AnnotationNode annotationNode : classNode.visibleAnnotations) {
-					s += "@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
+			if (fn.signature != null)
+				s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(fn.signature) + "\n";
+			if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty()) {
+				for (AnnotationNode annotationNode : fn.visibleAnnotations) {
+					s += "\t@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
 					if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
 						s += " (";
 						boolean valBefore = true;
@@ -123,8 +370,6 @@ public class Disassembler {
 									}
 									s = s.substring(0, s.length() - 2);
 									s += " }]";
-								} else if (o instanceof String) {
-									s += "\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"], ";
 								} else {
 									s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
 								}
@@ -138,262 +383,75 @@ public class Disassembler {
 					s += "\n";
 				}
 			}
-			s += "// #Class v:" + classNode.version + "\n";
-			if (classNode.signature != null)
-				s += "// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n";
-			if (classNode.outerMethod != null)
-				s += "// #OuterMethod: " + (classNode.outerMethod == null ? "null"
-						: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
-								+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
-						+ "\n";
-			if (classNode.outerClass != null)
-				s += "// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n";
-			s += "// #InnerClasses:\n";
-			if (classNode.innerClasses != null) {
-				for (InnerClassNode icn : classNode.innerClasses) {
-					s += "// " + UnicodeUtils.escapeWithSpaces(icn.name) + " "
-							+ UnicodeUtils.escapeWithSpaces(icn.outerName) + " "
-							+ UnicodeUtils.escapeWithSpaces(icn.innerName)
-							+ (icn.access == 0 ? "" : " " + ClassUtil.getAccessFlagsFull(icn.access).trim()) + "\n";
-				}
+			if (fn.equals(nodeToFind)) {
+				lineFound.set(s.split("\\n").length);
 			}
-			s += ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escapeWithSpaces(classNode.name) + " ";
-			s += "extends " + UnicodeUtils.escapeWithSpaces(classNode.superName) + " ";
-			if (classNode.interfaces != null && !classNode.interfaces.isEmpty()) {
-				String interfaceStr = "";
-				for (String interfc : classNode.interfaces) {
-					if (interfaceStr.isEmpty()) {
-						interfaceStr += UnicodeUtils.escapeWithSpaces(interfc);
-					} else {
-						interfaceStr += ", " + UnicodeUtils.escapeWithSpaces(interfc);
-					}
-				}
-				if (!interfaceStr.isEmpty())
-					s += "implements " + interfaceStr + " ";
+			s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient")
+					+ UnicodeUtils.escapeWithSpaces(fn.desc) + " " + UnicodeUtils.escapeWithSpaces(fn.name);
+			if (fn.value != null) {
+				s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc, true);
 			}
-			s += "{\n// #SourceFile: "
-					+ (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile))
-					+ "\n\n// #Fields\n";
-			for (FieldNode fn : classNode.fields) {
-				if (fn.signature != null)
-					s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(fn.signature) + "\n";
-				if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty()) {
-					for (AnnotationNode annotationNode : fn.visibleAnnotations) {
-						s += "\t@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
-						if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
-							s += " (";
-							boolean valBefore = true;
-							for (Object o : annotationNode.values) {
-								if (valBefore) {
-									s += o + " = [";
-									valBefore = false;
-									continue;
-								} else {
-									if (o instanceof String[]) {
-										String[] arr = (String[]) o;
-										boolean w8ing = false;
-										for (String rofl : arr) {
-											if (!w8ing) {
-												s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
-												w8ing = true;
-											} else {
-												s += UnicodeUtils.escapeWithSpaces(rofl) + "]";
-											}
-										}
-										s += ", ";
-									} else if (o instanceof List) {
-										List list = (List) o;
-										s += "{ ";
-										for (Object obj : list) {
-											if (obj instanceof String[]) {
-												String[] arr = (String[]) obj;
-												boolean w8ing = false;
-												for (String rofl : arr) {
-													if (!w8ing) {
-														s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
-														w8ing = true;
-													} else {
-														s += UnicodeUtils.escapeWithSpaces(rofl);
-													}
-												}
-											} else {
-												s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
-											}
-											s += ", ";
-										}
-										s = s.substring(0, s.length() - 2);
-										s += " }]";
-									} else {
-										s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
-									}
-									valBefore = true;
-								}
-							}
-							if (s.endsWith(", "))
-								s = s.substring(0, s.length() - 2);
-							s += ")";
-						}
-						s += "\n";
-					}
-				}
-				if (fn.equals(nodeToFind)) {
-					lineFound = s.split("\\n").length;
-				}
-				s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient")
-						+ UnicodeUtils.escapeWithSpaces(fn.desc) + " " + UnicodeUtils.escapeWithSpaces(fn.name);
-				if (fn.value != null) {
-					s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc, true);
-				}
-				s += "\n";
-			}
-			s += "\n// #Methods\n";
-			for (MethodNode mn : classNode.methods) {
-				try {
-					s += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
-					if (mn.signature != null)
-						s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(mn.signature) + "\n";
-					String[] dis = disassembleMethod(classNode.name, mn);
-					s += dis[2];
-					s += dis[1];
-					if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty()) {
-						for (AnnotationNode annotationNode : mn.visibleAnnotations) {
-							s += "\t@" + annotationNode.desc;
-							if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
-								s += " (";
-								boolean valBefore = true;
-								for (Object o : annotationNode.values) {
-									if (valBefore) {
-										s += o + " = [";
-										valBefore = false;
-										continue;
-									} else {
-										if (o instanceof String[]) {
-											String[] arr = (String[]) o;
-											boolean w8ing = false;
-											for (String rofl : arr) {
-												if (!w8ing) {
-													s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
-													w8ing = true;
-												} else {
-													s += UnicodeUtils.escapeWithSpaces(rofl) + "]";
-												}
-											}
-											s += ", ";
-										} else if (o instanceof List) {
-											List list = (List) o;
-											s += "{ ";
-											for (Object obj : list) {
-												if (obj instanceof String[]) {
-													String[] arr = (String[]) obj;
-													boolean w8ing = false;
-													for (String rofl : arr) {
-														if (!w8ing) {
-															s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
-															w8ing = true;
-														} else {
-															s += UnicodeUtils.escapeWithSpaces(rofl);
-														}
-													}
-												} else {
-													s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
-												}
-												s += ", ";
-											}
-											s = s.substring(0, s.length() - 2);
-											s += " }]";
-										} else {
-											s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
-										}
-										valBefore = true;
-									}
-								}
-								if (s.endsWith(", "))
-									s = s.substring(0, s.length() - 2);
-								s += ")";
-							}
-							s += "\n";
-						}
-					}
-					if (mn.equals(nodeToFind)) {
-						lineFound = s.split("\\n").length;
-					}
-					s += "\t" + ClassUtil.getAccessFlagsFull(mn.access) + UnicodeUtils.escapeWithSpaces(mn.name) + " "
-							+ UnicodeUtils.escapeWithSpaces(mn.desc) + " ";
-					if (mn.exceptions != null && !mn.exceptions.isEmpty()) {
-						String exceptionStr = "";
-						for (String exc : mn.exceptions) {
-							if (exceptionStr.isEmpty()) {
-								exceptionStr += UnicodeUtils.escapeWithSpaces(exc);
-							} else {
-								exceptionStr += ", " + UnicodeUtils.escapeWithSpaces(exc);
-							}
-						}
-						if (!exceptionStr.isEmpty())
-							s += "throws " + exceptionStr + " ";
-					}
-					s += "{\n";
-					s += dis[0];
-					s += "\t}\n\n";
-				} catch (Exception e) {
-					s += "\t\t// Method couldn't be disassembled:\n\t\t// "
-							+ e.getClass().getName() + ": " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace())
-									.replace(", ", "\n\t\t// \tat ").replace("[", "\t\t// \tat ").replace("]", "")
-							+ "\n\t}\n\n";
-				}
-			}
-			s += "}\n";
-			return new DisassembleTuple(s, lineFound);
-		} catch (Throwable e) {
-			return new DisassembleTuple("Class couldn't be decompiled:\n" + e.getClass().getName() + ": "
-					+ e.getMessage() + "\n"
-					+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\tat ").replace("[", "\tat ").replace("]", "")
-					+ "\n");
+			s += "\n";
+			ctx.next(s);
 		}
+		return ctx.finish();
 	}
 
 	private static String[] disassembleMethod(String className, MethodNode mn) {
 		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
-		String s = "";
-		String localVarTable = "";
-		String tryCatchTable = "";
+		String localVarTable;
+		String tryCatchTable;
 		for (AbstractInsnNode n : mn.instructions.toArray()) {
 			if (n instanceof LabelNode) {
 				labels.put(((LabelNode) n).getLabel(), labels.size() + 1);
 			}
 		}
 		if (mn.localVariables != null && !mn.localVariables.isEmpty()) {
-			localVarTable = "\t// #LocalVars:\n";
-			for (LocalVariableNode lvn : mn.localVariables) {
-				localVarTable += "\t// " + UnicodeUtils.escapeWithSpaces(lvn.name) + ": "
+			List<LocalVariableNode> list = mn.localVariables;
+			StringContext ctx = new StringContext(list.size() + 1);
+			ctx.next("\t// #LocalVars:\n");
+			for (LocalVariableNode lvn : list) {
+				ctx.next("\t// " + UnicodeUtils.escapeWithSpaces(lvn.name) + ": "
 						+ UnicodeUtils.escapeWithSpaces(lvn.desc) + " i:" + lvn.index + " s:"
 						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + " sig:"
-						+ UnicodeUtils.escapeWithSpaces(lvn.signature) + "\n";
+						+ UnicodeUtils.escapeWithSpaces(lvn.signature) + "\n");
 			}
-		}
+			localVarTable = ctx.finish();
+		} else
+			localVarTable = "";
 		if (mn.tryCatchBlocks != null && !mn.tryCatchBlocks.isEmpty()) {
-			tryCatchTable = "\t// #TryCatch:\n";
+			List<TryCatchBlockNode> list = mn.tryCatchBlocks;
+			StringContext ctx = new StringContext(list.size() + 1);
+			ctx.next("\t// #TryCatch:\n");
 			for (TryCatchBlockNode tcbn : mn.tryCatchBlocks) {
-				tryCatchTable += "\t// " + UnicodeUtils.escapeWithSpaces(tcbn.type) + " s:"
-						+ labels.get(tcbn.start.getLabel()) + " e:" + labels.get(tcbn.end.getLabel()) + " h:"
-						+ labels.get(tcbn.handler.getLabel()) + "\n";
+				ctx.next("\t// " + UnicodeUtils.escapeWithSpaces(tcbn.type) + " s:" + labels.get(tcbn.start.getLabel())
+						+ " e:" + labels.get(tcbn.end.getLabel()) + " h:" + labels.get(tcbn.handler.getLabel()) + "\n");
 			}
+			tryCatchTable = ctx.finish();
+		} else
+			tryCatchTable = "";
+		AbstractInsnNode[] insns = mn.instructions.toArray();
+		StringContext ctx = new StringContext(insns.length);
+		for (AbstractInsnNode n : insns) {
+			ctx.next(disassembleInstruction(n, labels));
 		}
-		for (AbstractInsnNode n : mn.instructions.toArray()) {
-			s += disassembleInstruction(n, labels);
-		}
-		return new String[] { s, localVarTable, tryCatchTable };
+		return new String[] { ctx.finish(), localVarTable, tryCatchTable };
 	}
 
-	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels) {
-		if (FieldInsnNode.class.isInstance(n)) {
+	public static final HashMap<Class, InstructionInterface> iiMap = new HashMap<>();
+
+	static {
+		iiMap.put(FieldInsnNode.class, (n, labels) -> {
 			FieldInsnNode node = (FieldInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
 					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
-		} else if (LabelNode.class.isInstance(n)) {
+		});
+		iiMap.put(LabelNode.class, (n, labels) -> {
 			LabelNode node = (LabelNode) n;
 			return "\t\t// label " + labels.get(node.getLabel()) + "\n";
-		} else if (FrameNode.class.isInstance(n)) {
+		});
+		iiMap.put(FrameNode.class, (n, labels) -> {
 			FrameNode node = (FrameNode) n;
 			String type = "";
 			switch (node.type) {
@@ -470,10 +528,12 @@ public class Disassembler {
 			}
 			s += "\n";
 			return s;
-		} else if (LineNumberNode.class.isInstance(n)) {
+		});
+		iiMap.put(LineNumberNode.class, (n, labels) -> {
 			LineNumberNode node = (LineNumberNode) n;
 			return "\t\t// line " + node.line + " " + labels.get(node.start.getLabel()) + "\n";
-		} else if (InvokeDynamicInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(InvokeDynamicInsnNode.class, (n, labels) -> {
 			InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
 					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
@@ -484,7 +544,7 @@ public class Disassembler {
 					+ node.bsm.isInterface() + "\n\t\t\t\ttag: " + OpcodesReverse.reverseHandleOpcode(node.bsm.getTag())
 					+ "\n\t\t\t]\n\t\t\targs: [\n";
 			for (Object l : node.bsmArgs) {
-				if (l.getClass().getName().equals("org.objectweb.asm.Type")) {
+				if (l instanceof Type) {
 					Type type = (Type) l;
 					int valueBegin = type.valueBegin;
 					int valueEnd = type.valueEnd;
@@ -494,7 +554,7 @@ public class Disassembler {
 							+ "\n\t\t\t\t\tstart: " + valueBegin + "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: "
 							+ ClassUtil.getDecompiledValue(buf, "");
 					s += "\n\t\t\t\t]\n";
-				} else if (l.getClass().getName().equals("org.objectweb.asm.Handle")) {
+				} else if (l instanceof Handle) {
 					Handle h = (Handle) l;
 					s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: "
 							+ UnicodeUtils.escapeWithSpaces(h.getName()).replace("/", "\\u002F") + "\n\t\t\t\t\towner: "
@@ -508,31 +568,26 @@ public class Disassembler {
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
-		} else if (MethodInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(MethodInsnNode.class, (n, labels) -> {
 			MethodInsnNode node = (MethodInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
 					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
-		} else if (TypeInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(TypeInsnNode.class, (n, labels) -> {
 			TypeInsnNode node = (TypeInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n";
-		} else if (MultiANewArrayInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(MultiANewArrayInsnNode.class, (n, labels) -> {
 			MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
 					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + node.dims + "\n";
-		} else if (LdcInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(LdcInsnNode.class, (n, labels) -> {
 			LdcInsnNode node = (LdcInsnNode) n;
-			switch (node.cst.getClass().getSimpleName()) {
-			case "String":
-			case "Double":
-			case "Integer":
-			case "Float":
-			case "Long": {
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-						+ ClassUtil.getDecompiledValue(node.cst, "") + "\n";
-			}
-			case "Type": {
+			if (node.cst instanceof Type) {
 				Type type = (Type) node.cst;
 				int valueBegin = type.valueBegin;
 				int valueEnd = type.valueEnd;
@@ -543,19 +598,20 @@ public class Disassembler {
 						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "");
 				s += "\n\t\t]\n";
 				return s;
+			} else {
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
+						+ ClassUtil.getDecompiledValue(node.cst, "") + "\n";
 			}
-			default: {
-				return "\t\tUNRESOLVED TYPE! " + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-						+ node.cst.getClass().getName().replace(".", "/") + " " + node.cst + "\n";
-			}
-			}
-		} else if (VarInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(VarInsnNode.class, (n, labels) -> {
 			VarInsnNode node = (VarInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + "\n";
-		} else if (InsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(InsnNode.class, (n, labels) -> {
 			InsnNode node = (InsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + "\n";
-		} else if (IntInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(IntInsnNode.class, (n, labels) -> {
 			IntInsnNode node = (IntInsnNode) n;
 			if (n.getOpcode() == Opcodes.NEWARRAY) {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
@@ -563,11 +619,13 @@ public class Disassembler {
 			} else {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
 			}
-		} else if (JumpInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(JumpInsnNode.class, (n, labels) -> {
 			JumpInsnNode node = (JumpInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + labels.get(node.label.getLabel())
 					+ "\n";
-		} else if (TableSwitchInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(TableSwitchInsnNode.class, (n, labels) -> {
 			TableSwitchInsnNode node = (TableSwitchInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min
 					+ "\n\t\t\tmax: " + node.max + "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel())
@@ -577,7 +635,8 @@ public class Disassembler {
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
-		} else if (LookupSwitchInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(LookupSwitchInsnNode.class, (n, labels) -> {
 			LookupSwitchInsnNode node = (LookupSwitchInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tdefault: "
 					+ labels.get(node.dflt.getLabel()) + "\n\t\t\tkeys: [\n";
@@ -590,13 +649,24 @@ public class Disassembler {
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
-		} else if (IincInsnNode.class.isInstance(n)) {
+		});
+		iiMap.put(IincInsnNode.class, (n, labels) -> {
 			IincInsnNode node = (IincInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " " + node.incr + "\n";
-		} else {
+		});
+	}
+
+	static interface InstructionInterface {
+		String apply(AbstractInsnNode n, HashMap<Label, Integer> labels);
+	}
+
+	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels) {
+		InstructionInterface ii = iiMap.get(n.getClass());
+		if (ii != null)
+			return ii.apply(n, labels);
+		else
 			return "\t\tNOT HANDLED! " + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
 					+ n.getClass().getSimpleName() + "\n";
-		}
 	}
 
 }

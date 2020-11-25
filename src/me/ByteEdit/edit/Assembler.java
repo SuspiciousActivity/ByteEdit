@@ -292,7 +292,7 @@ public class Assembler {
 					}
 				}
 			}
-			HashMap<Label, Integer> methodLabelMap = new HashMap<Label, Integer>();
+			HashMap<LabelNode, Integer> methodLabelMap = new HashMap<LabelNode, Integer>();
 			annotationsForNext.clear();
 			MethodNode node = null;
 			String temp = "";
@@ -348,12 +348,12 @@ public class Assembler {
 							String signat = sp[5].equals("null") ? null : UnicodeUtils.unescape(sp[5]);
 							LabelNode _start = null;
 							LabelNode _end = null;
-							for (Entry<Label, Integer> entry : methodLabelMap.entrySet()) {
-								if (entry.getValue() == start) {
-									_start = new LabelNode(entry.getKey());
+							for (Entry<LabelNode, Integer> entry : methodLabelMap.entrySet()) {
+								if (entry.getValue().intValue() == start) {
+									_start = entry.getKey();
 								}
-								if (entry.getValue() == end) {
-									_end = new LabelNode(entry.getKey());
+								if (entry.getValue().intValue() == end) {
+									_end = entry.getKey();
 								}
 							}
 							node.localVariables.add(new LocalVariableNode(UnicodeUtils.unescape(sp[0]),
@@ -368,15 +368,15 @@ public class Assembler {
 							LabelNode _start = null;
 							LabelNode _end = null;
 							LabelNode _handler = null;
-							for (Entry<Label, Integer> entry : methodLabelMap.entrySet()) {
-								if (entry.getValue() == start) {
-									_start = new LabelNode(entry.getKey());
+							for (Entry<LabelNode, Integer> entry : methodLabelMap.entrySet()) {
+								if (entry.getValue().intValue() == start) {
+									_start = entry.getKey();
 								}
-								if (entry.getValue() == end) {
-									_end = new LabelNode(entry.getKey());
+								if (entry.getValue().intValue() == end) {
+									_end = entry.getKey();
 								}
-								if (entry.getValue() == handler) {
-									_handler = new LabelNode(entry.getKey());
+								if (entry.getValue().intValue() == handler) {
+									_handler = entry.getKey();
 								}
 							}
 							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler,
@@ -625,28 +625,28 @@ public class Assembler {
 		}
 	}
 
-	private static AbstractInsnNode getNode(String s, HashMap<Label, Integer> labels) throws Exception {
+	private static AbstractInsnNode getNode(String s, HashMap<LabelNode, Integer> labels) throws Exception {
 		if (s.startsWith("// label ")) {
 			int labelNr = Integer.parseInt(s.substring(9));
-			for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+			for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 				if (entry.getValue() == labelNr) {
-					return new LabelNode(entry.getKey());
+					return entry.getKey();
 				}
 			}
-			Label l = new Label();
-			labels.put(l, labelNr);
-			return new LabelNode(l);
+			LabelNode ln = new LabelNode(new Label());
+			labels.put(ln, labelNr);
+			return ln;
 		} else if (s.startsWith("// line ")) {
 			s = s.substring(8);
 			int labelNr = Integer.parseInt(s.split(" ")[1]);
-			for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+			for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 				if (entry.getValue() == labelNr) {
-					return new LineNumberNode(Integer.parseInt(s.split(" ")[0]), new LabelNode(entry.getKey()));
+					return new LineNumberNode(Integer.parseInt(s.split(" ")[0]), entry.getKey());
 				}
 			}
-			Label l = new Label();
-			labels.put(l, labelNr);
-			return new LineNumberNode(Integer.parseInt(s.split(" ")[0]), new LabelNode(l));
+			LabelNode ln = new LabelNode(new Label());
+			labels.put(ln, labelNr);
+			return new LineNumberNode(Integer.parseInt(s.split(" ")[0]), ln);
 		} else if (s.startsWith("// frame ")) {
 			String str1 = s.substring(7);
 			String str = str1.substring(str1.indexOf(' ', 3) + 1);
@@ -674,16 +674,16 @@ public class Assembler {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);
 								boolean found = false;
-								for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+								for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 									if (entry.getValue() == labelNr) {
-										arr.add(new LabelNode(entry.getKey()));
+										arr.add(entry.getKey());
 										found = true;
 									}
 								}
 								if (!found) {
-									Label lb = new Label();
-									labels.put(lb, labelNr);
-									arr.add(new LabelNode(lb));
+									LabelNode ln = new LabelNode(new Label());
+									labels.put(ln, labelNr);
+									arr.add(ln);
 								}
 							} else {
 								arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
@@ -720,16 +720,16 @@ public class Assembler {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);
 								boolean found = false;
-								for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+								for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 									if (entry.getValue() == labelNr) {
-										arr.add(new LabelNode(entry.getKey()));
+										arr.add(entry.getKey());
 										found = true;
 									}
 								}
 								if (!found) {
-									Label l = new Label();
-									labels.put(l, labelNr);
-									arr.add(new LabelNode(l));
+									LabelNode ln = new LabelNode(new Label());
+									labels.put(ln, labelNr);
+									arr.add(ln);
 								}
 							} else {
 								arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
@@ -1115,179 +1115,179 @@ public class Assembler {
 			}
 			case "ifeq": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(153, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(153, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(153, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(153, ln);
 			}
 			case "ifne": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(154, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(154, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(154, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(154, ln);
 			}
 			case "iflt": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(155, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(155, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(155, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(155, ln);
 			}
 			case "ifge": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(156, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(156, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(156, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(156, ln);
 			}
 			case "ifgt": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(157, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(157, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(157, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(157, ln);
 			}
 			case "ifle": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(158, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(158, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(158, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(158, ln);
 			}
 			case "if_icmpeq": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(159, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(159, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(159, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(159, ln);
 			}
 			case "if_icmpne": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(160, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(160, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(160, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(160, ln);
 			}
 			case "if_icmplt": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(161, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(161, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(161, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(161, ln);
 			}
 			case "if_icmpge": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(162, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(162, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(162, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(162, ln);
 			}
 			case "if_icmpgt": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(163, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(163, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(163, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(163, ln);
 			}
 			case "if_icmple": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(164, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(164, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(164, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(164, ln);
 			}
 			case "if_acmpeq": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(165, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(165, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(165, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(165, ln);
 			}
 			case "if_acmpne": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(166, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(166, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(166, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(166, ln);
 			}
 			case "goto": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(167, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(167, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(167, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(167, ln);
 			}
 			case "jsr": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(168, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(168, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(168, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(168, ln);
 			}
 			case "ret": {
 				return new VarInsnNode(169, Integer.parseInt(s.split(" ")[1]));
@@ -1307,9 +1307,9 @@ public class Assembler {
 				LabelNode dflt = null;
 				if (!split2[2].substring(9).equals("null")) {
 					int dfltLabelNr = Integer.parseInt(split2[2].substring(9));
-					for (Entry<Label, Integer> entry : labels.entrySet()) {
+					for (Entry<LabelNode, Integer> entry : labels.entrySet()) {
 						if (entry.getValue() == dfltLabelNr) {
-							dflt = new LabelNode(entry.getKey());
+							dflt = entry.getKey();
 							labelIDs.put(BigInteger.valueOf(dfltLabelNr), dflt);
 						}
 						labelMap.replaceAll(new BiFunction<SwitchIntContainer, LabelNode, LabelNode>() {
@@ -1317,7 +1317,7 @@ public class Assembler {
 							@Override
 							public LabelNode apply(SwitchIntContainer t, LabelNode u) {
 								if (entry.getValue().intValue() == t.getId()) {
-									return new LabelNode(entry.getKey());
+									return entry.getKey();
 								}
 								return u;
 							}
@@ -1325,9 +1325,9 @@ public class Assembler {
 						});
 					}
 					if (dflt == null) {
-						Label l = new Label();
-						labels.put(l, dfltLabelNr);
-						dflt = new LabelNode(l);
+						LabelNode ln = new LabelNode(new Label());
+						labels.put(ln, dfltLabelNr);
+						dflt = ln;
 						labelIDs.put(BigInteger.valueOf(dfltLabelNr), dflt);
 					}
 				} else {
@@ -1338,9 +1338,8 @@ public class Assembler {
 				for (Entry<SwitchIntContainer, LabelNode> entry : labelMap.entrySet()) {
 					LabelNode ln;
 					if (((ln = labelIDs.get(BigInteger.valueOf(entry.getKey().getId()))) == null)) {
-						Label l = new Label();
-						labels.put(l, entry.getKey().getId());
-						ln = new LabelNode(l);
+						ln = new LabelNode(new Label());
+						labels.put(ln, entry.getKey().getId());
 						labelIDs.put(BigInteger.valueOf(entry.getKey().getId()), ln);
 					}
 					arr[counter] = ln;
@@ -1374,9 +1373,9 @@ public class Assembler {
 				}
 				LabelNode dflt = null;
 				int labelNr = Integer.parseInt(split2[0].substring(9));
-				for (Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						dflt = new LabelNode(entry.getKey());
+						dflt = entry.getKey();
 						labelIDs.put(BigInteger.valueOf(labelNr), dflt);
 					}
 					labelMap.replaceAll(new BiFunction<SwitchIntContainer, LabelNode, LabelNode>() {
@@ -1384,7 +1383,7 @@ public class Assembler {
 						@Override
 						public LabelNode apply(SwitchIntContainer t, LabelNode u) {
 							if (entry.getValue().intValue() == t.getId()) {
-								return new LabelNode(entry.getKey());
+								return entry.getKey();
 							}
 							return u;
 						}
@@ -1392,9 +1391,9 @@ public class Assembler {
 					});
 				}
 				if (dflt == null) {
-					Label l = new Label();
-					labels.put(l, labelNr);
-					dflt = new LabelNode(l);
+					LabelNode ln = new LabelNode(new Label());
+					labels.put(ln, labelNr);
+					dflt = ln;
 					labelIDs.put(BigInteger.valueOf(labelNr), dflt);
 				}
 				LabelNode[] arr = new LabelNode[labelMap.size()];
@@ -1402,9 +1401,8 @@ public class Assembler {
 				for (Entry<SwitchIntContainer, LabelNode> entry : labelMap.entrySet()) {
 					LabelNode ln;
 					if (((ln = labelIDs.get(BigInteger.valueOf(entry.getKey().getId()))) == null)) {
-						Label l = new Label();
-						labels.put(l, entry.getKey().getId());
-						ln = new LabelNode(l);
+						ln = new LabelNode(new Label());
+						labels.put(ln, entry.getKey().getId());
 						labelIDs.put(BigInteger.valueOf(entry.getKey().getId()), ln);
 					}
 					arr[counter] = ln;
@@ -1582,25 +1580,25 @@ public class Assembler {
 			}
 			case "ifnull": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(198, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(198, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(198, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(198, ln);
 			}
 			case "ifnonnull": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);
-				for (Map.Entry<Label, Integer> entry : labels.entrySet()) {
+				for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
 					if (entry.getValue() == labelNr) {
-						return new JumpInsnNode(199, new LabelNode(entry.getKey()));
+						return new JumpInsnNode(199, entry.getKey());
 					}
 				}
-				Label l = new Label();
-				labels.put(l, labelNr);
-				return new JumpInsnNode(199, new LabelNode(l));
+				LabelNode ln = new LabelNode(new Label());
+				labels.put(ln, labelNr);
+				return new JumpInsnNode(199, ln);
 			}
 			default:
 				throw new IllegalArgumentException("Illegal Instruction: " + s);

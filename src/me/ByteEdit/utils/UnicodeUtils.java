@@ -82,14 +82,80 @@ public class UnicodeUtils {
 		if (s == null) {
 			return null;
 		}
-		s = escape(s).replace(" ", "\\u0020");
-		if (s.startsWith("/")) {
-			s = "\\u002F" + s.substring(1);
+		StringBuilder sb = new StringBuilder();
+		char[] arr = s.toCharArray();
+		int i = 0;
+		int len = arr.length;
+		boolean addSlash = false;
+
+		if (len > 0) {
+			if (arr[0] == '/') {
+				sb.append("\\u002F");
+				i++;
+			}
+			if (arr[len - 1] == '/') {
+				addSlash = true;
+				len--;
+			}
 		}
-		if (s.endsWith("/")) {
-			s = s.substring(0, s.length() - 1) + "\\u002F";
+
+		for (; i < len; i++) {
+			char c = arr[i];
+			switch (c) {
+			case 'Ä':
+			case 'ä':
+			case 'Ö':
+			case 'ö':
+			case 'Ü':
+			case 'ü':
+			case 'ß':
+			case '€':
+			case '©':
+			case '®':
+			case '«':
+			case '»':
+			case '§':
+			case '£':
+			case '¥':
+				sb.append(c);
+				break;
+			case ' ':
+				sb.append("\\u0020");
+				break;
+			case '\b':
+				sb.append("\\b");
+				break;
+			case '\t':
+				sb.append("\\t");
+				break;
+			case '\n':
+				sb.append("\\n");
+				break;
+			case '\r':
+				sb.append("\\r");
+				break;
+			case '\f':
+				sb.append("\\f");
+				break;
+			case '"':
+				sb.append("\\\"");
+				break;
+			case '\\':
+				sb.append("\\\\");
+				break;
+			default:
+				if (c > ' ' && c <= '~') {
+					sb.append(c);
+				} else {
+					sb.append(String.format("\\u%04X", (int) c));
+				}
+				break;
+			}
 		}
-		return s;
+
+		if (addSlash)
+			sb.append("\\u002F");
+		return sb.toString();
 	}
 
 	public static String escape(String s) {
@@ -98,63 +164,55 @@ public class UnicodeUtils {
 		}
 		StringBuilder sb = new StringBuilder();
 		for (char c : s.toCharArray()) {
-			if (isPrintable(c)) {
+			switch (c) {
+			case 'Ä':
+			case 'ä':
+			case 'Ö':
+			case 'ö':
+			case 'Ü':
+			case 'ü':
+			case 'ß':
+			case '€':
+			case '©':
+			case '®':
+			case '«':
+			case '»':
+			case '§':
+			case '£':
+			case '¥':
 				sb.append(c);
-			} else {
-				switch (c) {
-				case '\b':
-					sb.append("\\b");
-					break;
-				case '\t':
-					sb.append("\\t");
-					break;
-				case '\n':
-					sb.append("\\n");
-					break;
-				case '\r':
-					sb.append("\\r");
-					break;
-				case '\f':
-					sb.append("\\f");
-					break;
-				case '"':
-					sb.append("\\\"");
-					break;
-				case '\\':
-					sb.append("\\\\");
-					break;
-				default:
+				break;
+			case '\b':
+				sb.append("\\b");
+				break;
+			case '\t':
+				sb.append("\\t");
+				break;
+			case '\n':
+				sb.append("\\n");
+				break;
+			case '\r':
+				sb.append("\\r");
+				break;
+			case '\f':
+				sb.append("\\f");
+				break;
+			case '"':
+				sb.append("\\\"");
+				break;
+			case '\\':
+				sb.append("\\\\");
+				break;
+			default:
+				if (c >= ' ' && c <= '~') {
+					sb.append(c);
+				} else {
 					sb.append(String.format("\\u%04X", (int) c));
 				}
+				break;
 			}
 		}
 		return sb.toString();
-	}
-
-	private static boolean isPrintable(char c) {
-		switch (c) {
-		case 'Ä':
-		case 'ä':
-		case 'Ö':
-		case 'ö':
-		case 'Ü':
-		case 'ü':
-		case 'ß':
-		case '€':
-		case '©':
-		case '®':
-		case '«':
-		case '»':
-		case '§':
-		case '£':
-		case '¥':
-			return true;
-		case '"':
-		case '\\':
-			return false;
-		default:
-			return c >= ' ' && c <= '~';
-		}
 	}
 
 }

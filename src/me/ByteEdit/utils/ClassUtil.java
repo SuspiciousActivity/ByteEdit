@@ -522,27 +522,27 @@ public class ClassUtil {
 		return count;
 	}
 
+	public static final HashMap<Class, DecompilationInterface> diMap = new HashMap<>();
+
+	static {
+		diMap.put(String.class, (o, desc, escapeSpaces) -> "\""
+				+ (escapeSpaces ? UnicodeUtils.escapeWithSpaces((String) o) : UnicodeUtils.escape((String) o)) + "\"");
+		diMap.put(Integer.class,
+				(o, desc, escape) -> desc.equals("Z") ? (((int) o) == 0 ? "false" : "true") : o.toString());
+		diMap.put(Long.class, (o, desc, escape) -> o.toString() + "l");
+		diMap.put(Float.class, (o, desc, escape) -> o.toString() + "f");
+	}
+
+	static interface DecompilationInterface {
+		String apply(Object o, String desc, boolean escape);
+	}
+
 	public static String getDecompiledValue(Object o, String desc, boolean escapeSpaces) {
-		switch (o.getClass().getName()) {
-		case "java.lang.String": {
-			return "\"" + (escapeSpaces ? UnicodeUtils.escapeWithSpaces((String) o) : UnicodeUtils.escape((String) o))
-					+ "\"";
-		}
-		case "java.lang.Integer": {
-			if (desc.equals("Z")) {
-				return ((int) o) == 0 ? "false" : "true";
-			}
+		DecompilationInterface di = diMap.get(o.getClass());
+		if (di != null)
+			return di.apply(o, desc, escapeSpaces);
+		else
 			return o.toString();
-		}
-		case "java.lang.Long": {
-			return o.toString() + "l";
-		}
-		case "java.lang.Float": {
-			return o.toString() + "f";
-		}
-		default:
-			return o.toString();
-		}
 	}
 
 	public static String getDecompiledValue(Object o, String desc) {

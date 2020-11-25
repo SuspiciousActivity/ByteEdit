@@ -848,10 +848,10 @@ public class Main extends JFrame {
 			if (optionBox.chckbxComputeMax.isSelected()) {
 				computeFlags |= ClassWriter.COMPUTE_MAXS;
 			}
-			for (ClassNode element : classes) {
+			for (ClassNode node : classes) {
 				ClassWriter writer = new ClassWriter(computeFlags);
-				element.accept(writer);
-				output.putNextEntry(new JarEntry(getFullName(element.name)));
+				node.accept(writer);
+				output.putNextEntry(new JarEntry(getFullName(node.name)));
 				output.write(writer.toByteArray());
 				output.closeEntry();
 			}

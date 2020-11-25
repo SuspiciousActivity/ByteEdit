@@ -2857,8 +2857,8 @@ public class JavaAssemblyTokenMaker extends AbstractJFlexCTokenMaker {
 	 * @see #addToken(int, int, int)
 	 */
 	private void addHyperlinkToken(int start, int end, int tokenType) {
-		int so = start + offsetShift;
-		addToken(zzBuffer, start, end, tokenType, so, true);
+		super.addToken(zzBuffer, start, end, tokenType, start + offsetShift, true);
+		zzStartRead = zzMarkedPos;
 	}
 
 	/**
@@ -2867,7 +2867,8 @@ public class JavaAssemblyTokenMaker extends AbstractJFlexCTokenMaker {
 	 * @param tokenType The token's type.
 	 */
 	private void addToken(int tokenType) {
-		addToken(zzStartRead, zzMarkedPos - 1, tokenType);
+		super.addToken(zzBuffer, zzStartRead, zzMarkedPos - 1, tokenType, zzStartRead + offsetShift, false);
+		zzStartRead = zzMarkedPos;
 	}
 
 	/**
@@ -2877,8 +2878,8 @@ public class JavaAssemblyTokenMaker extends AbstractJFlexCTokenMaker {
 	 * @see #addHyperlinkToken(int, int, int)
 	 */
 	private void addToken(int start, int end, int tokenType) {
-		int so = start + offsetShift;
-		addToken(zzBuffer, start, end, tokenType, so, false);
+		super.addToken(zzBuffer, start, end, tokenType, start + offsetShift, false);
+		zzStartRead = zzMarkedPos;
 	}
 
 	/**
