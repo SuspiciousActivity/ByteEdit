@@ -691,11 +691,8 @@ public class Assembler {
 							int frameType = ClassUtil.getFrameTypeByName(asd);
 							if (frameType != -1)
 								arr.add(new Integer(frameType));
-							else {
-								String frame = UnicodeUtils.unescape(hsr, asd);
-								frame = frame.substring(1, frame.length() - 1);
-								arr.add(frame);
-							}
+							else
+								arr.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
 						} else {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);
@@ -737,11 +734,8 @@ public class Assembler {
 							int frameType = ClassUtil.getFrameTypeByName(asd);
 							if (frameType != -1)
 								arr.add(new Integer(frameType));
-							else {
-								String frame = UnicodeUtils.unescape(hsr, asd);
-								frame = frame.substring(1, frame.length() - 1);
-								arr.add(frame);
-							}
+							else
+								arr.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
 						} else {
 							if (asd.startsWith("(label) ")) {
 								int labelNr = Integer.parseInt(asd.split(" ")[1]);

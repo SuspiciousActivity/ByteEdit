@@ -8,7 +8,7 @@ import me.ByteEdit.utils.UnicodeUtils;
 
 public class HugeStrings {
 
-	public static final int THRESHOLD = 1000;
+	public static int THRESHOLD = 1000;
 	private final HashMap<String, HugeData> map = new HashMap<>();
 
 	public String onString(String s) {

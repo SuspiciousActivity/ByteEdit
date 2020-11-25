@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.Handle;
@@ -40,6 +41,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import me.ByteEdit.main.Main;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
@@ -215,10 +217,11 @@ public class Disassembler {
 
 	private static String doMethods(List<MethodNode> methods, String className, Object nodeToFind,
 			AtomicInteger lineFound, HugeStrings hs) throws InterruptedException, ExecutionException {
+		boolean multithreaded = Main.INSTANCE.mntmMultithreaded.isSelected();
 		Future<String>[] futures = new Future[methods.size()];
 		for (int i = 0; i < futures.length; i++) {
 			MethodNode mn = methods.get(i);
-			futures[i] = exec.submit(new Callable<String>() {
+			Callable<String> callable = new Callable<String>() {
 				@Override
 				public String call() throws Exception {
 					String ms = "";
@@ -318,10 +321,13 @@ public class Disassembler {
 					}
 					return ms;
 				}
-			});
+			};
+			futures[i] = multithreaded ? exec.submit(callable) : new FutureTask<>(callable);
 		}
 		StringContext ctx = new StringContext(futures.length);
 		for (Future<String> f : futures) {
+			if (f instanceof FutureTask)
+				((FutureTask) f).run();
 			ctx.next(f.get());
 		}
 		String s = ctx.finish();

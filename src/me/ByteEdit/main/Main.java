@@ -37,6 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -46,6 +48,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
@@ -81,7 +84,6 @@ import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.boxes.CompilationBox;
 import me.ByteEdit.boxes.GlobalSearchBox;
-import me.ByteEdit.boxes.OptionBox;
 import me.ByteEdit.boxes.RenameBox;
 import me.ByteEdit.boxes.SearchBox;
 import me.ByteEdit.boxes.ThemeBox;
@@ -90,6 +92,7 @@ import me.ByteEdit.boxes.UnicodeBox;
 import me.ByteEdit.edit.Assembler;
 import me.ByteEdit.edit.Disassembler;
 import me.ByteEdit.edit.Disassembler.DisassembleTuple;
+import me.ByteEdit.edit.HugeStrings;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
@@ -107,7 +110,6 @@ public class Main extends JFrame {
 	public static GlobalSearchBox globalSearchBox;
 	public static SearchBox searchBox;
 	public static TypeOpenBox typeOpenBox;
-	public static OptionBox optionBox;
 	public static UnicodeBox unicodeBox;
 	public static RenameBox renameBox;
 	public static CompilationBox compilationBox;
@@ -115,6 +117,32 @@ public class Main extends JFrame {
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static File saveFolder;
+
+	private static final Pattern SLASH = Pattern.compile("/");
+	private JMenuBar menuBar;
+	private JMenu mnFile;
+	private JMenuItem mntmOpenJar;
+	private JMenuItem mntmSaveBytecode;
+	private JMenuItem mntmSaveJar;
+	private JMenu mnWindow;
+	private JMenuItem mntmThemes;
+	private JMenuItem mntmSearchMembers;
+	private JMenuItem mntmSearch;
+	private JMenuItem mntmOpenType;
+	private JMenuItem mntmUnicode;
+	private JMenuItem mntmCompiler;
+	private JMenu mnSearch;
+	private JMenu mnOptions;
+	private JCheckBoxMenuItem mntmComputeFrames;
+	private JCheckBoxMenuItem mntmComputeMax;
+	private JMenu mnStringLimit;
+	private JRadioButtonMenuItem rdbtnmntm0;
+	private JMenuItem rdbtnmntm100;
+	private JMenuItem rdbtnmntm1000;
+	private JMenuItem rdbtnmntm500;
+	private JMenuItem rdbtnmntm5000;
+	private JMenuItem rdbtnmntm10000;
+	public JCheckBoxMenuItem mntmMultithreaded;
 
 	public static final Object treeLock = new Object();
 
@@ -209,7 +237,6 @@ public class Main extends JFrame {
 		globalSearchBox = new GlobalSearchBox();
 		searchBox = new SearchBox();
 		typeOpenBox = new TypeOpenBox();
-		optionBox = new OptionBox();
 		unicodeBox = new UnicodeBox();
 		renameBox = new RenameBox();
 		compilationBox = new CompilationBox();
@@ -217,7 +244,6 @@ public class Main extends JFrame {
 		ThemeManager.registerFrames(globalSearchBox);
 		ThemeManager.registerFrames(searchBox);
 		ThemeManager.registerFrames(typeOpenBox);
-		ThemeManager.registerFrames(optionBox);
 		ThemeManager.registerFrames(unicodeBox);
 		ThemeManager.registerFrames(renameBox);
 		ThemeManager.registerFrames(compilationBox);
@@ -278,7 +304,6 @@ public class Main extends JFrame {
 													globalSearchBox.setVisible(false);
 													searchBox.setVisible(false);
 													typeOpenBox.setVisible(false);
-													optionBox.setVisible(false);
 													unicodeBox.setVisible(false);
 													renameBox.setVisible(false);
 													compilationBox.setVisible(false);
@@ -336,6 +361,56 @@ public class Main extends JFrame {
 		mntmCompiler = new JMenuItem("Compiler");
 		mntmCompiler.addActionListener(e -> compilationBox.setVisible(true));
 		mnWindow.add(mntmCompiler);
+
+		mnOptions = new JMenu("Options");
+		menuBar.add(mnOptions);
+
+		mntmComputeFrames = new JCheckBoxMenuItem("Compute Frames");
+		mnOptions.add(mntmComputeFrames);
+
+		mntmComputeMax = new JCheckBoxMenuItem("Compute Max");
+		mnOptions.add(mntmComputeMax);
+
+		mntmMultithreaded = new JCheckBoxMenuItem("Multithreaded");
+		mntmMultithreaded.setSelected(true);
+		mnOptions.add(mntmMultithreaded);
+
+		mnStringLimit = new JMenu("Huge String Limit");
+		mnOptions.add(mnStringLimit);
+
+		rdbtnmntm0 = new JRadioButtonMenuItem("0");
+		rdbtnmntm0.addActionListener(e -> HugeStrings.THRESHOLD = 0);
+		mnStringLimit.add(rdbtnmntm0);
+
+		rdbtnmntm100 = new JRadioButtonMenuItem("100");
+		rdbtnmntm100.addActionListener(e -> HugeStrings.THRESHOLD = 100);
+		mnStringLimit.add(rdbtnmntm100);
+
+		rdbtnmntm500 = new JRadioButtonMenuItem("500");
+		rdbtnmntm500.addActionListener(e -> HugeStrings.THRESHOLD = 500);
+		mnStringLimit.add(rdbtnmntm500);
+
+		rdbtnmntm1000 = new JRadioButtonMenuItem("1000");
+		rdbtnmntm1000.addActionListener(e -> HugeStrings.THRESHOLD = 1000);
+		rdbtnmntm1000.setSelected(true);
+		mnStringLimit.add(rdbtnmntm1000);
+
+		rdbtnmntm5000 = new JRadioButtonMenuItem("5000");
+		rdbtnmntm5000.addActionListener(e -> HugeStrings.THRESHOLD = 5000);
+		mnStringLimit.add(rdbtnmntm5000);
+
+		rdbtnmntm10000 = new JRadioButtonMenuItem("10000");
+		rdbtnmntm10000.addActionListener(e -> HugeStrings.THRESHOLD = 10000);
+		mnStringLimit.add(rdbtnmntm10000);
+
+		ButtonGroup group = new ButtonGroup();
+		group.add(rdbtnmntm0);
+		group.add(rdbtnmntm100);
+		group.add(rdbtnmntm500);
+		group.add(rdbtnmntm1000);
+		group.add(rdbtnmntm5000);
+		group.add(rdbtnmntm10000);
+
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -472,7 +547,6 @@ public class Main extends JFrame {
 															globalSearchBox.setVisible(false);
 															searchBox.setVisible(false);
 															typeOpenBox.setVisible(false);
-															optionBox.setVisible(false);
 															unicodeBox.setVisible(false);
 															renameBox.setVisible(false);
 															compilationBox.setVisible(false);
@@ -551,7 +625,6 @@ public class Main extends JFrame {
 		KeyStroke ctrlT = KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlG = KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK);
-		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlE = KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK);
@@ -574,8 +647,6 @@ public class Main extends JFrame {
 			typeOpenBox.txtSearch.requestFocusInWindow();
 			typeOpenBox.txtSearch.select(0, typeOpenBox.txtSearch.getText().length());
 		}, ctrlT, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(e -> optionBox.setVisible(true), ctrlO,
-				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(e -> unicodeBox.setVisible(true), ctrlU,
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtByteEditView.registerKeyboardAction(e -> compilationBox.setVisible(true), ctrlE,
@@ -901,10 +972,10 @@ public class Main extends JFrame {
 				output.closeEntry();
 			}
 			int computeFlags = 0;
-			if (optionBox.chckbxComputeFrames.isSelected()) {
+			if (mntmComputeFrames.isSelected()) {
 				computeFlags |= ClassWriter.COMPUTE_FRAMES;
 			}
-			if (optionBox.chckbxComputeMax.isSelected()) {
+			if (mntmComputeMax.isSelected()) {
 				computeFlags |= ClassWriter.COMPUTE_MAXS;
 			}
 			for (ClassNode node : classes) {
@@ -940,21 +1011,6 @@ public class Main extends JFrame {
 	public static String getFullName(String s) {
 		return s + ".class";
 	}
-
-	private static final Pattern SLASH = Pattern.compile("/");
-	private JMenuBar menuBar;
-	private JMenu mnFile;
-	private JMenuItem mntmOpenJar;
-	private JMenuItem mntmSaveBytecode;
-	private JMenuItem mntmSaveJar;
-	private JMenu mnWindow;
-	private JMenuItem mntmThemes;
-	private JMenuItem mntmSearchMembers;
-	private JMenuItem mntmSearch;
-	private JMenuItem mntmOpenType;
-	private JMenuItem mntmUnicode;
-	private JMenuItem mntmCompiler;
-	private JMenu mnSearch;
 
 	class ArchiveTreeModel extends DefaultTreeModel {
 
