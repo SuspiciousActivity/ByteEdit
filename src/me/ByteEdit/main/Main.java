@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.jar.JarEntry;
@@ -42,6 +41,9 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -113,8 +115,6 @@ public class Main extends JFrame {
 	public static JTree tree;
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static File saveFolder;
-
-	public static HashSet<String> fakedFolders = new HashSet<>();
 
 	public static final Object treeLock = new Object();
 
@@ -227,6 +227,115 @@ public class Main extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2 - 407),
 				(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2 - 237), 814, 474);
+
+		menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+
+		mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+
+		mntmOpenJar = new JMenuItem("Open Jar");
+		mntmOpenJar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				final JFileChooser fileChooser = new JFileChooser(saveFolder) {
+
+					@Override
+					protected JDialog createDialog(final Component parent) throws HeadlessException {
+						final JDialog dialog = super.createDialog(parent);
+						dialog.setAlwaysOnTop(true);
+						return dialog;
+					}
+				};
+				fileChooser.setDialogTitle("Open File");
+				fileChooser.setFileSelectionMode(0);
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Jar File", "jar"));
+				final int action = fileChooser.showOpenDialog(Main.this);
+				if (action == 0) {
+					final File file = fileChooser.getSelectedFile();
+					saveFolder = file.getParentFile();
+					boolean shouldSave = false;
+					if (file.exists()) {
+						synchronized (treeLock) {
+							jarFile = file;
+							saveFolder = file.getParentFile();
+							isChangingFile = true;
+							try {
+								Main.this.setTitle("ByteEdit - Loading '" + jarFile.getCanonicalPath() + "'");
+							} catch (IOException ex) {
+								Main.this.setTitle("ByteEdit - Loading '" + jarFile.getAbsolutePath() + "'");
+							}
+							new Thread(new Runnable() {
+								public void run() {
+									try {
+										ArchiveTreeModel model = new ArchiveTreeModel(new JarFile(jarFile));
+										EventQueue.invokeLater(new Runnable() {
+											public void run() {
+												synchronized (treeLock) {
+													tree.setModel(model);
+													txtByteEditView.setText("");
+													currentNodeName = null;
+													globalSearchBox.setVisible(false);
+													searchBox.setVisible(false);
+													typeOpenBox.setVisible(false);
+													optionBox.setVisible(false);
+													unicodeBox.setVisible(false);
+													renameBox.setVisible(false);
+													compilationBox.setVisible(false);
+													isChangingFile = false;
+													Main.this.setTitle("ByteEdit");
+												}
+											}
+										});
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}).start();
+						}
+					}
+				}
+			}
+		});
+		mnFile.add(mntmOpenJar);
+
+		mntmSaveBytecode = new JMenuItem("Save Bytecode");
+		mntmSaveBytecode.addActionListener(e -> saveCurrentClassNode());
+		mnFile.add(mntmSaveBytecode);
+
+		mntmSaveJar = new JMenuItem("Save Jar");
+		mntmSaveJar.addActionListener(e -> save());
+		mnFile.add(mntmSaveJar);
+
+		mnSearch = new JMenu("Search");
+		menuBar.add(mnSearch);
+
+		mntmSearchMembers = new JMenuItem("Search Members");
+		mnSearch.add(mntmSearchMembers);
+
+		mntmSearch = new JMenuItem("Search");
+		mnSearch.add(mntmSearch);
+		mntmSearch.addActionListener(e -> searchBox.setVisible(true));
+		mntmSearchMembers.addActionListener(e -> globalSearchBox.setVisible(true));
+
+		mnWindow = new JMenu("Window");
+		menuBar.add(mnWindow);
+
+		mntmThemes = new JMenuItem("Themes");
+		mntmThemes.addActionListener(e -> themeBox.setVisible(true));
+		mnWindow.add(mntmThemes);
+
+		mntmOpenType = new JMenuItem("Open Type");
+		mntmOpenType.addActionListener(e -> typeOpenBox.setVisible(true));
+		mnWindow.add(mntmOpenType);
+
+		mntmUnicode = new JMenuItem("Unicode Helper");
+		mntmUnicode.addActionListener(e -> unicodeBox.setVisible(true));
+		mnWindow.add(mntmUnicode);
+
+		mntmCompiler = new JMenuItem("Compiler");
+		mntmCompiler.addActionListener(e -> compilationBox.setVisible(true));
+		mnWindow.add(mntmCompiler);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -430,7 +539,8 @@ public class Main extends JFrame {
 							}
 						}
 						txtByteEditView.setText(dis);
-						txtByteEditView.setCaretPosition(prev);
+						if (dis.length() > prev)
+							txtByteEditView.setCaretPosition(prev);
 					} catch (Exception e2) {
 						e2.printStackTrace();
 					}
@@ -447,96 +557,44 @@ public class Main extends JFrame {
 		KeyStroke ctrlE = KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK);
 		KeyStroke ctrlB = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK);
 		// global
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				themeBox.setVisible(true);
-			}
-		}, ctrlB, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				globalSearchBox.setVisible(true);
-				globalSearchBox.txtString.requestFocusInWindow();
-				globalSearchBox.txtString.select(0, globalSearchBox.txtString.getText().length());
-			}
+		txtByteEditView.registerKeyboardAction(e -> themeBox.setVisible(true), ctrlB,
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(e -> {
+			globalSearchBox.setVisible(true);
+			globalSearchBox.txtString.requestFocusInWindow();
+			globalSearchBox.txtString.select(0, globalSearchBox.txtString.getText().length());
 		}, ctrlG, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				searchBox.setVisible(true);
-				searchBox.txtFind.requestFocusInWindow();
-				searchBox.txtFind.select(0, searchBox.txtFind.getText().length());
-			}
+		txtByteEditView.registerKeyboardAction(e -> {
+			searchBox.setVisible(true);
+			searchBox.txtFind.requestFocusInWindow();
+			searchBox.txtFind.select(0, searchBox.txtFind.getText().length());
 		}, ctrlF, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				typeOpenBox.setVisible(true);
-				typeOpenBox.txtSearch.requestFocusInWindow();
-				typeOpenBox.txtSearch.select(0, typeOpenBox.txtSearch.getText().length());
-			}
+		txtByteEditView.registerKeyboardAction(e -> {
+			typeOpenBox.setVisible(true);
+			typeOpenBox.txtSearch.requestFocusInWindow();
+			typeOpenBox.txtSearch.select(0, typeOpenBox.txtSearch.getText().length());
 		}, ctrlT, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				optionBox.setVisible(true);
-			}
-		}, ctrlO, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				unicodeBox.setVisible(true);
-			}
-		}, ctrlU, JComponent.WHEN_IN_FOCUSED_WINDOW);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				compilationBox.setVisible(true);
-			}
-		}, ctrlE, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(e -> optionBox.setVisible(true), ctrlO,
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(e -> unicodeBox.setVisible(true), ctrlU,
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtByteEditView.registerKeyboardAction(e -> compilationBox.setVisible(true), ctrlE,
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		// specific
-		tree.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				save();
-			}
-		}, ctrlS, JComponent.WHEN_FOCUSED);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				saveCurrentClassNode();
-			}
-		}, ctrlS, JComponent.WHEN_FOCUSED);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					goToSelected();
-				} catch (BadLocationException e1) {
-					e1.printStackTrace();
-				}
+		tree.registerKeyboardAction(e -> save(), ctrlS, JComponent.WHEN_FOCUSED);
+		txtByteEditView.registerKeyboardAction(e -> saveCurrentClassNode(), ctrlS, JComponent.WHEN_FOCUSED);
+		txtByteEditView.registerKeyboardAction(e -> {
+			try {
+				goToSelected();
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
 			}
 		}, ctrlG, JComponent.WHEN_FOCUSED);
-		txtByteEditView.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					renameSelected();
-				} catch (BadLocationException e1) {
-					e1.printStackTrace();
-				}
+		txtByteEditView.registerKeyboardAction(e -> {
+			try {
+				renameSelected();
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
 			}
 		}, ctrlR, JComponent.WHEN_FOCUSED);
 		txtByteEditView.setEditable(true);
@@ -707,8 +765,7 @@ public class Main extends JFrame {
 	}
 
 	public static int selectFileWithSearch(String s, Object nodeToFind) {
-		if (s != null && (s.endsWith(".class")
-				|| (s.endsWith(".class/") && fakedFolders.contains(s.substring(0, s.length() - 7))))) {
+		if (s != null && s.endsWith(".class")) {
 			currentNodeName = s;
 			int lineFound = -1;
 			ClassNode classNode = classNodes.get(s);
@@ -879,11 +936,23 @@ public class Main extends JFrame {
 	}
 
 	public static String getFullName(String s) {
-		if (fakedFolders.contains(s))
-			return s + ".class/";
-		else
-			return s + ".class";
+		return s + ".class";
 	}
+
+	private static final Pattern SLASH = Pattern.compile("/");
+	private JMenuBar menuBar;
+	private JMenu mnFile;
+	private JMenuItem mntmOpenJar;
+	private JMenuItem mntmSaveBytecode;
+	private JMenuItem mntmSaveJar;
+	private JMenu mnWindow;
+	private JMenuItem mntmThemes;
+	private JMenuItem mntmSearchMembers;
+	private JMenuItem mntmSearch;
+	private JMenuItem mntmOpenType;
+	private JMenuItem mntmUnicode;
+	private JMenuItem mntmCompiler;
+	private JMenu mnSearch;
 
 	class ArchiveTreeModel extends DefaultTreeModel {
 
@@ -908,20 +977,20 @@ public class Main extends JFrame {
 					byte[] data = toByteArray(jar.getInputStream(next));
 					if (next.getSize() != 0 && !next.getName().startsWith("META-INF")
 							&& (next.getName().endsWith(".class") || next.getName().endsWith(".class/"))) {
-						if ((next.getName().contains("/")
-								? (!next.getName().split("/")[next.getName().split("/").length - 1].contains("$"))
-								: (!next.getName().contains("$")))
-								|| (next.getName().startsWith("$") || next.getName().contains("$$")
-										|| next.getName().endsWith("$"))) {
-							paths.add(next.getName());
-							if (next.getName().endsWith(".class/") && next.getSize() != 0)
-								fakedFolders.add(next.getName().substring(0, next.getName().length() - 7));
-						}
 						try {
 							ClassReader reader = new ClassReader(data);
 							ClassNode node = new ClassNode();
 							reader.accept(node, 0);
-							classNodes.put(next.getName(), node);
+							classNodes.put(getFullName(node.name), node);
+
+							if ((next.getName().contains("/")
+									? (!SLASH.split(next.getName())[SLASH.split(next.getName()).length - 1]
+											.contains("$"))
+									: (!next.getName().contains("$")))
+									|| (next.getName().startsWith("$") || next.getName().contains("$$")
+											|| next.getName().endsWith("$"))) {
+								paths.add(getFullName(node.name));
+							}
 						} catch (Exception e) {
 							OTHER_FILES.put(next.getName(), data);
 						}
@@ -960,7 +1029,10 @@ public class Main extends JFrame {
 			// Windows-like sorting (like file explorer)
 			List<String> tmp = new ArrayList<>(paths);
 
-			List<String> folders = tmp.stream().filter(s -> s.contains("/")).map(s -> {
+			List<String> folders = tmp.stream().filter(s -> {
+				int c = countSlashes(s, 50);
+				return c > 0 && c < 50;
+			}).map(s -> {
 				int idx = s.lastIndexOf('/');
 				if (idx == s.length() - 1)
 					idx = s.lastIndexOf('/', idx - 1);
@@ -992,16 +1064,20 @@ public class Main extends JFrame {
 			tmp.addAll(0, folders);
 
 			for (String s : tmp) {
-				String[] elements = s.split("/");
-				ByteEditTreeNode currentNode = (ByteEditTreeNode) getRoot();
-				for (int i = 0; i < elements.length; i++) {
-					String token = elements[i];
-					ByteEditTreeNode nextNode = findNode(currentNode, token);
-					if (nextNode == null) {
-						nextNode = new ByteEditTreeNode(token, s);
-						currentNode.add(nextNode);
+				String[] elements = SLASH.split(s, 50);
+				if (elements.length >= 50) {
+					((ByteEditTreeNode) getRoot()).add(new ByteEditTreeNode(s, s));
+				} else {
+					ByteEditTreeNode currentNode = (ByteEditTreeNode) getRoot();
+					for (int i = 0; i < elements.length; i++) {
+						String token = elements[i];
+						ByteEditTreeNode nextNode = findNode(currentNode, token);
+						if (nextNode == null) {
+							nextNode = new ByteEditTreeNode(token, s);
+							currentNode.add(nextNode);
+						}
+						currentNode = nextNode;
 					}
-					currentNode = nextNode;
 				}
 			}
 		}
@@ -1015,6 +1091,18 @@ public class Main extends JFrame {
 				}
 			}
 			return null;
+		}
+
+		private int countSlashes(String s, int max) {
+			int count = 0;
+			for (char c : s.toCharArray()) {
+				if (c == '/') {
+					count++;
+					if (count == max)
+						break;
+				}
+			}
+			return count;
 		}
 	}
 

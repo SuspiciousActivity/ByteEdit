@@ -315,7 +315,10 @@ public class Disassembler {
 		for (Future<String> f : futures) {
 			ctx.next(f.get());
 		}
-		return ctx.finish();
+		String s = ctx.finish();
+		if (s.isEmpty())
+			return "\n";
+		return s;
 	}
 
 	private static String doFields(List<FieldNode> fields, Object nodeToFind, AtomicInteger lineFound) {
