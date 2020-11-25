@@ -36,7 +36,7 @@ public class UnicodeBox extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 				try {
-					textArea.setText(UnicodeUtils.escape(textArea.getText()));
+					textArea.setText(UnicodeUtils.escape(null, textArea.getText(), true));
 				} catch (IllegalArgumentException ex) {
 					Main.showError(ex.getMessage());
 				}
@@ -50,7 +50,7 @@ public class UnicodeBox extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 				try {
-					textArea.setText(UnicodeUtils.unescape(textArea.getText()));
+					textArea.setText(UnicodeUtils.unescape(null, textArea.getText(), true));
 				} catch (IllegalArgumentException ex) {
 					Main.showError(ex.getMessage());
 				}

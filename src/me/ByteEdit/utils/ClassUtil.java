@@ -6,6 +6,8 @@ import java.util.HashSet;
 
 import org.objectweb.asm.Type;
 
+import me.ByteEdit.edit.HugeStrings;
+
 public class ClassUtil {
 
 	public static final int ACC_PUBLIC = 0x0001;
@@ -525,28 +527,29 @@ public class ClassUtil {
 	public static final HashMap<Class, DecompilationInterface> diMap = new HashMap<>();
 
 	static {
-		diMap.put(String.class, (o, desc, escapeSpaces) -> "\""
-				+ (escapeSpaces ? UnicodeUtils.escapeWithSpaces((String) o) : UnicodeUtils.escape((String) o)) + "\"");
+		diMap.put(String.class, (o, desc, escapeSpaces, hs) -> "\""
+				+ (escapeSpaces ? UnicodeUtils.escapeWithSpaces(hs, (String) o) : UnicodeUtils.escape(hs, (String) o))
+				+ "\"");
 		diMap.put(Integer.class,
-				(o, desc, escape) -> desc.equals("Z") ? (((int) o) == 0 ? "false" : "true") : o.toString());
-		diMap.put(Long.class, (o, desc, escape) -> o.toString() + "l");
-		diMap.put(Float.class, (o, desc, escape) -> o.toString() + "f");
+				(o, desc, escape, hs) -> desc.equals("Z") ? (((int) o) == 0 ? "false" : "true") : o.toString());
+		diMap.put(Long.class, (o, desc, escape, hs) -> o.toString() + "l");
+		diMap.put(Float.class, (o, desc, escape, hs) -> o.toString() + "f");
 	}
 
 	static interface DecompilationInterface {
-		String apply(Object o, String desc, boolean escape);
+		String apply(Object o, String desc, boolean escape, HugeStrings hs);
 	}
 
-	public static String getDecompiledValue(Object o, String desc, boolean escapeSpaces) {
+	public static String getDecompiledValue(Object o, String desc, boolean escapeSpaces, HugeStrings hs) {
 		DecompilationInterface di = diMap.get(o.getClass());
 		if (di != null)
-			return di.apply(o, desc, escapeSpaces);
+			return di.apply(o, desc, escapeSpaces, hs);
 		else
 			return o.toString();
 	}
 
-	public static String getDecompiledValue(Object o, String desc) {
-		return getDecompiledValue(o, desc, false);
+	public static String getDecompiledValue(Object o, String desc, HugeStrings hs) {
+		return getDecompiledValue(o, desc, false, hs);
 	}
 
 	public static Object getCastedValue(String o, String className) {

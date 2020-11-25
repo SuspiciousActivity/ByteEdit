@@ -76,7 +76,7 @@ public class TypeOpenBox extends JFrame {
 				if (txtSearch.getText().isEmpty()) {
 					return;
 				}
-				String search = UnicodeUtils.unescape(txtSearch.getText()).toLowerCase();
+				String search = UnicodeUtils.unescape(null, txtSearch.getText(), true).toLowerCase();
 				if (search.contains("/")) {
 					for (String s : Main.classNodes.keySet()) {
 						String className = s.substring(0, s.length() - 6);

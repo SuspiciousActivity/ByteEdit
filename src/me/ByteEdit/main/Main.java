@@ -621,11 +621,11 @@ public class Main extends JFrame {
 		line = line.substring(2);
 		if (line.startsWith("invoke")) {
 			String[] split = line.split(" ");
-			String desc = UnicodeUtils.unescape(split[1]);
+			String desc = UnicodeUtils.unescape(null, split[1], true);
 			String target = split[2];
 			int index = target.lastIndexOf("/");
-			String className = UnicodeUtils.unescape(target.substring(0, index));
-			String methodName = UnicodeUtils.unescape(target.substring(index + 1));
+			String className = UnicodeUtils.unescape(null, target.substring(0, index), true);
+			String methodName = UnicodeUtils.unescape(null, target.substring(index + 1), true);
 			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
@@ -644,7 +644,7 @@ public class Main extends JFrame {
 			}
 		} else if (line.startsWith("new ")) {
 			String[] split = line.split(" ");
-			String className = UnicodeUtils.unescape(split[1]);
+			String className = UnicodeUtils.unescape(null, split[1], true);
 			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
@@ -653,11 +653,11 @@ public class Main extends JFrame {
 		} else if (line.startsWith("getstatic ") || line.startsWith("putstatic ") || line.startsWith("getfield ")
 				|| line.startsWith("putfield ")) {
 			String[] split = line.split(" ");
-			String desc = UnicodeUtils.unescape(split[1]);
+			String desc = UnicodeUtils.unescape(null, split[1], true);
 			String target = split[2];
 			int index = target.lastIndexOf("/");
-			String className = UnicodeUtils.unescape(target.substring(0, index));
-			String fieldName = UnicodeUtils.unescape(target.substring(index + 1));
+			String className = UnicodeUtils.unescape(null, target.substring(0, index), true);
+			String fieldName = UnicodeUtils.unescape(null, target.substring(index + 1), true);
 			ClassNode classNode = classNodes.get(getFullName(className));
 			if (classNode == null) {
 				return;
@@ -721,10 +721,12 @@ public class Main extends JFrame {
 			if (s.contains(" extends "))
 				s = s.substring(0, s.lastIndexOf(" extends "));
 			String[] split = s.split(" ");
-			String className = UnicodeUtils.unescape(split[split.length - 1]);
+			String className = UnicodeUtils.unescape(null, split[split.length - 1], true);
 			renameBox.className = className;
-			String name = UnicodeUtils.unescape(m.pattern() == renameableFieldPattern ? m.group(2) : m.group(1));
-			String desc = UnicodeUtils.unescape(m.pattern() == renameableFieldPattern ? m.group(1) : m.group(2));
+			String name = UnicodeUtils.unescape(null, m.pattern() == renameableFieldPattern ? m.group(2) : m.group(1),
+					true);
+			String desc = UnicodeUtils.unescape(null, m.pattern() == renameableFieldPattern ? m.group(1) : m.group(2),
+					true);
 			renameBox.name = name;
 			renameBox.desc = desc;
 			renameBox.txtName.setText(name);

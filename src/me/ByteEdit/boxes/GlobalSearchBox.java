@@ -137,7 +137,7 @@ public class GlobalSearchBox extends JFrame {
 		openBox.model.clear();
 		Set<Info> set = new HashSet<>();
 		if (!txtString.getText().isEmpty()) {
-			String str = UnicodeUtils.unescape(txtString.getText());
+			String str = UnicodeUtils.unescape(null, txtString.getText(), true);
 			if (ignoreCase) {
 				str = str.toLowerCase();
 			}
@@ -157,11 +157,11 @@ public class GlobalSearchBox extends JFrame {
 				}
 			}
 		} else {
-			String owner = UnicodeUtils.unescape(txtOwner.getText());
+			String owner = UnicodeUtils.unescape(null, txtOwner.getText(), true);
 			boolean wildCardOwner = owner.isEmpty();
-			String name = UnicodeUtils.unescape(txtName.getText());
+			String name = UnicodeUtils.unescape(null, txtName.getText(), true);
 			boolean wildCardName = name.isEmpty();
-			String desc = UnicodeUtils.unescape(txtDesc.getText());
+			String desc = UnicodeUtils.unescape(null, txtDesc.getText(), true);
 			boolean wildCardDesc = desc.isEmpty();
 			for (ClassNode cn : Main.classNodes.values()) {
 				for (MethodNode mn : cn.methods) {

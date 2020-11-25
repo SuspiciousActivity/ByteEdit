@@ -1,5 +1,6 @@
 package me.ByteEdit.edit;
 
+import java.io.BufferedReader;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
+import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 
@@ -51,30 +53,47 @@ import me.ByteEdit.utils.UnicodeUtils;
 
 public class Assembler {
 
+	private static final Pattern SPACE = Pattern.compile(" ");
+
 	public static ClassNode assemble(String input) {
 		Main.txtByteEditView.removeAllLineHighlights();
 		CustomBufferedReader read = null;
 		try {
 			ClassNode clazz = new ClassNode();
+			HugeStringsRev hsr = new HugeStringsRev();
+			try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
+				String s;
+				while (!(s = reader.readLine()).startsWith("// #SourceFile: ")) {
+				}
+				while (!(s = reader.readLine()).equals("// #Fields")) {
+					if (s.startsWith("#")) {
+						String[] split = SPACE.split(s, 2);
+						hsr.add(Integer.parseInt(split[0].substring(1, split[0].length() - 1)),
+								UnicodeUtils.unescape(null, split[1], true));
+					}
+				}
+			}
 			read = new CustomBufferedReader(new StringReader(input));
 			String s;
 			while (!(s = read.readLine()).startsWith("// #Class v:")) {
 				if (clazz.visibleAnnotations == null) {
 					clazz.visibleAnnotations = new ArrayList<>();
 				}
-				clazz.visibleAnnotations.add(parseAnnotation(s));
+				clazz.visibleAnnotations.add(parseAnnotation(hsr, s));
 			}
 			clazz.version = Integer.parseInt(s.substring(12));
 			while ((s = read.readLine()).startsWith("// ")) {
 				if (s.startsWith("// #Signature: ")) {
-					clazz.signature = s.substring(15).equals("null") ? null : UnicodeUtils.unescape(s.substring(15));
+					clazz.signature = s.substring(15).equals("null") ? null
+							: UnicodeUtils.unescape(hsr, s.substring(15));
 				} else if (s.startsWith("// #OuterClass: ")) {
-					clazz.outerClass = s.substring(16).equals("null") ? null : UnicodeUtils.unescape(s.substring(16));
+					clazz.outerClass = s.substring(16).equals("null") ? null
+							: UnicodeUtils.unescape(hsr, s.substring(16));
 				} else if (s.startsWith("// #OuterMethod: ")) {
 					String[] split = s.split(" ");
 					if (split.length > 3) {
-						clazz.outerMethod = UnicodeUtils.unescape(split[2]);
-						clazz.outerMethodDesc = UnicodeUtils.unescape(split[3]);
+						clazz.outerMethod = UnicodeUtils.unescape(hsr, split[2]);
+						clazz.outerMethodDesc = UnicodeUtils.unescape(hsr, split[3]);
 					}
 				} else if (s.equals("// #InnerClasses:")) {
 					clazz.innerClasses = new ArrayList<>();
@@ -137,9 +156,9 @@ public class Assembler {
 							access ^= ClassUtil.ACC_MANDATED;
 						}
 					}
-					clazz.innerClasses.add(new InnerClassNode(UnicodeUtils.unescape(split[1]),
-							split[2].equals("null") ? null : UnicodeUtils.unescape(split[2]),
-							split[3].equals("null") ? null : UnicodeUtils.unescape(split[3]), access));
+					clazz.innerClasses.add(new InnerClassNode(UnicodeUtils.unescape(hsr, split[1]),
+							split[2].equals("null") ? null : UnicodeUtils.unescape(hsr, split[2]),
+							split[3].equals("null") ? null : UnicodeUtils.unescape(hsr, split[3]), access));
 				}
 			}
 			{
@@ -148,14 +167,14 @@ public class Assembler {
 					String interfaces = s.substring(s.lastIndexOf(" implements ") + 12);
 					clazz.interfaces = new ArrayList<>();
 					for (String interf : interfaces.split(", ")) {
-						clazz.interfaces.add(UnicodeUtils.unescape(interf));
+						clazz.interfaces.add(UnicodeUtils.unescape(hsr, interf));
 					}
 					s = s.substring(0, s.lastIndexOf(" implements "));
 				}
-				clazz.superName = UnicodeUtils.unescape(s.substring(s.lastIndexOf(" extends ") + 9));
+				clazz.superName = UnicodeUtils.unescape(hsr, s.substring(s.lastIndexOf(" extends ") + 9));
 				s = s.substring(0, s.lastIndexOf(" extends "));
 				String[] split = s.split(" ");
-				clazz.name = UnicodeUtils.unescape(split[split.length - 1]);
+				clazz.name = UnicodeUtils.unescape(hsr, split[split.length - 1]);
 				clazz.access = ClassUtil.ACC_SUPER;
 				switch (split[split.length - 2]) {
 				case "class":
@@ -192,7 +211,7 @@ public class Assembler {
 				}
 			}
 			s = read.readLine();
-			clazz.sourceFile = s.substring(16).equals("null") ? null : UnicodeUtils.unescape(s.substring(16));
+			clazz.sourceFile = s.substring(16).equals("null") ? null : UnicodeUtils.unescape(hsr, s.substring(16));
 			while (!(s = read.readLine()).equals("// #Fields")) {
 			}
 			clazz.fields = new ArrayList<>();
@@ -207,7 +226,7 @@ public class Assembler {
 					annotationsForNext.add(s);
 				} else {
 					if (s.startsWith("// #Signature: ")) {
-						signature = UnicodeUtils.unescape(s.substring(15));
+						signature = UnicodeUtils.unescape(hsr, s.substring(15));
 					} else {
 						String[] split = s.split(" ");
 						boolean hasValue = false;
@@ -218,9 +237,9 @@ public class Assembler {
 						if (hasValue) {
 							split = s.substring(0, s.indexOf(" = ")).split(" ");
 						}
-						String name = UnicodeUtils.unescape(split[split.length - 1]);
-						String desc = UnicodeUtils.unescape(split[split.length - 2]);
-						value = getValue((String) value, desc);
+						String name = UnicodeUtils.unescape(hsr, split[split.length - 1]);
+						String desc = UnicodeUtils.unescape(hsr, split[split.length - 2]);
+						value = getValue(hsr, (String) value, desc);
 						int access = 0;
 						if (split.length > 2) {
 							String cons = consolidateStrings(split, 0, split.length - 2);
@@ -283,7 +302,7 @@ public class Assembler {
 								node.visibleAnnotations = new ArrayList<>();
 							}
 							for (String anno : annotationsForNext) {
-								node.visibleAnnotations.add(parseAnnotation(anno));
+								node.visibleAnnotations.add(parseAnnotation(hsr, anno));
 							}
 							annotationsForNext.clear();
 						}
@@ -319,7 +338,7 @@ public class Assembler {
 						tryCatchBlocksToParse.clear();
 						stage = 0;
 					} else if (s.startsWith("// #Signature: ")) {
-						node.signature = UnicodeUtils.unescape(s.substring(15));
+						node.signature = UnicodeUtils.unescape(hsr, s.substring(15));
 					} else if (s.equals("// #TryCatch:")) {
 						stage = 1;
 					} else if (s.equals("// #LocalVars:")) {
@@ -337,7 +356,7 @@ public class Assembler {
 								node.visibleAnnotations = new ArrayList<>();
 							}
 							for (String anno : annotationsForNext) {
-								node.visibleAnnotations.add(parseAnnotation(anno));
+								node.visibleAnnotations.add(parseAnnotation(hsr, anno));
 							}
 							annotationsForNext.clear();
 						}
@@ -345,7 +364,7 @@ public class Assembler {
 							String[] sp = st.split(":");
 							int start = Integer.parseInt(sp[3].substring(0, sp[3].length() - 2));
 							int end = Integer.parseInt(sp[4].substring(0, sp[4].length() - 4));
-							String signat = sp[5].equals("null") ? null : UnicodeUtils.unescape(sp[5]);
+							String signat = sp[5].equals("null") ? null : UnicodeUtils.unescape(hsr, sp[5]);
 							LabelNode _start = null;
 							LabelNode _end = null;
 							for (Entry<LabelNode, Integer> entry : methodLabelMap.entrySet()) {
@@ -356,9 +375,9 @@ public class Assembler {
 									_end = entry.getKey();
 								}
 							}
-							node.localVariables.add(new LocalVariableNode(UnicodeUtils.unescape(sp[0]),
-									UnicodeUtils.unescape(sp[1].substring(1, sp[1].length() - 2)), signat, _start, _end,
-									Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
+							node.localVariables.add(new LocalVariableNode(UnicodeUtils.unescape(hsr, sp[0]),
+									UnicodeUtils.unescape(hsr, sp[1].substring(1, sp[1].length() - 2)), signat, _start,
+									_end, Integer.parseInt(sp[2].substring(0, sp[2].length() - 2))));
 						}
 						for (String st : tryCatchBlocksToParse) {
 							String[] sp = st.split(" ");
@@ -380,7 +399,7 @@ public class Assembler {
 								}
 							}
 							node.tryCatchBlocks.add(new TryCatchBlockNode(_start, _end, _handler,
-									sp[0].equals("null") ? null : UnicodeUtils.unescape(sp[0])));
+									sp[0].equals("null") ? null : UnicodeUtils.unescape(hsr, sp[0])));
 						}
 						clazz.methods.add(node);
 					} else if (!s.startsWith("\t")) {
@@ -388,13 +407,13 @@ public class Assembler {
 						if (s.contains(" throws ")) {
 							String exceptions = s.substring(s.lastIndexOf(" throws ") + 8);
 							for (String excp : exceptions.split(", ")) {
-								node.exceptions.add(UnicodeUtils.unescape(excp));
+								node.exceptions.add(UnicodeUtils.unescape(hsr, excp));
 							}
 							s = s.substring(0, s.lastIndexOf(" throws "));
 						}
 						String[] split = s.split(" ");
-						node.desc = UnicodeUtils.unescape(split[split.length - 1]);
-						node.name = UnicodeUtils.unescape(split[split.length - 2]);
+						node.desc = UnicodeUtils.unescape(hsr, split[split.length - 1]);
+						node.name = UnicodeUtils.unescape(hsr, split[split.length - 2]);
 						int access = 0;
 						if (split.length > 2) {
 							String cons = consolidateStrings(split, 0, split.length - 2);
@@ -458,7 +477,7 @@ public class Assembler {
 						if (!temp.isEmpty()) {
 							if (s.equals("]")) {
 								temp += s;
-								node.instructions.add(getNode(temp, methodLabelMap));
+								node.instructions.add(getNode(hsr, temp, methodLabelMap));
 								temp = "";
 							} else {
 								temp += s + "\n";
@@ -467,7 +486,7 @@ public class Assembler {
 							if (s.endsWith("[")) {
 								temp += s + "\n";
 							} else {
-								node.instructions.add(getNode(s, methodLabelMap));
+								node.instructions.add(getNode(hsr, s, methodLabelMap));
 							}
 						}
 					}
@@ -496,31 +515,37 @@ public class Assembler {
 		ArrayList<String> ret = new ArrayList<>();
 		String[] split = s.split(", ");
 		String building = null;
+		boolean inString = false;
 
 		for (int i = 0; i < split.length; i++) {
 			if (split[i].startsWith("(")) {
 				ret.add(split[i]);
-			} else if (split[i].endsWith("\"")) {
+			} else if (split[i].startsWith("\"") && split[i].endsWith("\"")) {
+				ret.add(split[i]);
+			} else if (split[i].endsWith("\"") && inString) {
 				if (building == null)
 					ret.add(split[i]);
 				else
 					ret.add(building + ", " + split[i]);
 				building = null;
-			} else {
+			} else if (inString || split[i].startsWith("\"")) {
+				inString = true;
 				if (building == null)
 					building = split[i];
 				else
 					building += ", " + split[i];
+			} else {
+				ret.add(split[i]);
 			}
 		}
 
 		return ret.toArray(new String[0]);
 	}
 
-	private static AnnotationNode parseAnnotation(String s) {
+	private static AnnotationNode parseAnnotation(HugeStringsRev hsr, String s) {
 		s = s.substring(1);
 		String[] split = s.split(" ");
-		AnnotationNode node = new AnnotationNode(UnicodeUtils.unescape(split[0]));
+		AnnotationNode node = new AnnotationNode(UnicodeUtils.unescape(hsr, split[0]));
 		if (split.length > 1) {
 			if (node.values == null) {
 				node.values = new ArrayList<>();
@@ -538,7 +563,7 @@ public class Assembler {
 					String split3[] = splitWithStrings(value.substring(2, value.length() - 2));
 					List<Object> list = new ArrayList<>();
 					for (String rofl : split3) {
-						rofl = UnicodeUtils.unescape(rofl);
+						rofl = UnicodeUtils.unescape(hsr, rofl);
 						if (rofl.startsWith("\"")) {
 							int index = rofl.lastIndexOf("\"");
 							list.add(rofl.substring(1, index));
@@ -552,7 +577,7 @@ public class Assembler {
 					}
 					node.values.add(list);
 				} else {
-					value = UnicodeUtils.unescape(value);
+					value = UnicodeUtils.unescape(hsr, value);
 					if (value.startsWith("\"")) {
 						int index = value.lastIndexOf("\"");
 						node.values.add(value.substring(1, index));
@@ -596,7 +621,7 @@ public class Assembler {
 		return ret;
 	}
 
-	private static Object getValue(String s, String to) {
+	private static Object getValue(HugeStringsRev hsr, String s, String to) {
 		if (s == null) {
 			return null;
 		}
@@ -618,14 +643,15 @@ public class Assembler {
 		case "S":
 			return Short.parseShort(s);
 		case "Ljava/lang/String;":
-			return UnicodeUtils.unescape(s.substring(1, s.length() - 1));
+			return UnicodeUtils.unescape(hsr, s.substring(1, s.length() - 1));
 		default: {
 			return null;
 		}
 		}
 	}
 
-	private static AbstractInsnNode getNode(String s, HashMap<LabelNode, Integer> labels) throws Exception {
+	private static AbstractInsnNode getNode(HugeStringsRev hsr, String s, HashMap<LabelNode, Integer> labels)
+			throws Exception {
 		if (s.startsWith("// label ")) {
 			int labelNr = Integer.parseInt(s.substring(9));
 			for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
@@ -666,7 +692,7 @@ public class Assembler {
 							if (frameType != -1)
 								arr.add(new Integer(frameType));
 							else {
-								String frame = UnicodeUtils.unescape(asd);
+								String frame = UnicodeUtils.unescape(hsr, asd);
 								frame = frame.substring(1, frame.length() - 1);
 								arr.add(frame);
 							}
@@ -712,7 +738,7 @@ public class Assembler {
 							if (frameType != -1)
 								arr.add(new Integer(frameType));
 							else {
-								String frame = UnicodeUtils.unescape(asd);
+								String frame = UnicodeUtils.unescape(hsr, asd);
 								frame = frame.substring(1, frame.length() - 1);
 								arr.add(frame);
 							}
@@ -818,10 +844,10 @@ public class Assembler {
 						String type = split2[0].substring(7);
 						// Reflection
 						val = new Type(ClassUtil.getIDFromClassNameForType(type),
-								UnicodeUtils.unescape(split2[3].substring(6, split2[3].length() - 1)),
+								UnicodeUtils.unescape(hsr, split2[3].substring(6, split2[3].length() - 1)),
 								Integer.parseInt(split2[1].substring(7)), Integer.parseInt(split2[2].substring(5)));
 					} else if (str.startsWith("\"") && str.endsWith("\"")) {
-						val = UnicodeUtils.unescape(str.substring(1, str.length() - 1));
+						val = UnicodeUtils.unescape(hsr, str.substring(1, str.length() - 1));
 					} else if (str.endsWith("l")) {
 						val = Long.parseLong(str.substring(0, str.length() - 1));
 					} else if (str.endsWith("f")) {
@@ -1437,50 +1463,54 @@ public class Assembler {
 			case "getstatic": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(178, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]));
+				return new FieldInsnNode(178, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "putstatic": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(179, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]));
+				return new FieldInsnNode(179, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "getfield": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(180, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]));
+				return new FieldInsnNode(180, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "putfield": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new FieldInsnNode(181, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]));
+				return new FieldInsnNode(181, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "invokevirtual": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(182, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]), false);
+				return new MethodInsnNode(182, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]),
+						false);
 			}
 			case "invokespecial": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(183, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]), false);
+				return new MethodInsnNode(183, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]),
+						false);
 			}
 			case "invokestatic": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(184, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]), false);
+				return new MethodInsnNode(184, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]),
+						false);
 			}
 			case "invokeinterface": {
 				String target = split[2];
 				int index = target.lastIndexOf("/");
-				return new MethodInsnNode(185, UnicodeUtils.unescape(target.substring(0, index)),
-						UnicodeUtils.unescape(target.substring(index + 1)), UnicodeUtils.unescape(split[1]), true);
+				return new MethodInsnNode(185, UnicodeUtils.unescape(hsr, target.substring(0, index)),
+						UnicodeUtils.unescape(hsr, target.substring(index + 1)), UnicodeUtils.unescape(hsr, split[1]),
+						true);
 			}
 			case "invokedynamic": {
 				String str = s.substring(16, s.length() - 2).replace("", "");
@@ -1495,7 +1525,7 @@ public class Assembler {
 							try {
 								// Reflection
 								args.add(new Type(ClassUtil.getIDFromClassNameForType(vals.get(0).substring(6)),
-										UnicodeUtils.unescape(vals.get(3).substring(6, vals.get(3).length() - 1)),
+										UnicodeUtils.unescape(hsr, vals.get(3).substring(6, vals.get(3).length() - 1)),
 										Integer.parseInt(vals.get(1).substring(7)),
 										Integer.parseInt(vals.get(2).substring(5))));
 							} catch (Exception e) {
@@ -1503,9 +1533,9 @@ public class Assembler {
 							}
 						} else if (stage == 2) {
 							args.add(new Handle(OpcodesReverse.getHandleOpcode(vals.get(4).substring(5)),
-									UnicodeUtils.unescape(vals.get(1).substring(7)),
-									UnicodeUtils.unescape(vals.get(0).substring(6)),
-									UnicodeUtils.unescape(vals.get(2).substring(6)),
+									UnicodeUtils.unescape(hsr, vals.get(1).substring(7)),
+									UnicodeUtils.unescape(hsr, vals.get(0).substring(6)),
+									UnicodeUtils.unescape(hsr, vals.get(2).substring(6)),
 									Boolean.parseBoolean(vals.get(3).substring(13))));
 							vals.clear();
 						}
@@ -1523,7 +1553,7 @@ public class Assembler {
 						vals.add(st);
 					} else if (stage == 0) {
 						if (st.startsWith("\"") && st.endsWith("\"")) {
-							args.add(UnicodeUtils.unescape(st.substring(1, st.length() - 1)));
+							args.add(UnicodeUtils.unescape(hsr, st.substring(1, st.length() - 1)));
 						} else if (st.endsWith("l")) {
 							args.add(Long.parseLong(st.substring(0, st.length() - 1)));
 						} else if (st.endsWith("f")) {
@@ -1541,21 +1571,23 @@ public class Assembler {
 					_args[stage] = o;
 					stage++;
 				}
-				return new InvokeDynamicInsnNode(UnicodeUtils.unescape(sp[0].substring(7)),
-						UnicodeUtils.unescape(sp[1].substring(6)),
+				return new InvokeDynamicInsnNode(UnicodeUtils.unescape(hsr, sp[0].substring(7)),
+						UnicodeUtils.unescape(hsr, sp[1].substring(6)),
 						new Handle(OpcodesReverse.getHandleOpcode(sp[7].substring(6)),
-								UnicodeUtils.unescape(sp[4].substring(8)), UnicodeUtils.unescape(sp[3].substring(7)),
-								UnicodeUtils.unescape(sp[5].substring(7)), Boolean.parseBoolean(sp[6].substring(14))),
+								UnicodeUtils.unescape(hsr, sp[4].substring(8)),
+								UnicodeUtils.unescape(hsr, sp[3].substring(7)),
+								UnicodeUtils.unescape(hsr, sp[5].substring(7)),
+								Boolean.parseBoolean(sp[6].substring(14))),
 						_args);
 			}
 			case "new": {
-				return new TypeInsnNode(187, UnicodeUtils.unescape(split[1]));
+				return new TypeInsnNode(187, UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "newarray": {
 				return new IntInsnNode(188, ClassUtil.getArrayIDByType(split[1]));
 			}
 			case "anewarray": {
-				return new TypeInsnNode(189, UnicodeUtils.unescape(split[1]));
+				return new TypeInsnNode(189, UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "arraylength": {
 				return new InsnNode(190);
@@ -1564,10 +1596,10 @@ public class Assembler {
 				return new InsnNode(191);
 			}
 			case "checkcast": {
-				return new TypeInsnNode(192, UnicodeUtils.unescape(split[1]));
+				return new TypeInsnNode(192, UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "instanceof": {
-				return new TypeInsnNode(193, UnicodeUtils.unescape(split[1]));
+				return new TypeInsnNode(193, UnicodeUtils.unescape(hsr, split[1]));
 			}
 			case "monitorenter": {
 				return new InsnNode(194);
@@ -1576,7 +1608,7 @@ public class Assembler {
 				return new InsnNode(195);
 			}
 			case "multianewarray": {
-				return new MultiANewArrayInsnNode(UnicodeUtils.unescape(split[1]), Integer.parseInt(split[2]));
+				return new MultiANewArrayInsnNode(UnicodeUtils.unescape(hsr, split[1]), Integer.parseInt(split[2]));
 			}
 			case "ifnull": {
 				int labelNr = Integer.parseInt(s.split(" ")[1]);

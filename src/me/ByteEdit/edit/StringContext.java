@@ -16,8 +16,16 @@ public class StringContext {
 			arrs = new String[amt];
 	}
 
-	public void next(String s) {
+	public int next(String s) {
+		int i = idx;
 		len += (arrs[idx++] = s).length();
+		return i;
+	}
+
+	public void set(int i, String s) {
+		if (arrs[i] != null)
+			len -= arrs[i].length();
+		len += (arrs[i] = s).length();
 	}
 
 	public String finish() {

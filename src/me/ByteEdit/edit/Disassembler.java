@@ -83,53 +83,60 @@ public class Disassembler {
 			return new DisassembleTuple("ClassNode is null! This is not a valid java class file!");
 		}
 		try {
+			HugeStrings hs = new HugeStrings();
 			AtomicInteger lineFound = new AtomicInteger(-1);
-			StringContext ctx = new StringContext(16);
+			StringContext ctx = new StringContext(18);
 			ctx.next("// #Annotations:\n");
-			ctx.next(doAnnotations(classNode.visibleAnnotations));
+			ctx.next(doAnnotations(classNode.visibleAnnotations, hs));
 			ctx.next("// #Class v:" + classNode.version + "\n");
 			if (classNode.signature != null)
-				ctx.next("// #Signature: " + UnicodeUtils.escapeWithSpaces(classNode.signature) + "\n");
+				ctx.next("// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, classNode.signature) + "\n");
 			if (classNode.outerMethod != null)
-				ctx.next("// #OuterMethod: " + (classNode.outerMethod == null ? "null"
-						: (UnicodeUtils.escapeWithSpaces(classNode.outerMethod) + " "
-								+ UnicodeUtils.escapeWithSpaces(classNode.outerMethodDesc)))
-						+ "\n");
+				ctx.next(
+						"// #OuterMethod: "
+								+ (classNode.outerMethod == null ? "null"
+										: (UnicodeUtils.escapeWithSpaces(hs, classNode.outerMethod) + " "
+												+ UnicodeUtils.escapeWithSpaces(hs, classNode.outerMethodDesc)))
+								+ "\n");
 			if (classNode.outerClass != null)
-				ctx.next("// #OuterClass: " + UnicodeUtils.escapeWithSpaces(classNode.outerClass) + "\n");
+				ctx.next("// #OuterClass: " + UnicodeUtils.escapeWithSpaces(hs, classNode.outerClass) + "\n");
 			ctx.next("// #InnerClasses:\n");
 			if (classNode.innerClasses != null) {
 				String ics = "";
 				for (InnerClassNode icn : classNode.innerClasses) {
-					ics += "// " + UnicodeUtils.escapeWithSpaces(icn.name) + " "
-							+ UnicodeUtils.escapeWithSpaces(icn.outerName) + " "
-							+ UnicodeUtils.escapeWithSpaces(icn.innerName)
+					ics += "// " + UnicodeUtils.escapeWithSpaces(hs, icn.name) + " "
+							+ UnicodeUtils.escapeWithSpaces(hs, icn.outerName) + " "
+							+ UnicodeUtils.escapeWithSpaces(hs, icn.innerName)
 							+ (icn.access == 0 ? "" : " " + ClassUtil.getAccessFlagsFull(icn.access).trim()) + "\n";
 				}
 				ctx.next(ics);
 			}
-			ctx.next(ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escapeWithSpaces(classNode.name)
+			ctx.next(ClassUtil.getAccessFlagsClass(classNode.access) + UnicodeUtils.escapeWithSpaces(hs, classNode.name)
 					+ " ");
-			ctx.next("extends " + UnicodeUtils.escapeWithSpaces(classNode.superName) + " ");
+			ctx.next("extends " + UnicodeUtils.escapeWithSpaces(hs, classNode.superName) + " ");
 			if (classNode.interfaces != null && !classNode.interfaces.isEmpty()) {
 				String interfaceStr = "";
 				for (String interfc : classNode.interfaces) {
 					if (interfaceStr.isEmpty()) {
-						interfaceStr += UnicodeUtils.escapeWithSpaces(interfc);
+						interfaceStr += UnicodeUtils.escapeWithSpaces(hs, interfc);
 					} else {
-						interfaceStr += ", " + UnicodeUtils.escapeWithSpaces(interfc);
+						interfaceStr += ", " + UnicodeUtils.escapeWithSpaces(hs, interfc);
 					}
 				}
 				if (!interfaceStr.isEmpty())
 					ctx.next("implements " + interfaceStr + " ");
 			}
 			ctx.next("{\n// #SourceFile: "
-					+ (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(classNode.sourceFile))
-					+ "\n\n// #Fields\n");
-			ctx.next(doFields(classNode.fields, nodeToFind, lineFound));
+					+ (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(hs, classNode.sourceFile)) + "\n");
+			int hugeIdx = ctx.next("");
+			ctx.next("\n// #Fields\n");
+			ctx.next(doFields(classNode.fields, nodeToFind, lineFound, hs));
 			ctx.next("\n// #Methods\n");
-			ctx.next(doMethods(classNode.methods, classNode.name, nodeToFind, lineFound));
+			ctx.next(doMethods(classNode.methods, classNode.name, nodeToFind, lineFound, hs));
 			ctx.next("}\n");
+
+			if (!hs.isEmpty())
+				ctx.set(hugeIdx, hs.makeStringsList());
 			return new DisassembleTuple(ctx.finish(), lineFound.get());
 		} catch (Throwable e) {
 			return new DisassembleTuple("Class couldn't be decompiled:\n" + e.getClass().getName() + ": "
@@ -139,12 +146,12 @@ public class Disassembler {
 		}
 	}
 
-	private static String doAnnotations(List<AnnotationNode> annotations) {
+	private static String doAnnotations(List<AnnotationNode> annotations, HugeStrings hs) {
 		if (annotations == null)
 			return "";
 		StringContext ctx = new StringContext(annotations.size());
 		for (AnnotationNode annotationNode : annotations) {
-			String s = "@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
+			String s = "@" + UnicodeUtils.escapeWithSpaces(hs, annotationNode.desc);
 			if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
 				s += " (";
 				boolean valBefore = true;
@@ -159,10 +166,10 @@ public class Disassembler {
 							boolean w8ing = false;
 							for (String rofl : arr) {
 								if (!w8ing) {
-									s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+									s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
 									w8ing = true;
 								} else {
-									s += UnicodeUtils.escapeWithSpaces(rofl) + "]";
+									s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
 								}
 							}
 							s += ", ";
@@ -175,21 +182,21 @@ public class Disassembler {
 									boolean w8ing = false;
 									for (String rofl : arr) {
 										if (!w8ing) {
-											s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+											s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
 											w8ing = true;
 										} else {
-											s += UnicodeUtils.escapeWithSpaces(rofl);
+											s += UnicodeUtils.escapeWithSpaces(hs, rofl);
 										}
 									}
 								} else {
-									s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
+									s += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj)) + "\"";
 								}
 								s += ", ";
 							}
 							s = s.substring(0, s.length() - 2);
 							s += " }]";
 						} else if (o instanceof String) {
-							s += "\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"], ";
+							s += "\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"], ";
 						} else {
 							s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
 						}
@@ -207,7 +214,7 @@ public class Disassembler {
 	}
 
 	private static String doMethods(List<MethodNode> methods, String className, Object nodeToFind,
-			AtomicInteger lineFound) throws InterruptedException, ExecutionException {
+			AtomicInteger lineFound, HugeStrings hs) throws InterruptedException, ExecutionException {
 		Future<String>[] futures = new Future[methods.size()];
 		for (int i = 0; i < futures.length; i++) {
 			MethodNode mn = methods.get(i);
@@ -218,8 +225,8 @@ public class Disassembler {
 					try {
 						ms += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
 						if (mn.signature != null)
-							ms += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(mn.signature) + "\n";
-						String[] dis = disassembleMethod(className, mn);
+							ms += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, mn.signature) + "\n";
+						String[] dis = disassembleMethod(className, mn, hs);
 						ms += dis[2];
 						ms += dis[1];
 						if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty()) {
@@ -239,10 +246,10 @@ public class Disassembler {
 												boolean w8ing = false;
 												for (String rofl : arr) {
 													if (!w8ing) {
-														ms += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+														ms += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
 														w8ing = true;
 													} else {
-														ms += UnicodeUtils.escapeWithSpaces(rofl) + "]";
+														ms += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
 													}
 												}
 												ms += ", ";
@@ -255,14 +262,15 @@ public class Disassembler {
 														boolean w8ing = false;
 														for (String rofl : arr) {
 															if (!w8ing) {
-																ms += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+																ms += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
 																w8ing = true;
 															} else {
-																ms += UnicodeUtils.escapeWithSpaces(rofl);
+																ms += UnicodeUtils.escapeWithSpaces(hs, rofl);
 															}
 														}
 													} else {
-														ms += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
+														ms += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj))
+																+ "\"";
 													}
 													ms += ", ";
 												}
@@ -284,15 +292,16 @@ public class Disassembler {
 						if (mn.equals(nodeToFind)) {
 							lineFound.set(ms.split("\\n").length);
 						}
-						ms += "\t" + ClassUtil.getAccessFlagsFull(mn.access) + UnicodeUtils.escapeWithSpaces(mn.name)
-								+ " " + UnicodeUtils.escapeWithSpaces(mn.desc) + " ";
+						ms += "\t" + ClassUtil.getAccessFlagsFull(mn.access)
+								+ UnicodeUtils.escapeWithSpaces(hs, mn.name) + " "
+								+ UnicodeUtils.escapeWithSpaces(hs, mn.desc) + " ";
 						if (mn.exceptions != null && !mn.exceptions.isEmpty()) {
 							String exceptionStr = "";
 							for (String exc : mn.exceptions) {
 								if (exceptionStr.isEmpty()) {
-									exceptionStr += UnicodeUtils.escapeWithSpaces(exc);
+									exceptionStr += UnicodeUtils.escapeWithSpaces(hs, exc);
 								} else {
-									exceptionStr += ", " + UnicodeUtils.escapeWithSpaces(exc);
+									exceptionStr += ", " + UnicodeUtils.escapeWithSpaces(hs, exc);
 								}
 							}
 							if (!exceptionStr.isEmpty())
@@ -321,15 +330,15 @@ public class Disassembler {
 		return s;
 	}
 
-	private static String doFields(List<FieldNode> fields, Object nodeToFind, AtomicInteger lineFound) {
+	private static String doFields(List<FieldNode> fields, Object nodeToFind, AtomicInteger lineFound, HugeStrings hs) {
 		StringContext ctx = new StringContext(fields.size());
 		for (FieldNode fn : fields) {
 			String s = "";
 			if (fn.signature != null)
-				s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(fn.signature) + "\n";
+				s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, fn.signature) + "\n";
 			if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty()) {
 				for (AnnotationNode annotationNode : fn.visibleAnnotations) {
-					s += "\t@" + UnicodeUtils.escapeWithSpaces(annotationNode.desc);
+					s += "\t@" + UnicodeUtils.escapeWithSpaces(hs, annotationNode.desc);
 					if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
 						s += " (";
 						boolean valBefore = true;
@@ -344,10 +353,10 @@ public class Disassembler {
 									boolean w8ing = false;
 									for (String rofl : arr) {
 										if (!w8ing) {
-											s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+											s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
 											w8ing = true;
 										} else {
-											s += UnicodeUtils.escapeWithSpaces(rofl) + "]";
+											s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
 										}
 									}
 									s += ", ";
@@ -360,14 +369,14 @@ public class Disassembler {
 											boolean w8ing = false;
 											for (String rofl : arr) {
 												if (!w8ing) {
-													s += UnicodeUtils.escapeWithSpaces(rofl) + "/";
+													s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
 													w8ing = true;
 												} else {
-													s += UnicodeUtils.escapeWithSpaces(rofl);
+													s += UnicodeUtils.escapeWithSpaces(hs, rofl);
 												}
 											}
 										} else {
-											s += "\"" + UnicodeUtils.escape(String.valueOf(obj)) + "\"";
+											s += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj)) + "\"";
 										}
 										s += ", ";
 									}
@@ -390,9 +399,9 @@ public class Disassembler {
 				lineFound.set(s.split("\\n").length);
 			}
 			s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient")
-					+ UnicodeUtils.escapeWithSpaces(fn.desc) + " " + UnicodeUtils.escapeWithSpaces(fn.name);
+					+ UnicodeUtils.escapeWithSpaces(hs, fn.desc) + " " + UnicodeUtils.escapeWithSpaces(hs, fn.name);
 			if (fn.value != null) {
-				s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc, true);
+				s += " = " + ClassUtil.getDecompiledValue(fn.value, fn.desc, true, hs);
 			}
 			s += "\n";
 			ctx.next(s);
@@ -400,7 +409,7 @@ public class Disassembler {
 		return ctx.finish();
 	}
 
-	private static String[] disassembleMethod(String className, MethodNode mn) {
+	private static String[] disassembleMethod(String className, MethodNode mn, HugeStrings hs) {
 		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
 		String localVarTable;
 		String tryCatchTable;
@@ -414,10 +423,10 @@ public class Disassembler {
 			StringContext ctx = new StringContext(list.size() + 1);
 			ctx.next("\t// #LocalVars:\n");
 			for (LocalVariableNode lvn : list) {
-				ctx.next("\t// " + UnicodeUtils.escapeWithSpaces(lvn.name) + ": "
-						+ UnicodeUtils.escapeWithSpaces(lvn.desc) + " i:" + lvn.index + " s:"
+				ctx.next("\t// " + UnicodeUtils.escapeWithSpaces(hs, lvn.name) + ": "
+						+ UnicodeUtils.escapeWithSpaces(hs, lvn.desc) + " i:" + lvn.index + " s:"
 						+ labels.get(lvn.start.getLabel()) + " e:" + labels.get(lvn.end.getLabel()) + " sig:"
-						+ UnicodeUtils.escapeWithSpaces(lvn.signature) + "\n");
+						+ UnicodeUtils.escapeWithSpaces(hs, lvn.signature) + "\n");
 			}
 			localVarTable = ctx.finish();
 		} else
@@ -427,8 +436,9 @@ public class Disassembler {
 			StringContext ctx = new StringContext(list.size() + 1);
 			ctx.next("\t// #TryCatch:\n");
 			for (TryCatchBlockNode tcbn : mn.tryCatchBlocks) {
-				ctx.next("\t// " + UnicodeUtils.escapeWithSpaces(tcbn.type) + " s:" + labels.get(tcbn.start.getLabel())
-						+ " e:" + labels.get(tcbn.end.getLabel()) + " h:" + labels.get(tcbn.handler.getLabel()) + "\n");
+				ctx.next("\t// " + UnicodeUtils.escapeWithSpaces(hs, tcbn.type) + " s:"
+						+ labels.get(tcbn.start.getLabel()) + " e:" + labels.get(tcbn.end.getLabel()) + " h:"
+						+ labels.get(tcbn.handler.getLabel()) + "\n");
 			}
 			tryCatchTable = ctx.finish();
 		} else
@@ -436,7 +446,7 @@ public class Disassembler {
 		AbstractInsnNode[] insns = mn.instructions.toArray();
 		StringContext ctx = new StringContext(insns.length);
 		for (AbstractInsnNode n : insns) {
-			ctx.next(disassembleInstruction(n, labels));
+			ctx.next(disassembleInstruction(n, labels, hs));
 		}
 		return new String[] { ctx.finish(), localVarTable, tryCatchTable };
 	}
@@ -444,17 +454,17 @@ public class Disassembler {
 	public static final HashMap<Class, InstructionInterface> iiMap = new HashMap<>();
 
 	static {
-		iiMap.put(FieldInsnNode.class, (n, labels) -> {
+		iiMap.put(FieldInsnNode.class, (n, labels, hs) -> {
 			FieldInsnNode node = (FieldInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
-					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
+					+ UnicodeUtils.escapeWithSpaces(hs, node.desc) + " " + UnicodeUtils.escapeWithSpaces(hs, node.owner)
+					+ "/" + UnicodeUtils.escapeWithSpaces(hs, node.name).replace("/", "\\u002F") + "\n";
 		});
-		iiMap.put(LabelNode.class, (n, labels) -> {
+		iiMap.put(LabelNode.class, (n, labels, hs) -> {
 			LabelNode node = (LabelNode) n;
 			return "\t\t// label " + labels.get(node.getLabel()) + "\n";
 		});
-		iiMap.put(FrameNode.class, (n, labels) -> {
+		iiMap.put(FrameNode.class, (n, labels, hs) -> {
 			FrameNode node = (FrameNode) n;
 			String type = "";
 			switch (node.type) {
@@ -485,7 +495,7 @@ public class Disassembler {
 						arr.add(null);
 					} else {
 						if (o instanceof String) {
-							arr.add("\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"");
+							arr.add("\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"");
 						} else if (o instanceof LabelNode) {
 							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 						} else if (o instanceof Integer) {
@@ -511,7 +521,7 @@ public class Disassembler {
 						arr.add(null);
 					} else {
 						if (o instanceof String) {
-							arr.add("\"" + UnicodeUtils.escapeWithSpaces((String) o) + "\"");
+							arr.add("\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"");
 						} else if (o instanceof LabelNode) {
 							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
 						} else if (o instanceof Integer) {
@@ -532,18 +542,18 @@ public class Disassembler {
 			s += "\n";
 			return s;
 		});
-		iiMap.put(LineNumberNode.class, (n, labels) -> {
+		iiMap.put(LineNumberNode.class, (n, labels, hs) -> {
 			LineNumberNode node = (LineNumberNode) n;
 			return "\t\t// line " + node.line + " " + labels.get(node.start.getLabel()) + "\n";
 		});
-		iiMap.put(InvokeDynamicInsnNode.class, (n, labels) -> {
+		iiMap.put(InvokeDynamicInsnNode.class, (n, labels, hs) -> {
 			InvokeDynamicInsnNode node = (InvokeDynamicInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " [\n\t\t\tname: "
-					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
-					+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
-					+ UnicodeUtils.escapeWithSpaces(node.bsm.getName()) + "\n\t\t\t\towner: "
-					+ UnicodeUtils.escapeWithSpaces(node.bsm.getOwner()) + "\n\t\t\t\tdesc: "
-					+ UnicodeUtils.escapeWithSpaces(node.bsm.getDesc()) + "\n\t\t\t\tisInterface: "
+					+ UnicodeUtils.escapeWithSpaces(hs, node.name).replace("/", "\\u002F") + "\n\t\t\tdesc: "
+					+ UnicodeUtils.escapeWithSpaces(hs, node.desc) + "\n\t\t\tHandle: [\n\t\t\t\tname: "
+					+ UnicodeUtils.escapeWithSpaces(hs, node.bsm.getName()) + "\n\t\t\t\towner: "
+					+ UnicodeUtils.escapeWithSpaces(hs, node.bsm.getOwner()) + "\n\t\t\t\tdesc: "
+					+ UnicodeUtils.escapeWithSpaces(hs, node.bsm.getDesc()) + "\n\t\t\t\tisInterface: "
 					+ node.bsm.isInterface() + "\n\t\t\t\ttag: " + OpcodesReverse.reverseHandleOpcode(node.bsm.getTag())
 					+ "\n\t\t\t]\n\t\t\targs: [\n";
 			for (Object l : node.bsmArgs) {
@@ -555,40 +565,41 @@ public class Disassembler {
 					// Reflection
 					s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type)
 							+ "\n\t\t\t\t\tstart: " + valueBegin + "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: "
-							+ ClassUtil.getDecompiledValue(buf, "");
+							+ ClassUtil.getDecompiledValue(buf, "", hs);
 					s += "\n\t\t\t\t]\n";
 				} else if (l instanceof Handle) {
 					Handle h = (Handle) l;
 					s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: "
-							+ UnicodeUtils.escapeWithSpaces(h.getName()).replace("/", "\\u002F") + "\n\t\t\t\t\towner: "
-							+ UnicodeUtils.escapeWithSpaces(h.getOwner()) + "\n\t\t\t\t\tdesc: "
-							+ UnicodeUtils.escapeWithSpaces(h.getDesc()) + "\n\t\t\t\t\tisInterface: " + h.isInterface()
-							+ "\n\t\t\t\t\ttag: " + OpcodesReverse.reverseHandleOpcode(h.getTag());
+							+ UnicodeUtils.escapeWithSpaces(hs, h.getName()).replace("/", "\\u002F")
+							+ "\n\t\t\t\t\towner: " + UnicodeUtils.escapeWithSpaces(hs, h.getOwner())
+							+ "\n\t\t\t\t\tdesc: " + UnicodeUtils.escapeWithSpaces(hs, h.getDesc())
+							+ "\n\t\t\t\t\tisInterface: " + h.isInterface() + "\n\t\t\t\t\ttag: "
+							+ OpcodesReverse.reverseHandleOpcode(h.getTag());
 					s += "\n\t\t\t\t]\n";
 				} else {
-					s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "") + "\n";
+					s += "\t\t\t\t" + ClassUtil.getDecompiledValue(l, "", hs) + "\n";
 				}
 			}
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
 		});
-		iiMap.put(MethodInsnNode.class, (n, labels) -> {
+		iiMap.put(MethodInsnNode.class, (n, labels, hs) -> {
 			MethodInsnNode node = (MethodInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + UnicodeUtils.escapeWithSpaces(node.owner) + "/"
-					+ UnicodeUtils.escapeWithSpaces(node.name).replace("/", "\\u002F") + "\n";
+					+ UnicodeUtils.escapeWithSpaces(hs, node.desc) + " " + UnicodeUtils.escapeWithSpaces(hs, node.owner)
+					+ "/" + UnicodeUtils.escapeWithSpaces(hs, node.name).replace("/", "\\u002F") + "\n";
 		});
-		iiMap.put(TypeInsnNode.class, (n, labels) -> {
+		iiMap.put(TypeInsnNode.class, (n, labels, hs) -> {
 			TypeInsnNode node = (TypeInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-					+ UnicodeUtils.escapeWithSpaces(node.desc) + "\n";
+					+ UnicodeUtils.escapeWithSpaces(hs, node.desc) + "\n";
 		});
-		iiMap.put(MultiANewArrayInsnNode.class, (n, labels) -> {
+		iiMap.put(MultiANewArrayInsnNode.class, (n, labels, hs) -> {
 			MultiANewArrayInsnNode node = (MultiANewArrayInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-					+ UnicodeUtils.escapeWithSpaces(node.desc) + " " + node.dims + "\n";
+					+ UnicodeUtils.escapeWithSpaces(hs, node.desc) + " " + node.dims + "\n";
 		});
-		iiMap.put(LdcInsnNode.class, (n, labels) -> {
+		iiMap.put(LdcInsnNode.class, (n, labels, hs) -> {
 			LdcInsnNode node = (LdcInsnNode) n;
 			if (node.cst instanceof Type) {
 				Type type = (Type) node.cst;
@@ -598,23 +609,23 @@ public class Disassembler {
 				// Reflection
 				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
 						+ ClassUtil.getClassNameFromType(type) + "\n\t\t\tstart: " + valueBegin + "\n\t\t\tend: "
-						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "");
+						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "", hs);
 				s += "\n\t\t]\n";
 				return s;
 			} else {
 				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-						+ ClassUtil.getDecompiledValue(node.cst, "") + "\n";
+						+ ClassUtil.getDecompiledValue(node.cst, "", hs) + "\n";
 			}
 		});
-		iiMap.put(VarInsnNode.class, (n, labels) -> {
+		iiMap.put(VarInsnNode.class, (n, labels, hs) -> {
 			VarInsnNode node = (VarInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + "\n";
 		});
-		iiMap.put(InsnNode.class, (n, labels) -> {
+		iiMap.put(InsnNode.class, (n, labels, hs) -> {
 			InsnNode node = (InsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + "\n";
 		});
-		iiMap.put(IntInsnNode.class, (n, labels) -> {
+		iiMap.put(IntInsnNode.class, (n, labels, hs) -> {
 			IntInsnNode node = (IntInsnNode) n;
 			if (n.getOpcode() == Opcodes.NEWARRAY) {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
@@ -623,12 +634,12 @@ public class Disassembler {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
 			}
 		});
-		iiMap.put(JumpInsnNode.class, (n, labels) -> {
+		iiMap.put(JumpInsnNode.class, (n, labels, hs) -> {
 			JumpInsnNode node = (JumpInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + labels.get(node.label.getLabel())
 					+ "\n";
 		});
-		iiMap.put(TableSwitchInsnNode.class, (n, labels) -> {
+		iiMap.put(TableSwitchInsnNode.class, (n, labels, hs) -> {
 			TableSwitchInsnNode node = (TableSwitchInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tmin: " + node.min
 					+ "\n\t\t\tmax: " + node.max + "\n\t\t\tdefault: " + labels.get(node.dflt.getLabel())
@@ -639,7 +650,7 @@ public class Disassembler {
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
 		});
-		iiMap.put(LookupSwitchInsnNode.class, (n, labels) -> {
+		iiMap.put(LookupSwitchInsnNode.class, (n, labels, hs) -> {
 			LookupSwitchInsnNode node = (LookupSwitchInsnNode) n;
 			String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " [\n\t\t\tdefault: "
 					+ labels.get(node.dflt.getLabel()) + "\n\t\t\tkeys: [\n";
@@ -653,20 +664,20 @@ public class Disassembler {
 			s += "\t\t\t]\n\t\t]\n";
 			return s;
 		});
-		iiMap.put(IincInsnNode.class, (n, labels) -> {
+		iiMap.put(IincInsnNode.class, (n, labels, hs) -> {
 			IincInsnNode node = (IincInsnNode) n;
 			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.var + " " + node.incr + "\n";
 		});
 	}
 
 	static interface InstructionInterface {
-		String apply(AbstractInsnNode n, HashMap<Label, Integer> labels);
+		String apply(AbstractInsnNode n, HashMap<Label, Integer> labels, HugeStrings hs);
 	}
 
-	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels) {
+	public static String disassembleInstruction(AbstractInsnNode n, HashMap<Label, Integer> labels, HugeStrings hs) {
 		InstructionInterface ii = iiMap.get(n.getClass());
 		if (ii != null)
-			return ii.apply(n, labels);
+			return ii.apply(n, labels, hs);
 		else
 			return "\t\tNOT HANDLED! " + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
 					+ n.getClass().getSimpleName() + "\n";

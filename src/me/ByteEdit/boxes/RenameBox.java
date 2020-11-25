@@ -84,8 +84,8 @@ public class RenameBox extends JFrame {
 					JOptionPane.showMessageDialog(null, "ClassNode not found!", "Error!", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				String newName = UnicodeUtils.unescape(txtName.getText());
-				String newDesc = UnicodeUtils.unescape(txtDesc.getText());
+				String newName = UnicodeUtils.unescape(null, txtName.getText(), true);
+				String newDesc = UnicodeUtils.unescape(null, txtDesc.getText(), true);
 				if (ClassUtil.isObjectClassMethod(newName, newDesc, true)) {
 					JOptionPane.showMessageDialog(null, "Invalid name!", "Error!", JOptionPane.ERROR_MESSAGE);
 					return;

@@ -1,10 +1,25 @@
 package me.ByteEdit.utils;
 
+import me.ByteEdit.edit.HugeStrings;
+import me.ByteEdit.edit.HugeStringsRev;
+
 public class UnicodeUtils {
 
-	public static String unescape(String s) {
+	public static String unescape(HugeStringsRev hsr, String s) {
+		return unescape(hsr, s, false);
+	}
+
+	public static String unescape(HugeStringsRev hsr, String s, boolean force) {
 		if (s == null) {
 			return null;
+		}
+		if (!force && !s.isEmpty() && s.charAt(0) == '#' && s.length() < 12) {
+			try {
+				int id = Integer.parseInt(s.substring(1));
+				return hsr.get(id);
+			} catch (NumberFormatException ex) {
+				// Doesn't seem like a HugeString
+			}
 		}
 		StringBuilder sb = new StringBuilder();
 		char unicodeBuffer = 0;
@@ -78,9 +93,12 @@ public class UnicodeUtils {
 		return sb.toString();
 	}
 
-	public static String escapeWithSpaces(String s) {
+	public static String escapeWithSpaces(HugeStrings hs, String s) {
 		if (s == null) {
 			return null;
+		}
+		if (s.length() > HugeStrings.THRESHOLD) {
+			return hs.onString(s);
 		}
 		StringBuilder sb = new StringBuilder();
 		char[] arr = s.toCharArray();
@@ -91,6 +109,9 @@ public class UnicodeUtils {
 		if (len > 0) {
 			if (arr[0] == '/') {
 				sb.append("\\u002F");
+				i++;
+			} else if (arr[0] == '#') {
+				sb.append("\\u0023");
 				i++;
 			}
 			if (arr[len - 1] == '/') {
@@ -158,12 +179,26 @@ public class UnicodeUtils {
 		return sb.toString();
 	}
 
-	public static String escape(String s) {
+	public static String escape(HugeStrings hs, String s) {
+		return escape(hs, s, false);
+	}
+
+	public static String escape(HugeStrings hs, String s, boolean force) {
 		if (s == null) {
 			return null;
 		}
-		StringBuilder sb = new StringBuilder();
-		for (char c : s.toCharArray()) {
+		if (!force && s.length() > HugeStrings.THRESHOLD) {
+			return hs.onString(s);
+		}
+		char[] arr = s.toCharArray();
+		StringBuilder sb = new StringBuilder(arr.length);
+		int i = 0;
+		if (arr.length > 0 && arr[0] == '#') {
+			sb.append("\\u0023");
+			i++;
+		}
+		for (; i < arr.length; i++) {
+			char c = arr[i];
 			switch (c) {
 			case 'Ä':
 			case 'ä':
