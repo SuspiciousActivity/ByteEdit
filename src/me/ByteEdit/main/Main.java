@@ -148,6 +148,8 @@ public class Main extends JFrame {
 	private JMenuItem rdbtnmntm5000;
 	private JMenuItem rdbtnmntm10000;
 	public JCheckBoxMenuItem mntmMultithreaded;
+	private JMenu mnDeobfuscation;
+	public JCheckBoxMenuItem mntmNumbers;
 
 	public static final Object treeLock = new Object();
 
@@ -415,6 +417,12 @@ public class Main extends JFrame {
 		group.add(rdbtnmntm1000);
 		group.add(rdbtnmntm5000);
 		group.add(rdbtnmntm10000);
+		
+		mnDeobfuscation = new JMenu("Deobfuscation");
+		menuBar.add(mnDeobfuscation);
+		
+		mntmNumbers = new JCheckBoxMenuItem("Numbers");
+		mnDeobfuscation.add(mntmNumbers);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

@@ -449,6 +449,12 @@ public class Disassembler {
 			tryCatchTable = ctx.finish();
 		} else
 			tryCatchTable = "";
+
+		if (Main.INSTANCE.mntmNumbers.isSelected()) {
+			StackBasedCalculator calc = new StackBasedCalculator(mn.instructions);
+			calc.run();
+		}
+
 		AbstractInsnNode[] insns = mn.instructions.toArray();
 		StringContext ctx = new StringContext(insns.length);
 		for (AbstractInsnNode n : insns) {
