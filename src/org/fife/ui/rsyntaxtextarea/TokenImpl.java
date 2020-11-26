@@ -403,6 +403,9 @@ public class TokenImpl implements Token {
 		int last = getOffset();
 		FontMetrics fm = null;
 		while (token != null && token.isPaintable()) {
+			if (token.textCount > 10000) {
+				return getOffset() + (int) (x / 7);
+			}
 			fm = textArea.getFontMetricsForTokenType(token.getType());
 			char[] text = token.text;
 			int start = token.textOffset;
@@ -784,6 +787,13 @@ public class TokenImpl implements Token {
 	@Override
 	public void setType(int type) {
 		this.type = type;
+	}
+
+	public void reset() {
+		text = null;
+		offset = -1;
+		type = Token.NULL;
+		nextToken = null;
 	}
 
 	/**
