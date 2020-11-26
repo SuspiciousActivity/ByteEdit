@@ -619,8 +619,14 @@ public class Disassembler {
 				s += "\n\t\t]\n";
 				return s;
 			} else {
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " "
-						+ ClassUtil.getDecompiledValue(node.cst, "", hs) + "\n";
+				String decomp = ClassUtil.getDecompiledValue(node.cst, "", hs);
+				if (node.cst instanceof String) {
+					if (decomp.startsWith("\"#") && decomp.endsWith("\""))
+						decomp = decomp.substring(1, decomp.length() - 1);
+					else if (decomp.startsWith("\"\\u0023"))
+						decomp = "\"#" + decomp.substring(7);
+				}
+				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + decomp + "\n";
 			}
 		});
 		iiMap.put(VarInsnNode.class, (n, labels, hs) -> {

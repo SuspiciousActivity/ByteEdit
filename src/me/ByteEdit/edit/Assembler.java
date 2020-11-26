@@ -53,7 +53,7 @@ import me.ByteEdit.utils.UnicodeUtils;
 
 public class Assembler {
 
-	private static final Pattern SPACE = Pattern.compile(" ");
+	public static final Pattern SPACE = Pattern.compile(" ");
 
 	public static ClassNode assemble(String input) {
 		Main.txtByteEditView.removeAllLineHighlights();
@@ -841,7 +841,9 @@ public class Assembler {
 								UnicodeUtils.unescape(hsr, split2[3].substring(6, split2[3].length() - 1)),
 								Integer.parseInt(split2[1].substring(7)), Integer.parseInt(split2[2].substring(5)));
 					} else if (str.startsWith("\"") && str.endsWith("\"")) {
-						val = UnicodeUtils.unescape(hsr, str.substring(1, str.length() - 1));
+						val = UnicodeUtils.unescape(hsr, str.substring(1, str.length() - 1), true);
+					} else if (str.startsWith("#")) {
+						val = UnicodeUtils.unescape(hsr, str);
 					} else if (str.endsWith("l")) {
 						val = Long.parseLong(str.substring(0, str.length() - 1));
 					} else if (str.endsWith("f")) {
