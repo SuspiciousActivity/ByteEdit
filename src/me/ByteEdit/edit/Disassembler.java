@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InnerClassNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
@@ -419,9 +420,18 @@ public class Disassembler {
 		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
 		String localVarTable;
 		String tryCatchTable;
-		for (AbstractInsnNode n : mn.instructions.toArray()) {
+
+		InsnList insnList = mn.instructions;
+		boolean deobfNumbers = Main.INSTANCE.mntmNumbers.isSelected();
+
+		ArrayList<Label> labelsReversed = deobfNumbers ? new ArrayList<>() : null;
+
+		for (AbstractInsnNode n = insnList.getFirst(); n != null; n = n.getNext()) {
 			if (n instanceof LabelNode) {
-				labels.put(((LabelNode) n).getLabel(), labels.size() + 1);
+				int id = labels.size() + 1;
+				if (deobfNumbers)
+					labelsReversed.add(((LabelNode) n).getLabel());
+				labels.put(((LabelNode) n).getLabel(), id);
 			}
 		}
 		if (mn.localVariables != null && !mn.localVariables.isEmpty()) {
@@ -450,14 +460,20 @@ public class Disassembler {
 		} else
 			tryCatchTable = "";
 
-		if (Main.INSTANCE.mntmNumbers.isSelected()) {
-			StackBasedCalculator calc = new StackBasedCalculator(mn.instructions);
+		if (deobfNumbers) {
+			StackBasedCalculator calc = new StackBasedCalculator(insnList);
 			calc.run();
+			insnList = calc.get();
+			int i = 0;
+			for (AbstractInsnNode n = insnList.getFirst(); n != null; n = n.getNext()) {
+				if (n instanceof LabelNode) {
+					((LabelNode) n).setLabel(labelsReversed.get(i++));
+				}
+			}
 		}
 
-		AbstractInsnNode[] insns = mn.instructions.toArray();
-		StringContext ctx = new StringContext(insns.length);
-		for (AbstractInsnNode n : insns) {
+		StringContext ctx = new StringContext(insnList.size());
+		for (AbstractInsnNode n = insnList.getFirst(); n != null; n = n.getNext()) {
 			ctx.next(disassembleInstruction(n, labels, hs));
 		}
 		return new String[] { ctx.finish(), localVarTable, tryCatchTable };

@@ -1,6 +1,7 @@
 package me.ByteEdit.edit;
 
 import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.Stack;
 
 import org.objectweb.asm.Opcodes;
@@ -8,6 +9,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 
 public class StackBasedCalculator implements Opcodes, Runnable {
@@ -19,7 +21,22 @@ public class StackBasedCalculator implements Opcodes, Runnable {
 	private boolean isAtEnd = false;
 
 	public StackBasedCalculator(InsnList insns) {
-		this.insns = insns;
+		this.insns = new InsnList();
+
+		HashMap<LabelNode, LabelNode> labelMap = new HashMap<>();
+		for (AbstractInsnNode node = insns.getFirst(); node != null; node = node.getNext()) {
+			if (node.getType() == 8) {
+				labelMap.put((LabelNode) node, new LabelNode());
+			}
+		}
+
+		for (AbstractInsnNode node = insns.getFirst(); node != null; node = node.getNext()) {
+			this.insns.add(node.clone(labelMap));
+		}
+	}
+
+	public InsnList get() {
+		return insns;
 	}
 
 	@Override
