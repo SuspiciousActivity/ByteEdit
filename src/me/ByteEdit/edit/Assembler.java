@@ -823,10 +823,10 @@ public class Assembler {
 			case "dconst_1":
 				return new InsnNode(15);
 			case "bipush": {
-				return new IntInsnNode(16, Integer.parseInt(split[1]));
+				return new IntInsnNode(16, (byte) Integer.parseInt(split[1]));
 			}
 			case "sipush": {
-				return new IntInsnNode(17, Integer.parseInt(split[1]));
+				return new IntInsnNode(17, (short) Integer.parseInt(split[1]));
 			}
 			case "ldc": {
 				String str = consolidateStrings(split, 1);

@@ -25,7 +25,7 @@ public class StackBasedCalculator implements Opcodes, Runnable {
 
 		HashMap<LabelNode, LabelNode> labelMap = new HashMap<>();
 		for (AbstractInsnNode node = insns.getFirst(); node != null; node = node.getNext()) {
-			if (node.getType() == 8) {
+			if (node.getType() == AbstractInsnNode.LABEL) {
 				labelMap.put((LabelNode) node, new LabelNode());
 			}
 		}
@@ -675,14 +675,10 @@ public class StackBasedCalculator implements Opcodes, Runnable {
 				insns.insertBefore(insns.get(idx), new InsnNode(ICONST_5));
 			else if (val == -1)
 				insns.insertBefore(insns.get(idx), new InsnNode(ICONST_M1));
-			else
-				insns.insertBefore(insns.get(idx), new LdcInsnNode(val));
-		} else if (n instanceof Long) {
-			long val = n.longValue();
-			if (val == 0l)
-				insns.insertBefore(insns.get(idx), new InsnNode(LCONST_0));
-			else if (val == 1l)
-				insns.insertBefore(insns.get(idx), new InsnNode(LCONST_1));
+			else if (val == (byte) val)
+				insns.insertBefore(insns.get(idx), new IntInsnNode(BIPUSH, (byte) val));
+			else if (val == (short) val)
+				insns.insertBefore(insns.get(idx), new IntInsnNode(SIPUSH, (short) val));
 			else
 				insns.insertBefore(insns.get(idx), new LdcInsnNode(val));
 		} else {
