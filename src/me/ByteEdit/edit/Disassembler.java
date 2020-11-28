@@ -636,81 +636,25 @@ public class Disassembler {
 		}
 		case FRAME: {
 			FrameNode node = (FrameNode) n;
-			String type = "";
+			String out = "";
 			switch (node.type) {
-			case Opcodes.F_NEW:
-				type = "NEW";
-				break;
-			case Opcodes.F_FULL:
-				type = "FULL";
-				break;
-			case Opcodes.F_APPEND:
-				type = "APPEND";
-				break;
-			case Opcodes.F_CHOP:
-				type = "CHOP";
-				break;
 			case Opcodes.F_SAME:
-				type = "SAME";
+				out = "SAME";
 				break;
 			case Opcodes.F_SAME1:
-				type = "SAME1";
+				out = "SAME1 " + getFrameArray(hs, node.stack, labels);
+				break;
+			case Opcodes.F_CHOP:
+				out = "CHOP " + Integer.toString(node.local.size());
+				break;
+			case Opcodes.F_APPEND:
+				out = "APPEND " + getFrameArray(hs, node.local, labels);
+				break;
+			case Opcodes.F_FULL:
+				out = "FULL " + getFrameArray(hs, node.local, labels) + " " + getFrameArray(hs, node.stack, labels);
 				break;
 			}
-			String s = "\t\t// frame " + type + " l:";
-			ArrayList<String> arr = new ArrayList<>();
-			if (node.local != null) {
-				for (Object o : node.local) {
-					if (o == null) {
-						arr.add(null);
-					} else {
-						if (o instanceof String) {
-							arr.add("\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"");
-						} else if (o instanceof LabelNode) {
-							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
-						} else if (o instanceof Integer) {
-							String frameType = ClassUtil.getFrameTypeByID(((Integer) o).intValue());
-							if (frameType != null)
-								arr.add(frameType);
-							else
-								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
-						} else {
-							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
-						}
-					}
-				}
-				s += arr.toString();
-			} else {
-				s += "null";
-			}
-			arr.clear();
-			s += " s:";
-			if (node.stack != null) {
-				for (Object o : node.stack) {
-					if (o == null) {
-						arr.add(null);
-					} else {
-						if (o instanceof String) {
-							arr.add("\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"");
-						} else if (o instanceof LabelNode) {
-							arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
-						} else if (o instanceof Integer) {
-							String frameType = ClassUtil.getFrameTypeByID(((Integer) o).intValue());
-							if (frameType != null)
-								arr.add(frameType);
-							else
-								arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
-						} else {
-							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
-						}
-					}
-				}
-				s += arr.toString();
-			} else {
-				s += "null";
-			}
-			s += "\n";
-			return s;
+			return "\t\t// frame " + out + "\n";
 		}
 		case LINE: {
 			LineNumberNode node = (LineNumberNode) n;
@@ -721,6 +665,33 @@ public class Disassembler {
 					+ n.getClass().getSimpleName() + "\n";
 		}
 		}
+	}
+
+	private static String getFrameArray(HugeStrings hs, List<Object> list, HashMap<Label, Integer> labels) {
+		ArrayList<String> arr = new ArrayList<>();
+		if (list != null) {
+			for (Object o : list) {
+				if (o == null) {
+					arr.add(null);
+				} else {
+					if (o instanceof String) {
+						arr.add("\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"");
+					} else if (o instanceof LabelNode) {
+						arr.add("(label) " + labels.get(((LabelNode) o).getLabel()));
+					} else if (o instanceof Integer) {
+						String frameType = ClassUtil.getFrameTypeByID(((Integer) o).intValue());
+						if (frameType != null)
+							arr.add(frameType);
+						else
+							arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
+					} else {
+						arr.add("(" + o.getClass().getName().replace(".", "/") + ") " + o);
+					}
+				}
+			}
+			return arr.toString();
+		}
+		return "null";
 	}
 
 }

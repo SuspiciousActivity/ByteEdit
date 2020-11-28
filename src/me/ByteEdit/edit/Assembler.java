@@ -674,118 +674,41 @@ public class Assembler {
 			labels.put(ln, labelNr);
 			return new LineNumberNode(Integer.parseInt(s.split(" ")[0]), ln);
 		} else if (s.startsWith("// frame ")) {
-			String str1 = s.substring(7);
-			String str = str1.substring(str1.indexOf(' ', 3) + 1);
-			Object[] local;
-			Object[] stack;
-			ArrayList<Object> arr = new ArrayList<>();
-			if (str.startsWith("l:null")) {
-				local = new Object[0];
-			} else {
-				String l = str.substring(3, str.indexOf("s:") - 2);
-				if (l.isEmpty()) {
-					local = new Object[0];
-				} else {
-					for (String asd : l.split(", ")) {
-						if (!asd.startsWith("(")) {
-							int frameType = ClassUtil.getFrameTypeByName(asd);
-							if (frameType != -1)
-								arr.add(new Integer(frameType));
-							else
-								arr.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
-						} else {
-							if (asd.startsWith("(label) ")) {
-								int labelNr = Integer.parseInt(asd.split(" ")[1]);
-								boolean found = false;
-								for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
-									if (entry.getValue() == labelNr) {
-										arr.add(entry.getKey());
-										found = true;
-									}
-								}
-								if (!found) {
-									LabelNode ln = new LabelNode(new Label());
-									labels.put(ln, labelNr);
-									arr.add(ln);
-								}
-							} else {
-								arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
-							}
-						}
-					}
-					local = new Object[arr.size()];
-					int c = 0;
-					for (Object o : arr) {
-						local[c] = o;
-						c++;
-					}
-				}
-			}
-			arr.clear();
-			if (str.endsWith("s:null")) {
-				stack = new Object[0];
-			} else {
-				String st = str.substring(str.indexOf("s:") + 3, str.length() - 1);
-				if (st.isEmpty()) {
-					stack = new Object[0];
-				} else {
-					for (String asd : st.split(", ")) {
-						if (!asd.startsWith("(")) {
-							int frameType = ClassUtil.getFrameTypeByName(asd);
-							if (frameType != -1)
-								arr.add(new Integer(frameType));
-							else
-								arr.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
-						} else {
-							if (asd.startsWith("(label) ")) {
-								int labelNr = Integer.parseInt(asd.split(" ")[1]);
-								boolean found = false;
-								for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
-									if (entry.getValue() == labelNr) {
-										arr.add(entry.getKey());
-										found = true;
-									}
-								}
-								if (!found) {
-									LabelNode ln = new LabelNode(new Label());
-									labels.put(ln, labelNr);
-									arr.add(ln);
-								}
-							} else {
-								arr.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
-							}
-						}
-					}
-					stack = new Object[arr.size()];
-					int c = 0;
-					for (Object o : arr) {
-						stack[c] = o;
-						c++;
-					}
-				}
-			}
+			String str1 = s.substring(9);
+			String[] split = str1.split(" ", 2);
 			int type = 0;
-			switch (str1.substring(str1.indexOf(' ', 1) + 1, str1.indexOf(' ', 3))) {
-			case "NEW":
-				type = Opcodes.F_NEW;
-				break;
-			case "FULL":
-				type = Opcodes.F_FULL;
-				break;
-			case "APPEND":
-				type = Opcodes.F_APPEND;
-				break;
-			case "CHOP":
-				type = Opcodes.F_CHOP;
-				break;
+			Object[] local = null;
+			Object[] stack = null;
+			int localLen = 0;
+			int stackLen = 0;
+			switch (split[0].toUpperCase()) {
 			case "SAME":
 				type = Opcodes.F_SAME;
 				break;
 			case "SAME1":
 				type = Opcodes.F_SAME1;
+				stack = parseFrameList(hsr, split[1], labels);
+				stackLen = stack.length;
+				break;
+			case "CHOP":
+				type = Opcodes.F_CHOP;
+				localLen = Integer.parseInt(split[1]);
+				break;
+			case "APPEND":
+				type = Opcodes.F_APPEND;
+				local = parseFrameList(hsr, split[1], labels);
+				localLen = local.length;
+				break;
+			case "FULL":
+				type = Opcodes.F_FULL;
+				split = split[1].split("\\] \\[", 2);
+				local = parseFrameList(hsr, split[0] + "]", labels);
+				localLen = local.length;
+				stack = parseFrameList(hsr, "[" + split[1], labels);
+				stackLen = stack.length;
 				break;
 			}
-			return new FrameNode(type, local.length, local, stack.length, stack);
+			return new FrameNode(type, localLen, local, stackLen, stack);
 		} else {
 			String[] split = s.split(" ");
 			String command = split[0];
@@ -1633,4 +1556,48 @@ public class Assembler {
 			}
 		}
 	}
+
+	private static Object[] parseFrameList(HugeStringsRev hsr, String str, HashMap<LabelNode, Integer> labels) {
+		ArrayList<Object> list = new ArrayList<>();
+		String l = str.substring(1, str.length() - 1);
+		if (l.isEmpty()) {
+			return new Object[0];
+		} else {
+			for (String asd : l.split(", ")) {
+				if (!asd.startsWith("(")) {
+					int frameType = ClassUtil.getFrameTypeByName(asd);
+					if (frameType != -1)
+						list.add(new Integer(frameType));
+					else
+						list.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
+				} else {
+					if (asd.startsWith("(label) ")) {
+						int labelNr = Integer.parseInt(asd.split(" ")[1]);
+						boolean found = false;
+						for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
+							if (entry.getValue() == labelNr) {
+								list.add(entry.getKey());
+								found = true;
+							}
+						}
+						if (!found) {
+							LabelNode ln = new LabelNode(new Label());
+							labels.put(ln, labelNr);
+							list.add(ln);
+						}
+					} else {
+						list.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
+					}
+				}
+			}
+			Object[] arr = new Object[list.size()];
+			int c = 0;
+			for (Object o : list) {
+				arr[c] = o;
+				c++;
+			}
+			return arr;
+		}
+	}
+
 }

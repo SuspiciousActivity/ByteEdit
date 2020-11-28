@@ -231,7 +231,17 @@ public class Main extends JFrame {
 				"// #Max: l:0 s:0\n\t// #TryCatch:\n\t// #LocalVars:\n\tpublic static method ()V {\n\t\treturn\n\t}",
 				null, "<html><b><u>method</u></b><br>Creates an example method</html>"));
 		provider.addCompletion(new ShorthandCompletion(provider, "frame", "frame FULL l:[] s:[]", null,
-				"<html><b><u>frame</u></b><br>Creates a stack map frame</html>"));
+				"<html><b><u>frame</u></b><br>Creates a stack map frame<br><br><b>Possible frames:</b><br><ul><li><code>SAME: same locals, empty stack</code></li><li><code>SAME1: same locals, stack has 1 entry</code></li><li><code>CHOP: same locals - k, empty stack</code></li><li><code>APPEND: same locals + k, empty stack</code></li><li><code>FULL: define locals, define stack</code></li></ul></html>"));
+		provider.addCompletion(new BasicCompletion(provider, "SAME", null,
+				"<html><b><u>Frames:</u></b><br><code>SAME</code><br><br><u>Locals:</u> same as previous<br><u>Stack:</u> empty</html>"));
+		provider.addCompletion(new BasicCompletion(provider, "SAME1", null,
+				"<html><b><u>Frames:</u></b><br><code>SAME1 [(type)]</code><br><br><u>Locals:</u> same as previous<br><u>Stack:</u> 1 entry</html>"));
+		provider.addCompletion(new BasicCompletion(provider, "CHOP", null,
+				"<html><b><u>Frames:</u></b><br><code>CHOP (int:k)</code><br><br><u>Locals:</u> removes the top <i>k</i> elements<br><u>Stack:</u> empty</html>"));
+		provider.addCompletion(new BasicCompletion(provider, "APPEND", null,
+				"<html><b><u>Frames:</u></b><br><code>APPEND [(type), (type), ...]</code><br><br><u>Locals:</u> adds the elements to the top<br><u>Stack:</u> empty</html>"));
+		provider.addCompletion(new BasicCompletion(provider, "FULL", null,
+				"<html><b><u>Frames:</u></b><br><code>FULL [(type), (type), ...] [(type), (type), ...]</code><br><i>first locals, then stack</i><br><br><u>Locals:</u> sets the elements<br><u>Stack:</u> sets the elements</html>"));
 		return provider;
 	}
 
@@ -417,10 +427,10 @@ public class Main extends JFrame {
 		group.add(rdbtnmntm1000);
 		group.add(rdbtnmntm5000);
 		group.add(rdbtnmntm10000);
-		
+
 		mnDeobfuscation = new JMenu("Deobfuscation");
 		menuBar.add(mnDeobfuscation);
-		
+
 		mntmNumbers = new JCheckBoxMenuItem("Numbers");
 		mnDeobfuscation.add(mntmNumbers);
 
@@ -680,7 +690,7 @@ public class Main extends JFrame {
 							len += asm.length();
 						}
 					}
-				} catch (BadLocationException e1) {
+				} catch (Exception e1) {
 				}
 				return null;
 			}
