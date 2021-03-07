@@ -18,15 +18,15 @@ import javax.swing.ImageIcon;
 
 /**
  * This class encapsulates the location, properties, etc. of an icon set used
- * for an instance of <code>RTextArea</code>. If the location of the icon
- * group is invalid in any way, any attempt to retrieve icons from an icon
- * group will return <code>null</code>.
+ * for an instance of <code>RTextArea</code>. If the location of the icon group
+ * is invalid in any way, any attempt to retrieve icons from an icon group will
+ * return <code>null</code>.
  *
  * @author Robert Futrell
  * @version 0.5
  */
 public class IconGroup {
-	
+
 	private String path;
 	private boolean separateLargeIcons;
 	private String largeIconSubDir;
@@ -34,76 +34,62 @@ public class IconGroup {
 	private String name;
 	private String jarFile;
 	private static final String DEFAULT_EXTENSION = "gif";
-	
+
 	/**
 	 * Creates an icon set without "large versions" of the icons.
 	 *
-	 * @param name
-	 *            The name of the icon group.
-	 * @param path
-	 *            The directory containing the icon group.
+	 * @param name The name of the icon group.
+	 * @param path The directory containing the icon group.
 	 */
 	public IconGroup(String name, String path) {
 		this(name, path, null);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param name
-	 *            The name of the icon group.
-	 * @param path
-	 *            The directory containing the icon group.
-	 * @param largeIconSubDir
-	 *            The subdirectory containing "large versions" of
-	 *            the icons. If no subdirectory exists, pass in
-	 *            <code>null</code>.
+	 * @param name            The name of the icon group.
+	 * @param path            The directory containing the icon group.
+	 * @param largeIconSubDir The subdirectory containing "large versions" of the
+	 *                        icons. If no subdirectory exists, pass in
+	 *                        <code>null</code>.
 	 */
 	public IconGroup(String name, String path, String largeIconSubDir) {
 		this(name, path, largeIconSubDir, DEFAULT_EXTENSION);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param name
-	 *            The name of the icon group.
-	 * @param path
-	 *            The directory containing the icon group.
-	 * @param largeIconSubDir
-	 *            The subdirectory containing "large versions" of
-	 *            the icons. If no subdirectory exists, pass in
-	 *            <code>null</code>.
-	 * @param extension
-	 *            The extension of the icons (one of <code>gif</code>,
-	 *            <code>jpg</code>, or <code>png</code>).
+	 * @param name            The name of the icon group.
+	 * @param path            The directory containing the icon group.
+	 * @param largeIconSubDir The subdirectory containing "large versions" of the
+	 *                        icons. If no subdirectory exists, pass in
+	 *                        <code>null</code>.
+	 * @param extension       The extension of the icons (one of <code>gif</code>,
+	 *                        <code>jpg</code>, or <code>png</code>).
 	 */
 	public IconGroup(String name, String path, String largeIconSubDir, String extension) {
 		this(name, path, largeIconSubDir, extension, null);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param name
-	 *            The name of the icon group.
-	 * @param path
-	 *            The directory containing the icon group.
-	 * @param largeIconSubDir
-	 *            The subdirectory containing "large versions" of
-	 *            the icons. If no subdirectory exists, pass in
-	 *            <code>null</code>.
-	 * @param extension
-	 *            The extension of the icons (one of <code>gif</code>,
-	 *            <code>jpg</code>, or <code>png</code>).
-	 * @param jar
-	 *            The Jar file containing the icons, or <code>null</code> if
-	 *            the icons are on the local file system. If a Jar is specified,
-	 *            the value of <code>path</code> must be a path in the Jar file.
-	 *            If this is not a valid Jar file, then no Jar file will be
-	 *            used,
-	 *            meaning all icons returned from this icon group will be
-	 *            <code>null</code>.
+	 * @param name            The name of the icon group.
+	 * @param path            The directory containing the icon group.
+	 * @param largeIconSubDir The subdirectory containing "large versions" of the
+	 *                        icons. If no subdirectory exists, pass in
+	 *                        <code>null</code>.
+	 * @param extension       The extension of the icons (one of <code>gif</code>,
+	 *                        <code>jpg</code>, or <code>png</code>).
+	 * @param jar             The Jar file containing the icons, or
+	 *                        <code>null</code> if the icons are on the local file
+	 *                        system. If a Jar is specified, the value of
+	 *                        <code>path</code> must be a path in the Jar file. If
+	 *                        this is not a valid Jar file, then no Jar file will be
+	 *                        used, meaning all icons returned from this icon group
+	 *                        will be <code>null</code>.
 	 */
 	public IconGroup(String name, String path, String largeIconSubDir, String extension, String jar) {
 		this.name = name;
@@ -116,14 +102,12 @@ public class IconGroup {
 		this.extension = extension != null ? extension : DEFAULT_EXTENSION;
 		this.jarFile = jar;
 	}
-	
+
 	/**
 	 * Returns whether two icon groups are equal.
 	 *
-	 * @param o2
-	 *            The object to check against.
-	 * @return Whether <code>o2</code> represents the same icons as this icon
-	 *         group.
+	 * @param o2 The object to check against.
+	 * @return Whether <code>o2</code> represents the same icons as this icon group.
 	 */
 	@Override
 	public boolean equals(Object o2) {
@@ -141,16 +125,13 @@ public class IconGroup {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns the icon from this icon group with the specified name.
 	 *
-	 * @param name
-	 *            The name of the icon. For example, if you want the icon
-	 *            specified in <code>new.gif</code>, this value should be
-	 *            <code>new</code>.
-	 * @return The icon, or <code>null</code> if it could not be found or
-	 *         loaded.
+	 * @param name The name of the icon. For example, if you want the icon specified
+	 *             in <code>new.gif</code>, this value should be <code>new</code>.
+	 * @return The icon, or <code>null</code> if it could not be found or loaded.
 	 * @see #getLargeIcon
 	 */
 	public Icon getIcon(String name) {
@@ -165,14 +146,13 @@ public class IconGroup {
 		}
 		return icon;
 	}
-	
+
 	/**
 	 * Does the dirty work of loading an image.
 	 *
-	 * @param iconFullPath
-	 *            The full path to the icon, either on the local
-	 *            file system or in the Jar file, if this icon group represents
-	 *            icons in a Jar file.
+	 * @param iconFullPath The full path to the icon, either on the local file
+	 *                     system or in the Jar file, if this icon group represents
+	 *                     icons in a Jar file.
 	 * @return The icon.
 	 */
 	private Icon getIconImpl(String iconFullPath) {
@@ -198,24 +178,20 @@ public class IconGroup {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Returns the large icon from this icon group with the specified name.
-	 * If this icon group does not have large icons, <code>null</code> is
-	 * returned.
+	 * Returns the large icon from this icon group with the specified name. If this
+	 * icon group does not have large icons, <code>null</code> is returned.
 	 *
-	 * @param name
-	 *            The name of the icon. For example, if you want the icon
-	 *            specified in <code>new.gif</code>, this value should be
-	 *            <code>new</code>.
-	 * @return The icon, or <code>null</code> if it could not be found or
-	 *         loaded.
+	 * @param name The name of the icon. For example, if you want the icon specified
+	 *             in <code>new.gif</code>, this value should be <code>new</code>.
+	 * @return The icon, or <code>null</code> if it could not be found or loaded.
 	 * @see #getLargeIcon
 	 */
 	public Icon getLargeIcon(String name) {
 		return getIconImpl(path + largeIconSubDir + "/" + name + "." + extension);
 	}
-	
+
 	/**
 	 * Returns the name of this icon group.
 	 *
@@ -224,22 +200,21 @@ public class IconGroup {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Returns whether a separate directory for the large icons exists.
 	 *
-	 * @return Whether a directory containing "large versions" ov the icons
-	 *         exists.
+	 * @return Whether a directory containing "large versions" ov the icons exists.
 	 * @see #getLargeIcon(String)
 	 */
 	public boolean hasSeparateLargeIcons() {
 		return separateLargeIcons;
 	}
-	
+
 	/**
-	 * Overridden since we also override {@link #equals(Object)}, to honor
-	 * the invariant that equal objects must have equal hashcodes. This also
-	 * keeps FindBugs happy.
+	 * Overridden since we also override {@link #equals(Object)}, to honor the
+	 * invariant that equal objects must have equal hashcodes. This also keeps
+	 * FindBugs happy.
 	 */
 	@Override
 	public int hashCode() {

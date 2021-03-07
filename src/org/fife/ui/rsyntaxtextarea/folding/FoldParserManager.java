@@ -23,38 +23,35 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
  * @version 1.0
  */
 public final class FoldParserManager implements SyntaxConstants {
-	
+
 	/**
 	 * Map from syntax styles to fold parsers.
 	 */
 	private Map<String, FoldParser> foldParserMap;
 	private static final FoldParserManager INSTANCE = new FoldParserManager();
-	
+
 	/**
 	 * Private constructor to prevent instantiation.
 	 */
 	private FoldParserManager() {
 		foldParserMap = createFoldParserMap();
 	}
-	
+
 	/**
-	 * Adds a mapping from a syntax style to a fold parser. The parser
-	 * specified will be shared among all RSTA instances editing that language,
-	 * so it should be stateless (which should not be difficult for a fold
-	 * parser). You can also override the fold parser for built-in languages,
-	 * such as <code>SYNTAX_STYLE_JAVA</code>, with your own parser
-	 * implementations.
+	 * Adds a mapping from a syntax style to a fold parser. The parser specified
+	 * will be shared among all RSTA instances editing that language, so it should
+	 * be stateless (which should not be difficult for a fold parser). You can also
+	 * override the fold parser for built-in languages, such as
+	 * <code>SYNTAX_STYLE_JAVA</code>, with your own parser implementations.
 	 *
-	 * @param syntaxStyle
-	 *            The syntax style.
-	 * @param parser
-	 *            The parser.
+	 * @param syntaxStyle The syntax style.
+	 * @param parser      The parser.
 	 * @see SyntaxConstants
 	 */
 	public void addFoldParserMapping(String syntaxStyle, FoldParser parser) {
 		foldParserMap.put(syntaxStyle, parser);
 	}
-	
+
 	/**
 	 * Creates the syntax style-to-fold parser mapping for built-in languages.
 	 *
@@ -89,7 +86,7 @@ public final class FoldParserManager implements SyntaxConstants {
 		map.put(SYNTAX_STYLE_XML, new XmlFoldParser());
 		return map;
 	}
-	
+
 	/**
 	 * Returns the singleton instance of this class.
 	 *
@@ -98,16 +95,15 @@ public final class FoldParserManager implements SyntaxConstants {
 	public static FoldParserManager get() {
 		return INSTANCE;
 	}
-	
+
 	/**
-	 * Returns a fold parser to use for an editor highlighting code of a
-	 * specific language.
+	 * Returns a fold parser to use for an editor highlighting code of a specific
+	 * language.
 	 *
-	 * @param syntaxStyle
-	 *            A value from {@link SyntaxConstants}, such as
-	 *            <code>SYNTAX_STYLE_JAVA</code>.
-	 * @return A fold parser to use, or <code>null</code> if none is registered
-	 *         for the language.
+	 * @param syntaxStyle A value from {@link SyntaxConstants}, such as
+	 *                    <code>SYNTAX_STYLE_JAVA</code>.
+	 * @return A fold parser to use, or <code>null</code> if none is registered for
+	 *         the language.
 	 */
 	public FoldParser getFoldParser(String syntaxStyle) {
 		return foldParserMap.get(syntaxStyle);

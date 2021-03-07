@@ -253,6 +253,7 @@ public class RTextAreaEditorKit extends DefaultEditorKit {
 	 * @return The line number list.
 	 */
 	public LineNumberList createLineNumberList(RTextArea textArea) {
+		// TODO ByteEdit modified
 		return new LineNumberList(textArea);
 	}
 

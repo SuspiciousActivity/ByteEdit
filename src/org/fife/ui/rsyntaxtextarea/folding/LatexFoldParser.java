@@ -16,17 +16,17 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Token;
 
 /**
- * A fold parser for LaTeX documents. This is likely incomplete and/or not
- * quite right; feedback is appreciated.
+ * A fold parser for LaTeX documents. This is likely incomplete and/or not quite
+ * right; feedback is appreciated.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class LatexFoldParser implements FoldParser {
-	
+
 	private static final char[] BEGIN = "\\begin".toCharArray();
 	private static final char[] END = "\\end".toCharArray();
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

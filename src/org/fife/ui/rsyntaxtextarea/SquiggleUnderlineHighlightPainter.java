@@ -32,37 +32,29 @@ import org.fife.ui.rtextarea.ChangeableHighlightPainter;
  * @version 1.0
  */
 public class SquiggleUnderlineHighlightPainter extends ChangeableHighlightPainter {
-	
+
 	private static final int AMT = 2;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param color
-	 *            The color of the squiggle. This cannot be
-	 *            <code>null</code>.
+	 * @param color The color of the squiggle. This cannot be <code>null</code>.
 	 */
 	public SquiggleUnderlineHighlightPainter(Color color) {
 		super(color);
 		setPaint(color);
 	}
-	
+
 	/**
 	 * Paints a portion of a highlight.
 	 *
-	 * @param g
-	 *            the graphics context
-	 * @param offs0
-	 *            the starting model offset &gt;= 0
-	 * @param offs1
-	 *            the ending model offset &gt;= offs1
-	 * @param bounds
-	 *            the bounding box of the view, which is not
-	 *            necessarily the region to paint.
-	 * @param c
-	 *            the editor
-	 * @param view
-	 *            View painting for
+	 * @param g      the graphics context
+	 * @param offs0  the starting model offset &gt;= 0
+	 * @param offs1  the ending model offset &gt;= offs1
+	 * @param bounds the bounding box of the view, which is not necessarily the
+	 *               region to paint.
+	 * @param c      the editor
+	 * @param view   View painting for
 	 * @return region drawing occurred in
 	 */
 	@Override
@@ -92,14 +84,12 @@ public class SquiggleUnderlineHighlightPainter extends ChangeableHighlightPainte
 		// Only if exception
 		return null;
 	}
-	
+
 	/**
 	 * Paints a squiggle underneath text in the specified rectangle.
 	 *
-	 * @param g
-	 *            The graphics context with which to paint.
-	 * @param r
-	 *            The rectangle containing the text.
+	 * @param g The graphics context with which to paint.
+	 * @param r The rectangle containing the text.
 	 */
 	protected void paintSquiggle(Graphics g, Rectangle r) {
 		int x = r.x;

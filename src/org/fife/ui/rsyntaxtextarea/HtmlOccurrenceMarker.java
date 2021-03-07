@@ -20,49 +20,49 @@ import javax.swing.text.Element;
 import org.fife.ui.rtextarea.SmartHighlightPainter;
 
 /**
- * Marks occurrences of the current token for HTML. Tags that require a
- * closing tag have their "opposite" tag closed.
+ * Marks occurrences of the current token for HTML. Tags that require a closing
+ * tag have their "opposite" tag closed.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class HtmlOccurrenceMarker implements OccurrenceMarker {
-	
+
 	private static final char[] CLOSE_TAG_START = { '<', '/' };
 	private static final char[] TAG_SELF_CLOSE = { '/', '>' };
 	private static final Set<String> TAGS_REQUIRING_CLOSING = getRequiredClosingTags();
-	
+
 	public static final Set<String> getRequiredClosingTags() {
-		final String[] tags = { "html", "head", "title", "style", "script", "noscript", "body", "section", "nav", "article", "aside", "h1",
-				"h2", "h3", "h4", "h5", "h6", "header", "footer", "address", "pre", "dialog", "blockquote", "ol", "ul", "dl", "a", "q",
-				"cite", "em", "strong", "small", "mark", "dfn", "abbr", "time", "progress", "meter", "code", "var", "samp", "kbd", "sub",
-				"sup", "span", "i", "b", "bdo", "ruby", "rt", "rp", "ins", "del", "figure", "iframe", "object", "video", "audio", "canvas",
-				"map", "table", "caption", "form", "fieldset", "label", "button", "select", "datalist", "textarea", "output", "details",
-				"bb", "menu", "legend", "div",
+		final String[] tags = { "html", "head", "title", "style", "script", "noscript", "body", "section", "nav",
+				"article", "aside", "h1", "h2", "h3", "h4", "h5", "h6", "header", "footer", "address", "pre", "dialog",
+				"blockquote", "ol", "ul", "dl", "a", "q", "cite", "em", "strong", "small", "mark", "dfn", "abbr",
+				"time", "progress", "meter", "code", "var", "samp", "kbd", "sub", "sup", "span", "i", "b", "bdo",
+				"ruby", "rt", "rp", "ins", "del", "figure", "iframe", "object", "video", "audio", "canvas", "map",
+				"table", "caption", "form", "fieldset", "label", "button", "select", "datalist", "textarea", "output",
+				"details", "bb", "menu", "legend", "div",
 				// Obsolete elements
-				"acronym", "applet", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "listing", "marquee", "nobr",
-				"noembed", "noframes", "plaintext", "s", "spacer", "strike", "tt", "u", "xmp", };
+				"acronym", "applet", "big", "blink", "center", "dir", "font", "frame", "frameset", "isindex", "listing",
+				"marquee", "nobr", "noembed", "noframes", "plaintext", "s", "spacer", "strike", "tt", "u", "xmp", };
 		return new HashSet<String>(Arrays.asList(tags));
 	}
-	
+
 	/**
-	 * If the caret is inside of a tag, this method returns the token
-	 * representing the tag name; otherwise, <code>null</code> is returned.
+	 * If the caret is inside of a tag, this method returns the token representing
+	 * the tag name; otherwise, <code>null</code> is returned.
 	 * <p>
 	 *
-	 * Currently, this method only checks for tag names on the same line as
-	 * the caret, for simplicity. In the future it could check prior lines
-	 * until the tag name is found.
+	 * Currently, this method only checks for tag names on the same line as the
+	 * caret, for simplicity. In the future it could check prior lines until the tag
+	 * name is found.
 	 *
-	 * @param textArea
-	 *            The text area.
-	 * @param occurrenceMarker
-	 *            The occurrence marker.
-	 * @return The token to mark occurrences of. Note that, if the
-	 *         specified occurrence marker identifies tokens other than
-	 *         tag names, these other element types may be returned.
+	 * @param textArea         The text area.
+	 * @param occurrenceMarker The occurrence marker.
+	 * @return The token to mark occurrences of. Note that, if the specified
+	 *         occurrence marker identifies tokens other than tag names, these other
+	 *         element types may be returned.
 	 */
-	public static final Token getTagNameTokenForCaretOffset(RSyntaxTextArea textArea, OccurrenceMarker occurrenceMarker) {
+	public static final Token getTagNameTokenForCaretOffset(RSyntaxTextArea textArea,
+			OccurrenceMarker occurrenceMarker) {
 		// Get the tag name token.
 		// For now, we only check for tags on the current line, for simplicity.
 		int dot = textArea.getCaretPosition();
@@ -93,7 +93,7 @@ public class HtmlOccurrenceMarker implements OccurrenceMarker {
 		}
 		return toMark;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -101,7 +101,7 @@ public class HtmlOccurrenceMarker implements OccurrenceMarker {
 	public Token getTokenToMark(RSyntaxTextArea textArea) {
 		return getTagNameTokenForCaretOffset(textArea, this);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -109,7 +109,7 @@ public class HtmlOccurrenceMarker implements OccurrenceMarker {
 	public boolean isValidType(RSyntaxTextArea textArea, Token t) {
 		return textArea.getMarkOccurrencesOfTokenType(t.getType());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -254,15 +254,15 @@ public class HtmlOccurrenceMarker implements OccurrenceMarker {
 			} while (curLine >= 0);
 		}
 	}
-	
+
 	/**
 	 * Used internally when searching backward for a matching "open" tag.
 	 */
 	private static class Entry {
-		
+
 		private boolean open;
 		private Token t;
-		
+
 		Entry(boolean open, Token t) {
 			this.open = open;
 			this.t = t;

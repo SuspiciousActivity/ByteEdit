@@ -35,22 +35,22 @@ import org.fife.ui.rsyntaxtextarea.folding.Fold;
 import org.fife.ui.rsyntaxtextarea.folding.FoldManager;
 
 /**
- * Component in the gutter that displays +/- icons to expand and collapse
- * fold regions in the editor.
+ * Component in the gutter that displays +/- icons to expand and collapse fold
+ * regions in the editor.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class FoldIndicator extends AbstractGutterComponent {
-	
+
 	/**
-	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on
-	 * each paint.
+	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on each
+	 * paint.
 	 */
 	private Insets textAreaInsets;
 	/**
-	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on
-	 * each paint.
+	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on each
+	 * paint.
 	 */
 	private Rectangle visibleRect;
 	/**
@@ -58,13 +58,12 @@ public class FoldIndicator extends AbstractGutterComponent {
 	 */
 	private Fold foldWithOutlineShowing;
 	/**
-	 * The color to use for fold icon backgrounds, if the default icons
-	 * are used.
+	 * The color to use for fold icon backgrounds, if the default icons are used.
 	 */
 	private Color foldIconBackground;
 	/**
-	 * The color to use for armed fold icon backgrounds, if the default icons
-	 * are used. This may be {@code null}.
+	 * The color to use for armed fold icon backgrounds, if the default icons are
+	 * used. This may be {@code null}.
 	 */
 	private Color foldIconArmedBackground;
 	/**
@@ -76,8 +75,8 @@ public class FoldIndicator extends AbstractGutterComponent {
 	 */
 	private Icon expandedFoldIcon;
 	/**
-	 * Used while painting; global flag to denote whether the mouse is over
-	 * a fold indicator.
+	 * Used while painting; global flag to denote whether the mouse is over a fold
+	 * indicator.
 	 */
 	private boolean mouseOverFoldIcon;
 	/**
@@ -86,8 +85,8 @@ public class FoldIndicator extends AbstractGutterComponent {
 	 */
 	private boolean paintFoldArmed;
 	/**
-	 * Whether tool tips are displayed showing the contents of collapsed
-	 * fold regions.
+	 * Whether tool tips are displayed showing the contents of collapsed fold
+	 * regions.
 	 */
 	private boolean showFoldRegionTips;
 	/**
@@ -106,15 +105,15 @@ public class FoldIndicator extends AbstractGutterComponent {
 	 * Width of this component.
 	 */
 	private static final int WIDTH = 12;
-	
+
 	public FoldIndicator(RTextArea textArea) {
 		super(textArea);
 	}
-	
+
 	/**
-	 * Overridden to use the editor's background if it's detected that the
-	 * user isn't using white as the editor bg, but the system's tool tip
-	 * background is yellow-ish.
+	 * Overridden to use the editor's background if it's detected that the user
+	 * isn't using white as the editor bg, but the system's tool tip background is
+	 * yellow-ish.
 	 *
 	 * @return The tool tip.
 	 */
@@ -133,7 +132,7 @@ public class FoldIndicator extends AbstractGutterComponent {
 		}
 		return tip;
 	}
-	
+
 	private Fold findOpenFoldClosestTo(Point p) {
 		Fold fold = null;
 		mouseOverFoldIcon = false;
@@ -158,23 +157,23 @@ public class FoldIndicator extends AbstractGutterComponent {
 		}
 		return fold;
 	}
-	
+
 	/**
-	 * Returns the color to use for the "background" of armed fold icons. This
-	 * is ignored if custom icons are used.
+	 * Returns the color to use for the "background" of armed fold icons. This is
+	 * ignored if custom icons are used.
 	 *
-	 * @return The background color. If this is {@code null}, there is no
-	 *         special color for armed fold icons.
+	 * @return The background color. If this is {@code null}, there is no special
+	 *         color for armed fold icons.
 	 * @see #setFoldIconArmedBackground(Color)
 	 * @see #getFoldIconBackground()
 	 */
 	public Color getFoldIconArmedBackground() {
 		return foldIconArmedBackground;
 	}
-	
+
 	/**
-	 * Returns the color to use for the "background" of fold icons. This
-	 * is ignored if custom icons are used.
+	 * Returns the color to use for the "background" of fold icons. This is ignored
+	 * if custom icons are used.
 	 *
 	 * @return The background color.
 	 * @see #setFoldIconBackground(Color)
@@ -183,16 +182,16 @@ public class FoldIndicator extends AbstractGutterComponent {
 	public Color getFoldIconBackground() {
 		return foldIconBackground;
 	}
-	
+
 	@Override
 	public Dimension getPreferredSize() {
 		int h = textArea != null ? textArea.getHeight() : 100; // Arbitrary
 		return new Dimension(WIDTH, h);
 	}
-	
+
 	/**
-	 * Returns whether tool tips are displayed showing the contents of
-	 * collapsed fold regions when the mouse hovers over a +/- icon.
+	 * Returns whether tool tips are displayed showing the contents of collapsed
+	 * fold regions when the mouse hovers over a +/- icon.
 	 *
 	 * @return Whether these tool tips are displayed.
 	 * @see #setShowCollapsedRegionToolTips(boolean)
@@ -200,14 +199,12 @@ public class FoldIndicator extends AbstractGutterComponent {
 	public boolean getShowCollapsedRegionToolTips() {
 		return showFoldRegionTips;
 	}
-	
+
 	/**
 	 * Positions tool tips to be aligned in the text component, so that the
-	 * displayed content is shown (almost) exactly where it would be in the
-	 * editor.
+	 * displayed content is shown (almost) exactly where it would be in the editor.
 	 *
-	 * @param e
-	 *            The mouse location.
+	 * @param e The mouse location.
 	 */
 	@Override
 	public Point getToolTipLocation(MouseEvent e) {
@@ -231,12 +228,11 @@ public class FoldIndicator extends AbstractGutterComponent {
 		p.y += 16;
 		return p;
 	}
-	
+
 	/**
 	 * Overridden to show the content of a collapsed fold on mouse-overs.
 	 *
-	 * @param e
-	 *            The mouse location.
+	 * @param e The mouse location.
 	 */
 	@Override
 	public String getToolTipText(MouseEvent e) {
@@ -275,7 +271,7 @@ public class FoldIndicator extends AbstractGutterComponent {
 		}
 		return text;
 	}
-	
+
 	@Override
 	void handleDocumentEvent(DocumentEvent e) {
 		int newLineCount = textArea.getLineCount();
@@ -284,7 +280,7 @@ public class FoldIndicator extends AbstractGutterComponent {
 			repaint();
 		}
 	}
-	
+
 	@Override
 	protected void init() {
 		super.init();
@@ -296,12 +292,12 @@ public class FoldIndicator extends AbstractGutterComponent {
 		visibleRect = new Rectangle();
 		setShowCollapsedRegionToolTips(true);
 	}
-	
+
 	@Override
 	void lineHeightsChanged() {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		if (textArea == null) {
@@ -399,12 +395,11 @@ public class FoldIndicator extends AbstractGutterComponent {
 			y += cellHeight;
 		}
 	}
-	
+
 	/**
 	 * Paints folding icons when line wrapping is enabled.
 	 *
-	 * @param g
-	 *            The graphics context.
+	 * @param g The graphics context.
 	 */
 	private void paintComponentWrapped(Graphics g) {
 		// The variables we use are as follows:
@@ -499,7 +494,7 @@ public class FoldIndicator extends AbstractGutterComponent {
 			}
 		}
 	}
-	
+
 	private int rowAtPoint(Point p) {
 		int line = 0;
 		try {
@@ -512,43 +507,39 @@ public class FoldIndicator extends AbstractGutterComponent {
 		}
 		return line;
 	}
-	
+
 	/**
-	 * Sets the color to use for the "background" of armed fold icons. This
-	 * will be ignored if custom icons are used.
+	 * Sets the color to use for the "background" of armed fold icons. This will be
+	 * ignored if custom icons are used.
 	 *
-	 * @param bg
-	 *            The new background color. If {@code null} is passed in,
-	 *            there will be no special color for armed fold icons.
+	 * @param bg The new background color. If {@code null} is passed in, there will
+	 *           be no special color for armed fold icons.
 	 * @see #getFoldIconArmedBackground()
 	 * @see #setFoldIconBackground(Color)
 	 */
 	public void setFoldIconArmedBackground(Color bg) {
 		foldIconArmedBackground = bg;
 	}
-	
+
 	/**
-	 * Sets the color to use for the "background" of fold icons. This will
-	 * be ignored if custom icons are used.
+	 * Sets the color to use for the "background" of fold icons. This will be
+	 * ignored if custom icons are used.
 	 *
-	 * @param bg
-	 *            The new background color. This should not be {@code null}.
+	 * @param bg The new background color. This should not be {@code null}.
 	 * @see #getFoldIconBackground()
 	 * @see #setFoldIconArmedBackground(Color)
 	 */
 	public void setFoldIconBackground(Color bg) {
 		foldIconBackground = bg;
 	}
-	
+
 	/**
 	 * Sets the icons to use to represent collapsed and expanded folds.
 	 *
-	 * @param collapsedIcon
-	 *            The collapsed fold icon. This cannot be
-	 *            <code>null</code>.
-	 * @param expandedIcon
-	 *            The expanded fold icon. This cannot be
-	 *            <code>null</code>.
+	 * @param collapsedIcon The collapsed fold icon. This cannot be
+	 *                      <code>null</code>.
+	 * @param expandedIcon  The expanded fold icon. This cannot be
+	 *                      <code>null</code>.
 	 */
 	public void setFoldIcons(Icon collapsedIcon, Icon expandedIcon) {
 		this.collapsedFoldIcon = collapsedIcon;
@@ -556,13 +547,12 @@ public class FoldIndicator extends AbstractGutterComponent {
 		revalidate(); // Icons may be different sizes.
 		repaint();
 	}
-	
+
 	/**
 	 * Toggles whether tool tips should be displayed showing the contents of
 	 * collapsed fold regions when the mouse hovers over a +/- icon.
 	 *
-	 * @param show
-	 *            Whether to show these tool tips.
+	 * @param show Whether to show these tool tips.
 	 * @see #getShowCollapsedRegionToolTips()
 	 */
 	public void setShowCollapsedRegionToolTips(boolean show) {
@@ -575,7 +565,7 @@ public class FoldIndicator extends AbstractGutterComponent {
 			showFoldRegionTips = show;
 		}
 	}
-	
+
 	/**
 	 * Overridden so we can track when code folding is enabled/disabled.
 	 */
@@ -589,28 +579,28 @@ public class FoldIndicator extends AbstractGutterComponent {
 			this.textArea.addPropertyChangeListener(RSyntaxTextArea.CODE_FOLDING_PROPERTY, listener);
 		}
 	}
-	
+
 	/**
 	 * The default +/- icon for expanding and collapsing folds.
 	 */
 	private class FoldIcon implements Icon {
-		
+
 		private boolean collapsed;
-		
+
 		FoldIcon(boolean collapsed) {
 			this.collapsed = collapsed;
 		}
-		
+
 		@Override
 		public int getIconHeight() {
 			return 8;
 		}
-		
+
 		@Override
 		public int getIconWidth() {
 			return 8;
 		}
-		
+
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y) {
 			Color bg = foldIconBackground;
@@ -627,17 +617,17 @@ public class FoldIndicator extends AbstractGutterComponent {
 			}
 		}
 	}
-	
+
 	/**
 	 * Listens for events in this component.
 	 */
 	private class Listener extends MouseInputAdapter implements PropertyChangeListener {
-		
+
 		Listener(FoldIndicator fgc) {
 			fgc.addMouseListener(this);
 			fgc.addMouseMotionListener(this);
 		}
-		
+
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			Point p = e.getPoint();
@@ -651,7 +641,7 @@ public class FoldIndicator extends AbstractGutterComponent {
 				textArea.repaint();
 			}
 		}
-		
+
 		@Override
 		public void mouseExited(MouseEvent e) {
 			if (foldWithOutlineShowing != null) {
@@ -660,19 +650,20 @@ public class FoldIndicator extends AbstractGutterComponent {
 				repaint();
 			}
 		}
-		
+
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			boolean oldMouseOverFoldIcon = mouseOverFoldIcon;
 			Fold newSelectedFold = findOpenFoldClosestTo(e.getPoint());
-			if (newSelectedFold != foldWithOutlineShowing && newSelectedFold != null && !newSelectedFold.isOnSingleLine()) {
+			if (newSelectedFold != foldWithOutlineShowing && newSelectedFold != null
+					&& !newSelectedFold.isOnSingleLine()) {
 				foldWithOutlineShowing = newSelectedFold;
 				repaint();
 			} else if (mouseOverFoldIcon != oldMouseOverFoldIcon) {
 				repaint();
 			}
 		}
-		
+
 		@Override
 		public void propertyChange(PropertyChangeEvent e) {
 			// Whether folding is enabled in the editor has changed.

@@ -23,11 +23,10 @@ import javax.swing.text.View;
  * following features:
  *
  * <ul>
- * <li>Rendered highlights don't "grow" when users append text to the "end"
- * of them. This is implemented by assuming that the highlights
- * themselves specify their end offset as one offset "too short". This
- * behavior is baked into various RSTA highlights (mark all, mark
- * occurrences, etc.).
+ * <li>Rendered highlights don't "grow" when users append text to the "end" of
+ * them. This is implemented by assuming that the highlights themselves specify
+ * their end offset as one offset "too short". This behavior is baked into
+ * various RSTA highlights (mark all, mark occurrences, etc.).
  * <li>Ability to paint a border line around highlights.
  * </ul>
  *
@@ -35,27 +34,26 @@ import javax.swing.text.View;
  * @version 1.0
  */
 public class SmartHighlightPainter extends ChangeableHighlightPainter {
-	
+
 	private Color borderColor;
 	private boolean paintBorder;
-	
+
 	/**
 	 * Creates a highlight painter that defaults to blue.
 	 */
 	public SmartHighlightPainter() {
 		super(Color.BLUE);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param paint
-	 *            The color or paint to use for this painter.
+	 * @param paint The color or paint to use for this painter.
 	 */
 	public SmartHighlightPainter(Paint paint) {
 		super(paint);
 	}
-	
+
 	/**
 	 * Returns whether a border is painted around marked occurrences.
 	 *
@@ -66,7 +64,7 @@ public class SmartHighlightPainter extends ChangeableHighlightPainter {
 	public boolean getPaintBorder() {
 		return paintBorder;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -116,7 +114,7 @@ public class SmartHighlightPainter extends ChangeableHighlightPainter {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -127,12 +125,11 @@ public class SmartHighlightPainter extends ChangeableHighlightPainter {
 			borderColor = ((Color) paint).darker();
 		}
 	}
-	
+
 	/**
 	 * Toggles whether a border is painted around highlights.
 	 *
-	 * @param paint
-	 *            Whether to paint a border.
+	 * @param paint Whether to paint a border.
 	 * @see #getPaintBorder()
 	 * @see #setPaint(Paint)
 	 */

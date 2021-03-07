@@ -18,40 +18,35 @@ import javax.swing.text.BadLocationException;
  * @version 1.0
  */
 class RDocumentCharSequence implements CharSequence {
-	
+
 	private RDocument doc;
 	private int start;
 	private int end;
-	
+
 	/**
-	 * Creates a <code>CharSequence</code> representing the text in a document
-	 * from the specified offset to the end of that document.
+	 * Creates a <code>CharSequence</code> representing the text in a document from
+	 * the specified offset to the end of that document.
 	 *
-	 * @param doc
-	 *            The document.
-	 * @param start
-	 *            The starting offset in the document, inclusive.
+	 * @param doc   The document.
+	 * @param start The starting offset in the document, inclusive.
 	 */
 	RDocumentCharSequence(RDocument doc, int start) {
 		this(doc, start, doc.getLength());
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param doc
-	 *            The document.
-	 * @param start
-	 *            The starting offset in the document, inclusive.
-	 * @param end
-	 *            the ending offset in the document, exclusive.
+	 * @param doc   The document.
+	 * @param start The starting offset in the document, inclusive.
+	 * @param end   the ending offset in the document, exclusive.
 	 */
 	RDocumentCharSequence(RDocument doc, int start, int end) {
 		this.doc = doc;
 		this.start = start;
 		this.end = end;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -66,7 +61,7 @@ class RDocumentCharSequence implements CharSequence {
 			throw new IndexOutOfBoundsException(ble.toString());
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -74,7 +69,7 @@ class RDocumentCharSequence implements CharSequence {
 	public int length() {
 		return end - start;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -93,7 +88,7 @@ class RDocumentCharSequence implements CharSequence {
 		int newEnd = this.start + end;
 		return new RDocumentCharSequence(doc, newStart, newEnd);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -28,12 +28,11 @@ import java.io.Writer;
  * @version 0.7
  */
 public class UnicodeWriter extends Writer {
-	
+
 	/**
-	 * If this system property evaluates to "<code>false</code>", ignoring
-	 * case, files written out as UTF-8 will not have a BOM written for them.
-	 * Otherwise (even if the property is not set), UTF-8 files will have a
-	 * BOM written.
+	 * If this system property evaluates to "<code>false</code>", ignoring case,
+	 * files written out as UTF-8 will not have a BOM written for them. Otherwise
+	 * (even if the property is not set), UTF-8 files will have a BOM written.
 	 */
 	public static final String PROPERTY_WRITE_UTF8_BOM = "UnicodeWriter.writeUtf8BOM";
 	/**
@@ -45,73 +44,62 @@ public class UnicodeWriter extends Writer {
 	private static final byte[] UTF16BE_BOM = new byte[] { (byte) 0xFE, (byte) 0xFF };
 	private static final byte[] UTF32LE_BOM = new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x00, (byte) 0x00 };
 	private static final byte[] UTF32BE_BOM = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFE, (byte) 0xFF };
-	
+
 	/**
-	 * This is a utility constructor since the vast majority of the time, this
-	 * class will be used to write Unicode files.
+	 * This is a utility constructor since the vast majority of the time, this class
+	 * will be used to write Unicode files.
 	 *
-	 * @param fileName
-	 *            The file to which to write the Unicode output.
-	 * @param encoding
-	 *            The encoding to use.
-	 * @throws IOException
-	 *             If an IO exception occurs.
+	 * @param fileName The file to which to write the Unicode output.
+	 * @param encoding The encoding to use.
+	 * @throws IOException If an IO exception occurs.
 	 */
 	public UnicodeWriter(String fileName, String encoding) throws IOException {
 		this(new FileOutputStream(fileName), encoding);
 	}
-	
+
 	/**
-	 * This is a utility constructor since the vast majority of the time, this
-	 * class will be used to write Unicode files.
+	 * This is a utility constructor since the vast majority of the time, this class
+	 * will be used to write Unicode files.
 	 *
-	 * @param file
-	 *            The file to which to write the Unicode output.
-	 * @param encoding
-	 *            The encoding to use.
-	 * @throws IOException
-	 *             If an IO exception occurs.
+	 * @param file     The file to which to write the Unicode output.
+	 * @param encoding The encoding to use.
+	 * @throws IOException If an IO exception occurs.
 	 */
 	public UnicodeWriter(File file, String encoding) throws IOException {
 		this(new FileOutputStream(file), encoding);
 	}
-	
+
 	/**
 	 * Creates a new writer.
 	 *
-	 * @param out
-	 *            The output stream to write.
-	 * @param encoding
-	 *            The encoding to use.
-	 * @throws IOException
-	 *             If an IO exception occurs.
+	 * @param out      The output stream to write.
+	 * @param encoding The encoding to use.
+	 * @throws IOException If an IO exception occurs.
 	 */
 	public UnicodeWriter(OutputStream out, String encoding) throws IOException {
 		init(out, encoding);
 	}
-	
+
 	/**
 	 * Closes this writer.
 	 *
-	 * @throws IOException
-	 *             If an IO exception occurs.
+	 * @throws IOException If an IO exception occurs.
 	 */
 	@Override
 	public void close() throws IOException {
 		internalOut.close();
 	}
-	
+
 	/**
 	 * Flushes the stream.
 	 *
-	 * @throws IOException
-	 *             If an IO exception occurs.
+	 * @throws IOException If an IO exception occurs.
 	 */
 	@Override
 	public void flush() throws IOException {
 		internalOut.flush();
 	}
-	
+
 	/**
 	 * Returns the encoding being used to write this output stream (i.e., the
 	 * encoding of the file).
@@ -121,7 +109,7 @@ public class UnicodeWriter extends Writer {
 	public String getEncoding() {
 		return internalOut.getEncoding();
 	}
-	
+
 	/**
 	 * Returns whether UTF-8 files should have a BOM in them when written.
 	 *
@@ -137,17 +125,14 @@ public class UnicodeWriter extends Writer {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Initializes the internal output stream and writes the BOM if the
-	 * specified encoding is a Unicode encoding.
+	 * Initializes the internal output stream and writes the BOM if the specified
+	 * encoding is a Unicode encoding.
 	 *
-	 * @param out
-	 *            The output stream we are writing.
-	 * @param encoding
-	 *            The encoding in which to write.
-	 * @throws IOException
-	 *             If an I/O error occurs while writing a BOM.
+	 * @param out      The output stream we are writing.
+	 * @param encoding The encoding in which to write.
+	 * @throws IOException If an I/O error occurs while writing a BOM.
 	 */
 	private void init(OutputStream out, String encoding) throws IOException {
 		internalOut = new OutputStreamWriter(out, encoding);
@@ -169,60 +154,49 @@ public class UnicodeWriter extends Writer {
 			out.write(UTF32BE_BOM, 0, UTF32BE_BOM.length);
 		}
 	}
-	
+
 	/**
 	 * Sets whether UTF-8 files should have a BOM written in them.
 	 *
-	 * @param write
-	 *            Whether to write a BOM.
+	 * @param write Whether to write a BOM.
 	 * @see #getWriteUtf8BOM()
 	 * @see UnicodeWriter
 	 */
 	public static void setWriteUtf8BOM(boolean write) {
 		System.setProperty(UnicodeWriter.PROPERTY_WRITE_UTF8_BOM, Boolean.toString(write));
 	}
-	
+
 	/**
 	 * Writes a portion of an array of characters.
 	 *
-	 * @param cbuf
-	 *            The buffer of characters.
-	 * @param off
-	 *            The offset from which to start writing characters.
-	 * @param len
-	 *            The number of characters to write.
-	 * @throws IOException
-	 *             If an I/O error occurs.
+	 * @param cbuf The buffer of characters.
+	 * @param off  The offset from which to start writing characters.
+	 * @param len  The number of characters to write.
+	 * @throws IOException If an I/O error occurs.
 	 */
 	@Override
 	public void write(char[] cbuf, int off, int len) throws IOException {
 		internalOut.write(cbuf, off, len);
 	}
-	
+
 	/**
 	 * Writes a single character.
 	 *
-	 * @param c
-	 *            An integer specifying the character to write.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param c An integer specifying the character to write.
+	 * @throws IOException If an IO error occurs.
 	 */
 	@Override
 	public void write(int c) throws IOException {
 		internalOut.write(c);
 	}
-	
+
 	/**
 	 * Writes a portion of a string.
 	 *
-	 * @param str
-	 *            The string from which to write.
-	 * @param off
-	 *            The offset from which to start writing characters.
-	 * @param len
-	 *            The number of characters to write.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param str The string from which to write.
+	 * @param off The offset from which to start writing characters.
+	 * @param len The number of characters to write.
+	 * @throws IOException If an IO error occurs.
 	 */
 	@Override
 	public void write(String str, int off, int len) throws IOException {

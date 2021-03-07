@@ -10,18 +10,18 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Contains information about a find/replace operation. Applications can
- * keep an instance of this class around and use it to maintain the user's
- * selection for options such as "match case," "regular expression," etc.,
- * between search operations. They can then pass the instance as a parameter
- * to the public {@link SearchEngine} methods to do the actual searching.
+ * Contains information about a find/replace operation. Applications can keep an
+ * instance of this class around and use it to maintain the user's selection for
+ * options such as "match case," "regular expression," etc., between search
+ * operations. They can then pass the instance as a parameter to the public
+ * {@link SearchEngine} methods to do the actual searching.
  *
  * @author Robert Futrell
  * @version 2.0
  * @see SearchEngine
  */
 public class SearchContext implements Cloneable {
-	
+
 	/** Fired when the "search for" property is modified. */
 	public static final String PROPERTY_SEARCH_FOR = "Search.searchFor";
 	/** Fired when the "replace with" property is modified. */
@@ -49,34 +49,31 @@ public class SearchContext implements Cloneable {
 	private boolean selectionOnly;
 	private boolean markAll;
 	private PropertyChangeSupport support;
-	
+
 	/**
-	 * Creates a new search context. Specifies a forward search,
-	 * case-insensitive, not whole-word, not a regular expression.
+	 * Creates a new search context. Specifies a forward search, case-insensitive,
+	 * not whole-word, not a regular expression.
 	 */
 	public SearchContext() {
 		this(null);
 	}
-	
+
 	/**
-	 * Creates a new search context. Specifies a forward search,
-	 * case-insensitive, not whole-word, not a regular expression.
+	 * Creates a new search context. Specifies a forward search, case-insensitive,
+	 * not whole-word, not a regular expression.
 	 *
-	 * @param searchFor
-	 *            The text to search for.
+	 * @param searchFor The text to search for.
 	 */
 	public SearchContext(String searchFor) {
 		this(searchFor, false);
 	}
-	
+
 	/**
-	 * Creates a new search context. Specifies a forward search, not
-	 * whole-word, not a regular expression.
+	 * Creates a new search context. Specifies a forward search, not whole-word, not
+	 * a regular expression.
 	 *
-	 * @param searchFor
-	 *            The text to search for.
-	 * @param matchCase
-	 *            Whether to do a case-sensitive search.
+	 * @param searchFor The text to search for.
+	 * @param matchCase Whether to do a case-sensitive search.
 	 */
 	public SearchContext(String searchFor, boolean matchCase) {
 		support = new PropertyChangeSupport(this);
@@ -85,18 +82,17 @@ public class SearchContext implements Cloneable {
 		markAll = true;
 		forward = true;
 	}
-	
+
 	/**
 	 * Adds a property change listener to this context.
 	 *
-	 * @param l
-	 *            The new listener.
+	 * @param l The new listener.
 	 * @see #removePropertyChangeListener(PropertyChangeListener)
 	 */
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		support.addPropertyChangeListener(l);
 	}
-	
+
 	@Override
 	public SearchContext clone() {
 		try {
@@ -109,15 +105,15 @@ public class SearchContext implements Cloneable {
 			throw new RuntimeException("Should never happen", cnse);
 		}
 	}
-	
+
 	protected void firePropertyChange(String property, boolean oldValue, boolean newValue) {
 		support.firePropertyChange(property, oldValue, newValue);
 	}
-	
+
 	protected void firePropertyChange(String property, String oldValue, String newValue) {
 		support.firePropertyChange(property, oldValue, newValue);
 	}
-	
+
 	/**
 	 * Returns whether "mark all" should be selected or enabled.
 	 *
@@ -127,7 +123,7 @@ public class SearchContext implements Cloneable {
 	public boolean getMarkAll() {
 		return markAll;
 	}
-	
+
 	/**
 	 * Returns whether case should be honored while searching.
 	 *
@@ -137,7 +133,7 @@ public class SearchContext implements Cloneable {
 	public boolean getMatchCase() {
 		return matchCase;
 	}
-	
+
 	/**
 	 * Returns the text to replace with, if doing a replace operation.
 	 *
@@ -148,7 +144,7 @@ public class SearchContext implements Cloneable {
 	public String getReplaceWith() {
 		return replaceWith;
 	}
-	
+
 	/**
 	 * Returns the text to search for.
 	 *
@@ -159,7 +155,7 @@ public class SearchContext implements Cloneable {
 	public String getSearchFor() {
 		return searchFor;
 	}
-	
+
 	/**
 	 * Returns whether the search should be forward through the text (vs.
 	 * backwards).
@@ -170,10 +166,10 @@ public class SearchContext implements Cloneable {
 	public boolean getSearchForward() {
 		return forward;
 	}
-	
+
 	/**
-	 * Returns whether the search should only be done in the selected text.
-	 * This flag is currently not supported.
+	 * Returns whether the search should only be done in the selected text. This
+	 * flag is currently not supported.
 	 *
 	 * @return Whether only the selected text should be searched.
 	 * @see #setSearchSelectionOnly(boolean)
@@ -181,13 +177,12 @@ public class SearchContext implements Cloneable {
 	public boolean getSearchSelectionOnly() {
 		return selectionOnly;
 	}
-	
+
 	/**
-	 * Returns whether only "whole word" matches should be returned. A match
-	 * is considered to be "whole word" if the character on either side of the
-	 * matched text is a non-word character, or if there is no character on
-	 * one side of the word, such as when it's at the beginning or end of a
-	 * line.
+	 * Returns whether only "whole word" matches should be returned. A match is
+	 * considered to be "whole word" if the character on either side of the matched
+	 * text is a non-word character, or if there is no character on one side of the
+	 * word, such as when it's at the beginning or end of a line.
 	 *
 	 * @return Whether only "whole word" matches should be returned.
 	 * @see #setWholeWord(boolean)
@@ -195,7 +190,7 @@ public class SearchContext implements Cloneable {
 	public boolean getWholeWord() {
 		return wholeWord;
 	}
-	
+
 	/**
 	 * Returns whether a regular expression search should be done.
 	 *
@@ -205,24 +200,22 @@ public class SearchContext implements Cloneable {
 	public boolean isRegularExpression() {
 		return regex;
 	}
-	
+
 	/**
 	 * Removes a property change listener from this context.
 	 *
-	 * @param l
-	 *            The listener to remove.
+	 * @param l The listener to remove.
 	 * @see #addPropertyChangeListener(PropertyChangeListener)
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		support.removePropertyChangeListener(l);
 	}
-	
+
 	/**
-	 * Sets whether "mark all" should be selected or enabled. This method
-	 * fires property change events of type {@link #PROPERTY_MARK_ALL}.
+	 * Sets whether "mark all" should be selected or enabled. This method fires
+	 * property change events of type {@link #PROPERTY_MARK_ALL}.
 	 *
-	 * @param markAll
-	 *            Whether "mark all" should be enabled.
+	 * @param markAll Whether "mark all" should be enabled.
 	 * @see #getMarkAll()
 	 */
 	public void setMarkAll(boolean markAll) {
@@ -231,13 +224,12 @@ public class SearchContext implements Cloneable {
 			firePropertyChange(PROPERTY_MARK_ALL, !markAll, markAll);
 		}
 	}
-	
+
 	/**
-	 * Sets whether case should be honored while searching. This method
-	 * fires a property change event of type {@link #PROPERTY_MATCH_CASE}.
+	 * Sets whether case should be honored while searching. This method fires a
+	 * property change event of type {@link #PROPERTY_MATCH_CASE}.
 	 *
-	 * @param matchCase
-	 *            Whether case should be honored.
+	 * @param matchCase Whether case should be honored.
 	 * @see #getMatchCase()
 	 */
 	public void setMatchCase(boolean matchCase) {
@@ -246,13 +238,12 @@ public class SearchContext implements Cloneable {
 			firePropertyChange(PROPERTY_MATCH_CASE, !matchCase, matchCase);
 		}
 	}
-	
+
 	/**
-	 * Sets whether a regular expression search should be done.This method
-	 * fires a property change event of type {@link #PROPERTY_USE_REGEX}.
+	 * Sets whether a regular expression search should be done.This method fires a
+	 * property change event of type {@link #PROPERTY_USE_REGEX}.
 	 *
-	 * @param regex
-	 *            Whether a regular expression search should be done.
+	 * @param regex Whether a regular expression search should be done.
 	 * @see #isRegularExpression()
 	 */
 	public void setRegularExpression(boolean regex) {
@@ -261,31 +252,29 @@ public class SearchContext implements Cloneable {
 			firePropertyChange(PROPERTY_USE_REGEX, !regex, regex);
 		}
 	}
-	
+
 	/**
-	 * Sets the text to replace with, if doing a replace operation. This
-	 * method fires a property change event of type
-	 * {@link #PROPERTY_REPLACE_WITH}.
+	 * Sets the text to replace with, if doing a replace operation. This method
+	 * fires a property change event of type {@link #PROPERTY_REPLACE_WITH}.
 	 *
-	 * @param replaceWith
-	 *            The text to replace with.
+	 * @param replaceWith The text to replace with.
 	 * @see #getReplaceWith()
 	 * @see #setSearchFor(String)
 	 */
 	public void setReplaceWith(String replaceWith) {
-		if ((replaceWith == null && this.replaceWith != null) || (replaceWith != null && !replaceWith.equals(this.replaceWith))) {
+		if ((replaceWith == null && this.replaceWith != null)
+				|| (replaceWith != null && !replaceWith.equals(this.replaceWith))) {
 			String old = this.replaceWith;
 			this.replaceWith = replaceWith;
 			firePropertyChange(PROPERTY_REPLACE_WITH, old, replaceWith);
 		}
 	}
-	
+
 	/**
-	 * Sets the text to search for. This method fires a property change
-	 * event of type {@link #PROPERTY_SEARCH_FOR}.
+	 * Sets the text to search for. This method fires a property change event of
+	 * type {@link #PROPERTY_SEARCH_FOR}.
 	 *
-	 * @param searchFor
-	 *            The text to search for.
+	 * @param searchFor The text to search for.
 	 * @see #getSearchFor()
 	 * @see #setReplaceWith(String)
 	 */
@@ -296,14 +285,13 @@ public class SearchContext implements Cloneable {
 			firePropertyChange(PROPERTY_SEARCH_FOR, old, searchFor);
 		}
 	}
-	
+
 	/**
-	 * Sets whether the search should be forward through the text (vs.
-	 * backwards). This method fires a property change event of type
+	 * Sets whether the search should be forward through the text (vs. backwards).
+	 * This method fires a property change event of type
 	 * {@link #PROPERTY_SEARCH_FORWARD}.
 	 *
-	 * @param forward
-	 *            Whether we should search forwards.
+	 * @param forward Whether we should search forwards.
 	 * @see #getSearchForward()
 	 */
 	public void setSearchForward(boolean forward) {
@@ -312,17 +300,16 @@ public class SearchContext implements Cloneable {
 			firePropertyChange(PROPERTY_SEARCH_FORWARD, !forward, forward);
 		}
 	}
-	
+
 	/**
-	 * Sets whether only the selected text should be searched. This method
-	 * fires a property change event of type {@link #PROPERTY_SELECTION_ONLY}.
+	 * Sets whether only the selected text should be searched. This method fires a
+	 * property change event of type {@link #PROPERTY_SELECTION_ONLY}.
 	 * <p>
 	 *
-	 * This flag is currently not supported. Calling this method will throw
-	 * an {@link UnsupportedOperationException} until it is implemented.
+	 * This flag is currently not supported. Calling this method will throw an
+	 * {@link UnsupportedOperationException} until it is implemented.
 	 *
-	 * @param selectionOnly
-	 *            Whether only selected text should be searched.
+	 * @param selectionOnly Whether only selected text should be searched.
 	 * @see #getSearchSelectionOnly()
 	 */
 	public void setSearchSelectionOnly(boolean selectionOnly) {
@@ -334,17 +321,15 @@ public class SearchContext implements Cloneable {
 			}
 		}
 	}
-	
+
 	/**
-	 * Sets whether only "whole word" matches should be returned. A match
-	 * is considered to be "whole word" if the character on either side of the
-	 * matched text is a non-word character, or if there is no character on
-	 * one side of the word, such as when it's at the beginning or end of a
-	 * line.This method fires a property change event of type
-	 * {@link #PROPERTY_MATCH_WHOLE_WORD}.
+	 * Sets whether only "whole word" matches should be returned. A match is
+	 * considered to be "whole word" if the character on either side of the matched
+	 * text is a non-word character, or if there is no character on one side of the
+	 * word, such as when it's at the beginning or end of a line.This method fires a
+	 * property change event of type {@link #PROPERTY_MATCH_WHOLE_WORD}.
 	 *
-	 * @param wholeWord
-	 *            Whether only "whole word" matches should be returned.
+	 * @param wholeWord Whether only "whole word" matches should be returned.
 	 * @see #getWholeWord()
 	 */
 	public void setWholeWord(boolean wholeWord) {
@@ -353,10 +338,11 @@ public class SearchContext implements Cloneable {
 			firePropertyChange(PROPERTY_MATCH_WHOLE_WORD, !wholeWord, wholeWord);
 		}
 	}
-	
+
 	@Override
 	public String toString() {
-		return "[SearchContext: " + "searchFor=" + getSearchFor() + ", replaceWith=" + getReplaceWith() + ", matchCase=" + getMatchCase()
-				+ ", wholeWord=" + getWholeWord() + ", regex=" + isRegularExpression() + ", markAll=" + getMarkAll() + "]";
+		return "[SearchContext: " + "searchFor=" + getSearchFor() + ", replaceWith=" + getReplaceWith() + ", matchCase="
+				+ getMatchCase() + ", wholeWord=" + getWholeWord() + ", regex=" + isRegularExpression() + ", markAll="
+				+ getMarkAll() + "]";
 	}
 }

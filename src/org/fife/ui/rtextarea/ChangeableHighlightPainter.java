@@ -29,8 +29,8 @@ import javax.swing.text.Position;
 import javax.swing.text.View;
 
 /**
- * An extension of <code>LayerPainter</code> that allows the user to
- * change several of its properties:
+ * An extension of <code>LayerPainter</code> that allows the user to change
+ * several of its properties:
  *
  * <ul>
  * <li>Its color/fill style (can use a <code>GradientPaint</code>, for
@@ -43,7 +43,7 @@ import javax.swing.text.View;
  * @version 0.6
  */
 public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter implements Serializable {
-	
+
 	/**
 	 * The <code>Paint</code>/<code>Color</code> of this highlight.
 	 */
@@ -57,78 +57,67 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 	 */
 	private transient AlphaComposite alphaComposite;
 	/**
-	 * The alpha value used in computing translucency. This should stay in the
-	 * range <code>0.0f</code> (completely invisible) to <code>1.0f</code>
-	 * (completely opaque).
+	 * The alpha value used in computing translucency. This should stay in the range
+	 * <code>0.0f</code> (completely invisible) to <code>1.0f</code> (completely
+	 * opaque).
 	 */
 	private float alpha;
 	private static final int ARCWIDTH = 8;
 	private static final int ARCHEIGHT = 8;
-	
+
 	/**
-	 * Creates a new <code>ChangableHighlightPainter</code> that paints
-	 * highlights with the text area's selection color (i.e., behaves exactly
-	 * like
+	 * Creates a new <code>ChangableHighlightPainter</code> that paints highlights
+	 * with the text area's selection color (i.e., behaves exactly like
 	 * <code>javax.swing.text.DefaultHighlighter.DefaultHighlightPainter
 	 * </code>).
 	 */
 	public ChangeableHighlightPainter() {
 		this(null);
 	}
-	
+
 	/**
 	 * Creates a new highlight painter using the specified <code>Paint</code>
 	 * without rounded edges.
 	 *
-	 * @param paint
-	 *            The <code>Paint</code> (usually a
-	 *            <code>java.awt.Color</code>) with which to paint the
-	 *            highlights.
+	 * @param paint The <code>Paint</code> (usually a <code>java.awt.Color</code>)
+	 *              with which to paint the highlights.
 	 */
 	public ChangeableHighlightPainter(Paint paint) {
 		this(paint, false);
 	}
-	
+
 	/**
 	 * Creates a new highlight painter.
 	 *
-	 * @param paint
-	 *            The <code>Paint</code> (usually a
-	 *            <code>java.awt.Color</code>) with which to paint the
-	 *            highlights.
-	 * @param rounded
-	 *            Whether to use rounded edges on the highlights.
+	 * @param paint   The <code>Paint</code> (usually a <code>java.awt.Color</code>)
+	 *                with which to paint the highlights.
+	 * @param rounded Whether to use rounded edges on the highlights.
 	 */
 	public ChangeableHighlightPainter(Paint paint, boolean rounded) {
 		this(paint, rounded, 1.0f);
 	}
-	
+
 	/**
 	 * Creates a new highlight painter.
 	 *
-	 * @param paint
-	 *            The <code>Paint</code> (usually a
-	 *            <code>java.awt.Color</code>) with which to paint the
-	 *            highlights.
-	 * @param rounded
-	 *            Whether to use rounded edges on the highlights.
-	 * @param alpha
-	 *            The alpha value to use when painting highlights. This
-	 *            value should be in the range <code>0.0f</code> (completely
-	 *            transparent) through <code>1.0f</code> (opaque).
+	 * @param paint   The <code>Paint</code> (usually a <code>java.awt.Color</code>)
+	 *                with which to paint the highlights.
+	 * @param rounded Whether to use rounded edges on the highlights.
+	 * @param alpha   The alpha value to use when painting highlights. This value
+	 *                should be in the range <code>0.0f</code> (completely
+	 *                transparent) through <code>1.0f</code> (opaque).
 	 */
 	public ChangeableHighlightPainter(Paint paint, boolean rounded, float alpha) {
 		setPaint(paint);
 		setRoundedEdges(rounded);
 		setAlpha(alpha);
 	}
-	
+
 	/**
 	 * Returns the alpha value used in computing the translucency of these
 	 * highlights. A value of <code>1.0f</code> (the default) means that no
-	 * translucency is used; there is no performance hit for this value. For
-	 * all other values (<code>[0.0f..1.0f)</code>), there will be a
-	 * performance hit.
+	 * translucency is used; there is no performance hit for this value. For all
+	 * other values (<code>[0.0f..1.0f)</code>), there will be a performance hit.
 	 *
 	 * @return The alpha value.
 	 * @see #setAlpha
@@ -136,7 +125,7 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 	public float getAlpha() {
 		return alpha;
 	}
-	
+
 	/**
 	 * Returns the alpha composite to use when rendering highlights with this
 	 * painter.
@@ -149,10 +138,10 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 		}
 		return alphaComposite;
 	}
-	
+
 	/**
-	 * Returns the <code>Paint</code> (usually a <code>java.awt.Color</code>)
-	 * being used to paint highlights.
+	 * Returns the <code>Paint</code> (usually a <code>java.awt.Color</code>) being
+	 * used to paint highlights.
 	 *
 	 * @return The <code>Paint</code>.
 	 * @see #setPaint
@@ -160,10 +149,10 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 	public Paint getPaint() {
 		return paint;
 	}
-	
+
 	/**
-	 * Returns whether rounded edges are used when painting selections with
-	 * this highlight painter.
+	 * Returns whether rounded edges are used when painting selections with this
+	 * highlight painter.
 	 *
 	 * @return Whether rounded edges are used.
 	 * @see #setRoundedEdges
@@ -171,20 +160,15 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 	public boolean getRoundedEdges() {
 		return roundedEdges;
 	}
-	
+
 	/**
 	 * Paints a highlight.
 	 *
-	 * @param g
-	 *            the graphics context
-	 * @param offs0
-	 *            the starting model offset &gt;= 0
-	 * @param offs1
-	 *            the ending model offset &gt;= offs1
-	 * @param bounds
-	 *            the bounding box for the highlight
-	 * @param c
-	 *            the editor
+	 * @param g      the graphics context
+	 * @param offs0  the starting model offset &gt;= 0
+	 * @param offs1  the ending model offset &gt;= offs1
+	 * @param bounds the bounding box for the highlight
+	 * @param c      the editor
 	 */
 	@Override
 	public void paint(Graphics g, int offs0, int offs1, Shape bounds, JTextComponent c) {
@@ -235,23 +219,17 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 			}
 		}
 	}
-	
+
 	/**
 	 * Paints a portion of a highlight.
 	 *
-	 * @param g
-	 *            the graphics context
-	 * @param offs0
-	 *            the starting model offset &gt;= 0
-	 * @param offs1
-	 *            the ending model offset &gt;= offs1
-	 * @param bounds
-	 *            the bounding box of the view, which is not
-	 *            necessarily the region to paint.
-	 * @param c
-	 *            the editor
-	 * @param view
-	 *            View painting for
+	 * @param g      the graphics context
+	 * @param offs0  the starting model offset &gt;= 0
+	 * @param offs1  the ending model offset &gt;= offs1
+	 * @param bounds the bounding box of the view, which is not necessarily the
+	 *               region to paint.
+	 * @param c      the editor
+	 * @param view   View painting for
 	 * @return region drawing occurred in
 	 */
 	@Override
@@ -328,12 +306,11 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 		// Only if exception
 		return null;
 	}
-	
+
 	/**
 	 * Deserializes a painter.
 	 *
-	 * @param s
-	 *            The stream to read from.
+	 * @param s The stream to read from.
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
@@ -345,18 +322,16 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 		paint = rgb == -1 ? null : new Color(rgb);
 		alphaComposite = null; // Keep FindBugs happy. This will get set later
 	}
-	
+
 	/**
 	 * Sets the alpha value used in rendering highlights. If this value is
 	 * <code>1.0f</code> (the default), the highlights are rendered completely
-	 * opaque. This behavior matches that of
-	 * <code>DefaultHighlightPainter</code> and imposes no performance hit. If
-	 * this value is below <code>1.0f</code>, it represents how opaque the
-	 * highlight will be. There will be a small performance hit for values
-	 * less than <code>1.0f</code>.
+	 * opaque. This behavior matches that of <code>DefaultHighlightPainter</code>
+	 * and imposes no performance hit. If this value is below <code>1.0f</code>, it
+	 * represents how opaque the highlight will be. There will be a small
+	 * performance hit for values less than <code>1.0f</code>.
 	 *
-	 * @param alpha
-	 *            The new alpha value to use for transparency.
+	 * @param alpha The new alpha value to use for transparency.
 	 * @see #getAlpha
 	 */
 	public void setAlpha(float alpha) {
@@ -365,37 +340,33 @@ public class ChangeableHighlightPainter extends LayeredHighlighter.LayerPainter 
 		this.alpha = Math.min(1.0f, alpha);
 		alphaComposite = null; // So it is recreated with new alpha.
 	}
-	
+
 	/**
-	 * Sets the <code>Paint</code> (usually a <code>java.awt.Color</code>)
-	 * used to paint this highlight.
+	 * Sets the <code>Paint</code> (usually a <code>java.awt.Color</code>) used to
+	 * paint this highlight.
 	 *
-	 * @param paint
-	 *            The new <code>Paint</code>.
+	 * @param paint The new <code>Paint</code>.
 	 * @see #getPaint
 	 */
 	public void setPaint(Paint paint) {
 		this.paint = paint;
 	}
-	
+
 	/**
 	 * Sets whether rounded edges are used when painting this highlight.
 	 *
-	 * @param rounded
-	 *            Whether rounded edges should be used.
+	 * @param rounded Whether rounded edges should be used.
 	 * @see #getRoundedEdges
 	 */
 	public void setRoundedEdges(boolean rounded) {
 		roundedEdges = rounded;
 	}
-	
+
 	/**
 	 * Serializes this painter.
 	 *
-	 * @param s
-	 *            The stream to write to.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param s The stream to write to.
+	 * @throws IOException If an IO error occurs.
 	 */
 	private void writeObject(ObjectOutputStream s) throws IOException {
 		s.defaultWriteObject();

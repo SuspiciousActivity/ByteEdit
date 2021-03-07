@@ -21,8 +21,8 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  * A code template that inserts static text before and after the caret.
  * <p>
  *
- * For example, you can associate the identifier <code>forb</code>
- * (short for "for-block") with the following code:
+ * For example, you can associate the identifier <code>forb</code> (short for
+ * "for-block") with the following code:
  * <p>
  *
  * <pre>
@@ -31,17 +31,17 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  *   }
  * </pre>
  *
- * Then, whenever you type <code>forb</code> followed by a trigger
- * (e.g., a space) into a text area with this <code>CodeTemplate</code>,
- * the code snippet is added in place of <code>forb</code>. Further,
- * the caret is placed at the position denoted by <code>&lt;caret&gt;</code>.
+ * Then, whenever you type <code>forb</code> followed by a trigger (e.g., a
+ * space) into a text area with this <code>CodeTemplate</code>, the code snippet
+ * is added in place of <code>forb</code>. Further, the caret is placed at the
+ * position denoted by <code>&lt;caret&gt;</code>.
  *
  * @author Robert Futrell
  * @version 0.1
  * @see CodeTemplate
  */
 public class StaticCodeTemplate extends AbstractCodeTemplate {
-	
+
 	private static final long serialVersionUID = 1;
 	/**
 	 * The code inserted before the caret position.
@@ -52,39 +52,37 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
 	 */
 	private String afterCaret;
 	/**
-	 * Cached value representing whether <code>beforeCaret</code> contains
-	 * one or more newlines.
+	 * Cached value representing whether <code>beforeCaret</code> contains one or
+	 * more newlines.
 	 */
 	private transient int firstBeforeNewline;
 	/**
-	 * Cached value representing whether <code>afterCaret</code> contains
-	 * one or more newlines.
+	 * Cached value representing whether <code>afterCaret</code> contains one or
+	 * more newlines.
 	 */
 	private transient int firstAfterNewline;
 	private static final String EMPTY_STRING = "";
-	
+
 	/**
-	 * Constructor. This constructor only exists to support persistance
-	 * through serialization.
+	 * Constructor. This constructor only exists to support persistance through
+	 * serialization.
 	 */
-	public StaticCodeTemplate() {}
-	
+	public StaticCodeTemplate() {
+	}
+
 	/**
 	 * Constructor.
 	 *
-	 * @param id
-	 *            The ID of this code template.
-	 * @param beforeCaret
-	 *            The text to place before the caret.
-	 * @param afterCaret
-	 *            The text to place after the caret.
+	 * @param id          The ID of this code template.
+	 * @param beforeCaret The text to place before the caret.
+	 * @param afterCaret  The text to place after the caret.
 	 */
 	public StaticCodeTemplate(String id, String beforeCaret, String afterCaret) {
 		super(id);
 		setBeforeCaretText(beforeCaret);
 		setAfterCaretText(afterCaret);
 	}
-	
+
 	/**
 	 * Returns the text that will be placed after the caret.
 	 *
@@ -94,7 +92,7 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
 	public String getAfterCaretText() {
 		return afterCaret;
 	}
-	
+
 	/**
 	 * Returns the text that will be placed before the caret.
 	 *
@@ -104,40 +102,35 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
 	public String getBeforeCaretText() {
 		return beforeCaret;
 	}
-	
+
 	/**
-	 * Returns the "after caret" text, with each new line indented by
-	 * the specified amount.
+	 * Returns the "after caret" text, with each new line indented by the specified
+	 * amount.
 	 *
-	 * @param indent
-	 *            The amount to indent.
+	 * @param indent The amount to indent.
 	 * @return The "after caret" text.
 	 */
 	private String getAfterTextIndented(String indent) {
 		return getTextIndented(getAfterCaretText(), firstAfterNewline, indent);
 	}
-	
+
 	/**
-	 * Returns the "before caret" text, with each new line indented by
-	 * the specified amount.
+	 * Returns the "before caret" text, with each new line indented by the specified
+	 * amount.
 	 *
-	 * @param indent
-	 *            The amount to indent.
+	 * @param indent The amount to indent.
 	 * @return The "before caret" text.
 	 */
 	private String getBeforeTextIndented(String indent) {
 		return getTextIndented(getBeforeCaretText(), firstBeforeNewline, indent);
 	}
-	
+
 	/**
 	 * Returns text with newlines indented by the specified amount.
 	 *
-	 * @param text
-	 *            The original text.
-	 * @param firstNewline
-	 *            The index of the first '\n' character.
-	 * @param indent
-	 *            The amount to indent.
+	 * @param text         The original text.
+	 * @param firstNewline The index of the first '\n' character.
+	 * @param indent       The amount to indent.
 	 * @return The indented text.
 	 */
 	private String getTextIndented(String text, int firstNewline, String indent) {
@@ -158,15 +151,12 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
 		}
 		return sb.toString();
 	}
-	
+
 	/**
-	 * Invokes this code template. The changes are made to the given text
-	 * area.
+	 * Invokes this code template. The changes are made to the given text area.
 	 *
-	 * @param textArea
-	 *            The text area to operate on.
-	 * @throws BadLocationException
-	 *             If something bad happens.
+	 * @param textArea The text area to operate on.
+	 * @throws BadLocationException If something bad happens.
 	 */
 	@Override
 	public void invoke(RSyntaxTextArea textArea) throws BadLocationException {
@@ -196,17 +186,14 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
 		doc.replace(p0, p1 - p0, beforeText + afterText, null);
 		textArea.setCaretPosition(p0 + beforeText.length());
 	}
-	
+
 	/**
-	 * Called when reading a serialized version of this document. This is
-	 * overridden to initialize the transient members of this class.
+	 * Called when reading a serialized version of this document. This is overridden
+	 * to initialize the transient members of this class.
 	 *
-	 * @param in
-	 *            The input stream to read from.
-	 * @throws ClassNotFoundException
-	 *             Never.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param in The input stream to read from.
+	 * @throws ClassNotFoundException Never.
+	 * @throws IOException            If an IO error occurs.
 	 */
 	private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
@@ -215,39 +202,37 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
 		setBeforeCaretText(this.beforeCaret);
 		setAfterCaretText(this.afterCaret);
 	}
-	
+
 	/**
 	 * Sets the text to place after the caret.
 	 *
-	 * @param afterCaret
-	 *            The text.
+	 * @param afterCaret The text.
 	 * @see #getAfterCaretText()
 	 */
 	public void setAfterCaretText(String afterCaret) {
 		this.afterCaret = afterCaret == null ? EMPTY_STRING : afterCaret;
 		firstAfterNewline = this.afterCaret.indexOf('\n');
 	}
-	
+
 	/**
 	 * Sets the text to place before the caret.
 	 *
-	 * @param beforeCaret
-	 *            The text.
+	 * @param beforeCaret The text.
 	 * @see #getBeforeCaretText()
 	 */
 	public void setBeforeCaretText(String beforeCaret) {
 		this.beforeCaret = beforeCaret == null ? EMPTY_STRING : beforeCaret;
 		firstBeforeNewline = this.beforeCaret.indexOf('\n');
 	}
-	
+
 	/**
-	 * Returns a string representation of this template for debugging
-	 * purposes.
+	 * Returns a string representation of this template for debugging purposes.
 	 *
 	 * @return A string representation of this template.
 	 */
 	@Override
 	public String toString() {
-		return "[StaticCodeTemplate: id=" + getID() + ", text=" + getBeforeCaretText() + "|" + getAfterCaretText() + "]";
+		return "[StaticCodeTemplate: id=" + getID() + ", text=" + getBeforeCaretText() + "|" + getAfterCaretText()
+				+ "]";
 	}
 }

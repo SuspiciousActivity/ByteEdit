@@ -37,32 +37,31 @@ import javax.swing.event.MouseInputAdapter;
  * @version 1.0
  */
 class SizeGrip extends JPanel {
-	
+
 	/**
 	 * The size grip to use if we're on OS X.
 	 */
 	private Image osxSizeGrip;
-	
+
 	public SizeGrip() {
 		MouseHandler adapter = new MouseHandler();
 		addMouseListener(adapter);
 		addMouseMotionListener(adapter);
 		setPreferredSize(new Dimension(16, 16));
 	}
-	
+
 	/**
-	 * Overridden to ensure that the cursor for this component is appropriate
-	 * for the orientation.
+	 * Overridden to ensure that the cursor for this component is appropriate for
+	 * the orientation.
 	 *
-	 * @param o
-	 *            The new orientation.
+	 * @param o The new orientation.
 	 */
 	@Override
 	public void applyComponentOrientation(ComponentOrientation o) {
 		possiblyFixCursor(o.isLeftToRight());
 		super.applyComponentOrientation(o);
 	}
-	
+
 	/**
 	 * Creates and returns the OS X size grip image.
 	 *
@@ -94,12 +93,11 @@ class SizeGrip extends JPanel {
 		}
 		return image;
 	}
-	
+
 	/**
 	 * Paints this panel.
 	 *
-	 * @param g
-	 *            The graphics context.
+	 * @param g The graphics context.
 	 */
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -147,13 +145,12 @@ class SizeGrip extends JPanel {
 			g.fillRect(2, height - 9, 2, 2);
 		}
 	}
-	
+
 	/**
 	 * Ensures that the cursor for this component is appropriate for the
 	 * orientation.
 	 *
-	 * @param ltr
-	 *            Whether the current component orientation is LTR.
+	 * @param ltr Whether the current component orientation is LTR.
 	 */
 	protected void possiblyFixCursor(boolean ltr) {
 		int cursor = Cursor.NE_RESIZE_CURSOR;
@@ -164,7 +161,7 @@ class SizeGrip extends JPanel {
 			setCursor(Cursor.getPredefinedCursor(cursor));
 		}
 	}
-	
+
 	@Override
 	public void updateUI() {
 		super.updateUI();
@@ -178,21 +175,21 @@ class SizeGrip extends JPanel {
 			osxSizeGrip = null;
 		}
 	}
-	
+
 	/**
 	 * Listens for mouse events on this panel and resizes the parent window
 	 * appropriately.
 	 */
 	/*
-	 * NOTE: We use SwingUtilities.convertPointToScreen() instead of just using
-	 * the locations relative to the corner component because the latter proved
-	 * buggy - stretch the window too wide and some kind of arithmetic error
-	 * started happening somewhere - our window would grow way too large.
+	 * NOTE: We use SwingUtilities.convertPointToScreen() instead of just using the
+	 * locations relative to the corner component because the latter proved buggy -
+	 * stretch the window too wide and some kind of arithmetic error started
+	 * happening somewhere - our window would grow way too large.
 	 */
 	private class MouseHandler extends MouseInputAdapter {
-		
+
 		private Point origPos;
-		
+
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			Point newPos = e.getPoint();
@@ -222,13 +219,13 @@ class SizeGrip extends JPanel {
 			}
 			origPos.setLocation(newPos);
 		}
-		
+
 		@Override
 		public void mousePressed(MouseEvent e) {
 			origPos = e.getPoint();
 			SwingUtilities.convertPointToScreen(origPos, SizeGrip.this);
 		}
-		
+
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			origPos = null;

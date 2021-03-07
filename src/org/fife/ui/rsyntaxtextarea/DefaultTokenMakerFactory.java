@@ -15,7 +15,7 @@ package org.fife.ui.rsyntaxtextarea;
  * @version 1.0
  */
 class DefaultTokenMakerFactory extends AbstractTokenMakerFactory implements SyntaxConstants {
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

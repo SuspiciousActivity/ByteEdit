@@ -17,17 +17,16 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 
 /**
- * A strategy for painting the background of an <code>RTextAreaBase</code>
- * as an image. The image is always stretched to completely fill the
+ * A strategy for painting the background of an <code>RTextAreaBase</code> as an
+ * image. The image is always stretched to completely fill the
  * <code>RTextAreaBase</code>.
  * <p>
  *
- * You can set the scaling hint used when stretching/skewing the image
- * to fit in the <code>RTextAreaBase</code>'s background via the
- * <code>setScalingHint</code> method, but keep in mind the more
- * accurate the scaling hint, the less responsive your application will
- * be when stretching the window (as that's the only time the image's
- * size is recalculated).
+ * You can set the scaling hint used when stretching/skewing the image to fit in
+ * the <code>RTextAreaBase</code>'s background via the
+ * <code>setScalingHint</code> method, but keep in mind the more accurate the
+ * scaling hint, the less responsive your application will be when stretching
+ * the window (as that's the only time the image's size is recalculated).
  *
  * @author Robert Futrell
  * @version 0.1
@@ -35,25 +34,24 @@ import javax.imageio.ImageIO;
  * @see org.fife.ui.rtextarea.VolatileImageBackgroundPainterStrategy
  */
 public abstract class ImageBackgroundPainterStrategy implements BackgroundPainterStrategy {
-	
+
 	protected MediaTracker tracker;
 	private RTextAreaBase textArea;
 	private Image master;
 	private int oldWidth, oldHeight;
 	private int scalingHint;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param textArea
-	 *            The text area using this image as its background.
+	 * @param textArea The text area using this image as its background.
 	 */
 	public ImageBackgroundPainterStrategy(RTextAreaBase textArea) {
 		this.textArea = textArea;
 		tracker = new MediaTracker(textArea);
 		scalingHint = Image.SCALE_FAST;
 	}
-	
+
 	/**
 	 * Returns the text area using this strategy.
 	 *
@@ -62,18 +60,18 @@ public abstract class ImageBackgroundPainterStrategy implements BackgroundPainte
 	public RTextAreaBase getRTextAreaBase() {
 		return textArea;
 	}
-	
+
 	/**
-	 * Returns the "master" image; that is, the original, unscaled image.
-	 * When the image needs to be rescaled, scaling should be done from
-	 * this image, to prevent repeated scaling from distorting the image.
+	 * Returns the "master" image; that is, the original, unscaled image. When the
+	 * image needs to be rescaled, scaling should be done from this image, to
+	 * prevent repeated scaling from distorting the image.
 	 *
 	 * @return The master image.
 	 */
 	public Image getMasterImage() {
 		return master;
 	}
-	
+
 	/**
 	 * Returns the scaling hint being used.
 	 *
@@ -83,15 +81,13 @@ public abstract class ImageBackgroundPainterStrategy implements BackgroundPainte
 	public int getScalingHint() {
 		return scalingHint;
 	}
-	
+
 	/**
 	 * Paints the image at the specified location and at the specified size.
 	 *
-	 * @param g
-	 *            The graphics context.
-	 * @param bounds
-	 *            The bounds in which to paint the image. The image
-	 *            will be scaled to fit exactly in these bounds if necessary.
+	 * @param g      The graphics context.
+	 * @param bounds The bounds in which to paint the image. The image will be
+	 *               scaled to fit exactly in these bounds if necessary.
 	 */
 	@Override
 	public final void paint(Graphics g, Rectangle bounds) {
@@ -102,38 +98,30 @@ public abstract class ImageBackgroundPainterStrategy implements BackgroundPainte
 		}
 		paintImage(g, bounds.x, bounds.y);
 	}
-	
+
 	/**
-	 * Paints the image at the specified location. This method assumes
-	 * scaling has already been done, and simply paints the background
-	 * image "as-is."
+	 * Paints the image at the specified location. This method assumes scaling has
+	 * already been done, and simply paints the background image "as-is."
 	 *
-	 * @param g
-	 *            The graphics context.
-	 * @param x
-	 *            The x-coordinate at which to paint.
-	 * @param y
-	 *            The y-coordinate at which to paint.
+	 * @param g The graphics context.
+	 * @param x The x-coordinate at which to paint.
+	 * @param y The y-coordinate at which to paint.
 	 */
 	protected abstract void paintImage(Graphics g, int x, int y);
-	
+
 	/**
 	 * Rescales the displayed image to be the specified size.
 	 *
-	 * @param width
-	 *            The new width of the image.
-	 * @param height
-	 *            The new height of the image.
-	 * @param hint
-	 *            The scaling hint to use.
+	 * @param width  The new width of the image.
+	 * @param height The new height of the image.
+	 * @param hint   The scaling hint to use.
 	 */
 	protected abstract void rescaleImage(int width, int height, int hint);
-	
+
 	/**
 	 * Sets the image this background painter displays.
 	 *
-	 * @param imageURL
-	 *            URL of a file containing the image to display.
+	 * @param imageURL URL of a file containing the image to display.
 	 */
 	public void setImage(URL imageURL) {
 		BufferedImage image = null;
@@ -144,23 +132,21 @@ public abstract class ImageBackgroundPainterStrategy implements BackgroundPainte
 		}
 		setImage(image);
 	}
-	
+
 	/**
 	 * Sets the image this background painter displays.
 	 *
-	 * @param image
-	 *            The new image to use for the background.
+	 * @param image The new image to use for the background.
 	 */
 	public void setImage(Image image) {
 		master = image;
 		oldWidth = -1; // To trick us into fixing bgImage.
 	}
-	
+
 	/**
 	 * Sets the scaling hint to use when scaling the image.
 	 *
-	 * @param hint
-	 *            The hint to apply; e.g. <code>Image.SCALE_DEFAULT</code>.
+	 * @param hint The hint to apply; e.g. <code>Image.SCALE_DEFAULT</code>.
 	 * @see #getScalingHint
 	 */
 	public void setScalingHint(int hint) {

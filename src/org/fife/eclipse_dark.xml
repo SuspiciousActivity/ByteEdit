@@ -12,10 +12,10 @@
     <baseFont size="12"/>
    
    <!--  General editor colors. -->
-   <background color="000000"/>
+   <background color="2f2f2f"/>
    <caret color="eeeeee"/>
-   <selection bg="222222" fg="eeeeee"/>
-   <currentLineHighlight color="222222" fade="false"/>
+   <selection bg="111111" fg="eeeeee"/>
+   <currentLineHighlight color="111111" fade="false"/>
    <marginLine fg="4f4b46"/>
    <markAllHighlight color="947e76"/> <!-- TODO: Fix me -->
    <markOccurrencesHighlight color="2b2b2b" border="false"/>

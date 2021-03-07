@@ -49,10 +49,9 @@ import me.ByteEdit.edit.JavaAssemblyTokenMaker;
  * @version 1.0
  */
 public class RSyntaxDocument extends RDocument implements Iterable<Token>, SyntaxConstants {
-	
+
 	/**
-	 * Creates a {@link TokenMaker} appropriate for a given programming
-	 * language.
+	 * Creates a {@link TokenMaker} appropriate for a given programming language.
 	 */
 	private transient TokenMakerFactory tokenMakerFactory;
 	/**
@@ -64,8 +63,7 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 	 */
 	private String syntaxStyle;
 	/**
-	 * Array of values representing the "last token type" on each line. This is
-	 * used
+	 * Array of values representing the "last token type" on each line. This is used
 	 * in cases such as multi-line comments: if the previous line ended with an
 	 * (unclosed) multi-line comment, we can use this knowledge and start the
 	 * current line's syntax highlighting in multi-line comment state.
@@ -77,35 +75,28 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 	private transient int tokenRetrievalCount = 0;
 	private transient Segment s;
 	/**
-	 * If this is set to <code>true</code>, debug information about how much
-	 * token
+	 * If this is set to <code>true</code>, debug information about how much token
 	 * caching is helping is printed to stdout.
 	 */
 	private static final boolean DEBUG_TOKEN_CACHING = false;
-	
+
 	/**
-	 * Constructs a plain text document. A default root element is created, and
-	 * the
+	 * Constructs a plain text document. A default root element is created, and the
 	 * tab size set to 5.
 	 *
-	 * @param syntaxStyle
-	 *            The syntax highlighting scheme to use.
+	 * @param syntaxStyle The syntax highlighting scheme to use.
 	 */
 	public RSyntaxDocument(String syntaxStyle) {
 		this(null, syntaxStyle);
 	}
-	
+
 	/**
-	 * Constructs a plain text document. A default root element is created, and
-	 * the
+	 * Constructs a plain text document. A default root element is created, and the
 	 * tab size set to 5.
 	 *
-	 * @param tmf
-	 *            The <code>TokenMakerFactory</code> for this document. If this
-	 *            is
-	 *            <code>null</code>, a default factory is used.
-	 * @param syntaxStyle
-	 *            The syntax highlighting scheme to use.
+	 * @param tmf         The <code>TokenMakerFactory</code> for this document. If
+	 *                    this is <code>null</code>, a default factory is used.
+	 * @param syntaxStyle The syntax highlighting scheme to use.
 	 */
 	public RSyntaxDocument(TokenMakerFactory tmf, String syntaxStyle) {
 		putProperty(tabSizeAttribute, Integer.valueOf(5));
@@ -115,27 +106,23 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		setTokenMakerFactory(tmf);
 		setSyntaxStyle(syntaxStyle);
 	}
-	
+
 	/**
-	 * Alerts all listeners to this document of an insertion. This is overridden
-	 * so
+	 * Alerts all listeners to this document of an insertion. This is overridden so
 	 * we can update our syntax highlighting stuff.
 	 * <p>
 	 * The syntax highlighting stuff has to be here instead of in
-	 * <code>insertUpdate</code> because <code>insertUpdate</code> is not called
-	 * by
+	 * <code>insertUpdate</code> because <code>insertUpdate</code> is not called by
 	 * the undo/redo actions, but this method is.
 	 *
-	 * @param e
-	 *            The change.
+	 * @param e The change.
 	 */
 	@Override
 	protected void fireInsertUpdate(DocumentEvent e) {
 		cachedTokenList = null;
 		/*
 		 * Now that the text is actually inserted into the content and element
-		 * structure, we can update our token elements and
-		 * "last tokens on lines"
+		 * structure, we can update our token elements and "last tokens on lines"
 		 * structure.
 		 */
 		Element lineMap = getDefaultRootElement();
@@ -174,23 +161,20 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 			// Let all listeners know about the insertion.
 		super.fireInsertUpdate(e);
 	}
-	
+
 	/**
-	 * This method is called AFTER the content has been inserted into the
-	 * document
+	 * This method is called AFTER the content has been inserted into the document
 	 * and the element structure has been updated.
 	 * <p>
 	 * The syntax-highlighting updates need to be done here (as opposed to an
 	 * override of <code>postRemoveUpdate</code>) as this method is called in
-	 * response to undo/redo events, whereas <code>postRemoveUpdate</code> is
-	 * not.
+	 * response to undo/redo events, whereas <code>postRemoveUpdate</code> is not.
 	 * <p>
 	 * Now that the text is actually inserted into the content and element
 	 * structure, we can update our token elements and "last tokens on lines"
 	 * structure.
 	 *
-	 * @param chng
-	 *            The change that occurred.
+	 * @param chng The change that occurred.
 	 * @see #removeUpdate
 	 */
 	@Override
@@ -240,26 +224,22 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		// Let all of our listeners know about the removal.
 		super.fireRemoveUpdate(chng);
 	}
-	
+
 	/**
 	 * Returns the closest {@link TokenTypes "standard" token type} for a given
 	 * "internal" token type (e.g. one whose value is <code>&lt; 0</code>).
 	 *
-	 * @param type
-	 *            The token type.
-	 * @return The closest "standard" token type. If a mapping is not defined
-	 *         for
+	 * @param type The token type.
+	 * @return The closest "standard" token type. If a mapping is not defined for
 	 *         this language, then <code>type</code> is returned.
 	 */
 	public int getClosestStandardTokenTypeForInternalType(int type) {
 		return tokenMaker.getClosestStandardTokenTypeForInternalType(type);
 	}
-	
+
 	/**
-	 * Returns whether closing markup tags should be automatically completed.
-	 * This
-	 * method only returns <code>true</code> if {@link #getLanguageIsMarkup()}
-	 * also
+	 * Returns whether closing markup tags should be automatically completed. This
+	 * method only returns <code>true</code> if {@link #getLanguageIsMarkup()} also
 	 * returns <code>true</code>.
 	 *
 	 * @return Whether markup closing tags should be automatically completed.
@@ -269,26 +249,24 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		// TODO: Remove terrible dependency on AbstractMarkupTokenMaker
 		return getLanguageIsMarkup() && ((AbstractMarkupTokenMaker) tokenMaker).getCompleteCloseTags();
 	}
-	
+
 	/**
 	 * Returns whether the current programming language uses curly braces
 	 * ('<code>{</code>' and '<code>}</code>') to denote code blocks.
 	 *
-	 * @param languageIndex
-	 *            The language index at the offset in question. Since some
-	 *            <code>TokenMaker</code>s effectively have nested languages
-	 *            (such
-	 *            as JavaScript in HTML), this parameter tells the
-	 *            <code>TokenMaker</code> what sub-language to look at.
+	 * @param languageIndex The language index at the offset in question. Since some
+	 *                      <code>TokenMaker</code>s effectively have nested
+	 *                      languages (such as JavaScript in HTML), this parameter
+	 *                      tells the <code>TokenMaker</code> what sub-language to
+	 *                      look at.
 	 * @return Whether curly braces denote code blocks.
 	 */
 	public boolean getCurlyBracesDenoteCodeBlocks(int languageIndex) {
 		return tokenMaker.getCurlyBracesDenoteCodeBlocks(languageIndex);
 	}
-	
+
 	/**
-	 * Returns whether the current language is a markup language, such as HTML,
-	 * XML
+	 * Returns whether the current language is a markup language, such as HTML, XML
 	 * or PHP.
 	 *
 	 * @return Whether the current language is a markup language.
@@ -296,50 +274,42 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 	public boolean getLanguageIsMarkup() {
 		return tokenMaker.isMarkupLanguage();
 	}
-	
+
 	/**
 	 * Returns the token type of the last token on the given line.
 	 *
-	 * @param line
-	 *            The line to inspect.
-	 * @return The token type of the last token on the specified line. If the
-	 *         line
+	 * @param line The line to inspect.
+	 * @return The token type of the last token on the specified line. If the line
 	 *         is invalid, an exception is thrown.
 	 */
 	public int getLastTokenTypeOnLine(int line) {
 		return lastTokensOnLines.get(line);
 	}
-	
+
 	/**
-	 * Returns the text to place at the beginning and end of a line to "comment"
-	 * it
+	 * Returns the text to place at the beginning and end of a line to "comment" it
 	 * in this programming language.
 	 *
 	 * @return The start and end strings to add to a line to "comment" it out. A
-	 *         <code>null</code> value for either means there is no string to
-	 *         add
-	 *         for that part. A value of <code>null</code> for the array means
-	 *         this
+	 *         <code>null</code> value for either means there is no string to add
+	 *         for that part. A value of <code>null</code> for the array means this
 	 *         language does not support commenting/uncommenting lines.
 	 */
 	public String[] getLineCommentStartAndEnd(int languageIndex) {
 		return tokenMaker.getLineCommentStartAndEnd(languageIndex);
 	}
-	
+
 	/**
-	 * Returns whether tokens of the specified type should have "mark
-	 * occurrences"
+	 * Returns whether tokens of the specified type should have "mark occurrences"
 	 * enabled for the current programming language.
 	 *
-	 * @param type
-	 *            The token type.
-	 * @return Whether tokens of this type should have "mark occurrences"
-	 *         enabled.
+	 * @param type The token type.
+	 * @return Whether tokens of this type should have "mark occurrences" enabled.
 	 */
 	boolean getMarkOccurrencesOfTokenType(int type) {
 		return tokenMaker.getMarkOccurrencesOfTokenType(type);
 	}
-	
+
 	/**
 	 * Returns the occurrence marker for the current language.
 	 *
@@ -348,13 +318,12 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 	OccurrenceMarker getOccurrenceMarker() {
 		return tokenMaker.getOccurrenceMarker();
 	}
-	
+
 	/**
 	 * This method returns whether auto indentation should be done if Enter is
 	 * pressed at the end of the specified line.
 	 *
-	 * @param line
-	 *            The line to check.
+	 * @param line The line to check.
 	 * @return Whether an extra indentation should be done.
 	 */
 	public boolean getShouldIndentNextLine(int line) {
@@ -362,7 +331,7 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		t = t.getLastNonCommentNonWhitespaceToken();
 		return tokenMaker.getShouldIndentNextLineAfter(t);
 	}
-	
+
 	/**
 	 * Returns the syntax style being used.
 	 *
@@ -372,16 +341,14 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 	public String getSyntaxStyle() {
 		return syntaxStyle;
 	}
-	
+
 	/**
 	 * Returns a token list for the specified segment of text representing the
 	 * specified line number. This method is basically a wrapper for
-	 * <code>tokenMaker.getTokenList</code> that takes into account the last
-	 * token
+	 * <code>tokenMaker.getTokenList</code> that takes into account the last token
 	 * on the previous line to assure token accuracy.
 	 *
-	 * @param line
-	 *            The line number of <code>text</code> in the document, &gt;= 0.
+	 * @param line The line number of <code>text</code> in the document, &gt;= 0.
 	 * @return A token list representing the specified line.
 	 */
 	public final Token getTokenListForLine(int line) {
@@ -412,7 +379,7 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		cachedTokenList = tokenMaker.getTokenList(s, initialTokenType, startOffset);
 		return cachedTokenList;
 	}
-	
+
 	boolean insertBreakSpecialHandling(ActionEvent e) {
 		Action a = tokenMaker.getInsertBreakAction();
 		if (a != null) {
@@ -421,28 +388,23 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns whether a character could be part of an "identifier" token in a
-	 * specific language. This is used to identify such things as the bounds of
-	 * the
+	 * specific language. This is used to identify such things as the bounds of the
 	 * "word" to select on double-clicking.
 	 *
-	 * @param languageIndex
-	 *            The language index the character was found in.
-	 * @param ch
-	 *            The character.
+	 * @param languageIndex The language index the character was found in.
+	 * @param ch            The character.
 	 * @return Whether the character could be part of an "identifier" token.
 	 */
 	public boolean isIdentifierChar(int languageIndex, char ch) {
 		return tokenMaker.isIdentifierChar(languageIndex, ch);
 	}
-	
+
 	/**
-	 * Returns an iterator over the paintable tokens in this document. Results
-	 * are
-	 * undefined if this document is modified while the iterator is being
-	 * iterated
+	 * Returns an iterator over the paintable tokens in this document. Results are
+	 * undefined if this document is modified while the iterator is being iterated
 	 * through, so this should only be used on the EDT.
 	 * <p>
 	 *
@@ -455,12 +417,11 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 	public Iterator<Token> iterator() {
 		return new TokenIterator(this);
 	}
-	
+
 	/**
 	 * Deserializes a document.
 	 *
-	 * @param in
-	 *            The stream to read from.
+	 * @param in The stream to read from.
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
@@ -476,16 +437,13 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		lastTokensOnLines = new DynamicIntArray(lineCount);
 		setSyntaxStyle(syntaxStyle); // Actually install (transient) TokenMaker
 	}
-	
+
 	/**
-	 * Makes our private <code>Segment s</code> point to the text in our
-	 * document
-	 * referenced by the specified element. Note that <code>line</code> MUST be
-	 * a
+	 * Makes our private <code>Segment s</code> point to the text in our document
+	 * referenced by the specified element. Note that <code>line</code> MUST be a
 	 * valid line number in the document.
 	 *
-	 * @param line
-	 *            The line number you want to get.
+	 * @param line The line number you want to get.
 	 */
 	private void setSharedSegment(int line) {
 		Element map = getDefaultRootElement();
@@ -504,20 +462,17 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 			throw new InternalError("Text range not in document: " + startOffset + "-" + endOffset);
 		}
 	}
-	
+
 	/**
-	 * Sets the syntax style being used for syntax highlighting in this
-	 * document.
+	 * Sets the syntax style being used for syntax highlighting in this document.
 	 * What styles are supported by a document is determined by its
 	 * {@link TokenMakerFactory}. By default, all <code>RSyntaxDocument</code>s
 	 * support all languages built into <code>RSyntaxTextArea</code>.
 	 *
-	 * @param styleKey
-	 *            The new style to use, such as
-	 *            {@link SyntaxConstants#SYNTAX_STYLE_JAVA}. If this style is
-	 *            not
-	 *            known or supported by this document, then
-	 *            {@link SyntaxConstants#SYNTAX_STYLE_NONE} is used.
+	 * @param styleKey The new style to use, such as
+	 *                 {@link SyntaxConstants#SYNTAX_STYLE_JAVA}. If this style is
+	 *                 not known or supported by this document, then
+	 *                 {@link SyntaxConstants#SYNTAX_STYLE_NONE} is used.
 	 * @see #setSyntaxStyle(TokenMaker)
 	 * @see #getSyntaxStyle()
 	 */
@@ -530,15 +485,13 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		updateSyntaxHighlightingInformation();
 		this.syntaxStyle = styleKey;
 	}
-	
+
 	/**
-	 * Sets the syntax style being used for syntax highlighting in this
-	 * document.
+	 * Sets the syntax style being used for syntax highlighting in this document.
 	 * You should call this method if you've created a custom token maker for a
 	 * language not normally supported by <code>RSyntaxTextArea</code>.
 	 *
-	 * @param tokenMaker
-	 *            The new token maker to use.
+	 * @param tokenMaker The new token maker to use.
 	 * @see #setSyntaxStyle(String)
 	 */
 	public void setSyntaxStyle(TokenMaker tokenMaker) {
@@ -546,35 +499,28 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		updateSyntaxHighlightingInformation();
 		this.syntaxStyle = "text/unknown"; // TODO: Make me public?
 	}
-	
+
 	/**
 	 * Sets the token maker factory used by this document.
 	 *
-	 * @param tmf
-	 *            The <code>TokenMakerFactory</code> for this document. If this
-	 *            is
+	 * @param tmf The <code>TokenMakerFactory</code> for this document. If this is
 	 *            <code>null</code>, a default factory is used.
 	 */
 	public void setTokenMakerFactory(TokenMakerFactory tmf) {
 		tokenMakerFactory = tmf != null ? tmf : TokenMakerFactory.getDefaultInstance();
 	}
-	
+
 	/**
-	 * Loops through the last-tokens-on-lines array from a specified point
-	 * onward,
-	 * updating last-token values until they stop changing. This should be
-	 * called
-	 * when lines are updated/inserted/removed, as doing so may cause lines
-	 * below to
+	 * Loops through the last-tokens-on-lines array from a specified point onward,
+	 * updating last-token values until they stop changing. This should be called
+	 * when lines are updated/inserted/removed, as doing so may cause lines below to
 	 * change color.
 	 *
-	 * @param line
-	 *            The first line to check for a change in last-token value.
-	 * @param numLines
-	 *            The number of lines in the document.
-	 * @param previousTokenType
-	 *            The last-token value of the line just before
-	 *            <code>line</code>.
+	 * @param line              The first line to check for a change in last-token
+	 *                          value.
+	 * @param numLines          The number of lines in the document.
+	 * @param previousTokenType The last-token value of the line just before
+	 *                          <code>line</code>.
 	 * @return The last line that needs repainting.
 	 */
 	private int updateLastTokensBelow(int line, int numLines, int previousTokenType) {
@@ -627,7 +573,7 @@ public class RSyntaxDocument extends RDocument implements Iterable<Token>, Synta
 		}
 		return line;
 	}
-	
+
 	/**
 	 * Updates internal state information; e.g. the "last tokens on lines" data.
 	 * After this, a changed update is fired to let listeners know that the

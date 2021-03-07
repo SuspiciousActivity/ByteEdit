@@ -16,62 +16,57 @@ import org.fife.ui.rsyntaxtextarea.DocumentRange;
  * @see SearchEngine
  */
 public class SearchResult implements Comparable<SearchResult> {
-	
+
 	/**
-	 * If a find or replace operation is successful, this will be the range
-	 * of text representing the found text (for "find" operations) or the
-	 * replacement text inserted (for "replace" operations; for "replace all"
-	 * operations this will be the last replacement region). If no match was
-	 * found, or this was a "mark all" operation, this will be
-	 * <code>null</code>.
+	 * If a find or replace operation is successful, this will be the range of text
+	 * representing the found text (for "find" operations) or the replacement text
+	 * inserted (for "replace" operations; for "replace all" operations this will be
+	 * the last replacement region). If no match was found, or this was a "mark all"
+	 * operation, this will be <code>null</code>.
 	 */
 	private DocumentRange matchRange;
 	/**
-	 * The number of matches found or replaced. For regular "find" and
-	 * "replace" operations, this will be zero or <code>1</code>. For "replace
-	 * all" operations, this will be the number of replacements. For "mark
-	 * all" operations, this should be zero.
+	 * The number of matches found or replaced. For regular "find" and "replace"
+	 * operations, this will be zero or <code>1</code>. For "replace all"
+	 * operations, this will be the number of replacements. For "mark all"
+	 * operations, this should be zero.
 	 */
 	private int count;
 	/**
 	 * The number of instances marked.
 	 */
 	private int markedCount;
-	
+
 	/**
 	 * Constructor; indicates no match is found.
 	 */
 	public SearchResult() {
 		this(null, 0, 0);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param range
-	 *            The selected range of text after the find or replace
-	 *            operation. This can be <code>null</code> if the selection was
-	 *            not changed.
-	 * @param count
-	 *            The number of matches found or replaced. For regular
-	 *            "find" and "replace" operations, this will be zero or
-	 *            <code>1</code>; for "replace all" operations, this will be the
-	 *            number of replacements.
-	 * @param markedCount
-	 *            The number of matches marked. If "mark all" is
-	 *            disabled, this should be zero.
+	 * @param range       The selected range of text after the find or replace
+	 *                    operation. This can be <code>null</code> if the selection
+	 *                    was not changed.
+	 * @param count       The number of matches found or replaced. For regular
+	 *                    "find" and "replace" operations, this will be zero or
+	 *                    <code>1</code>; for "replace all" operations, this will be
+	 *                    the number of replacements.
+	 * @param markedCount The number of matches marked. If "mark all" is disabled,
+	 *                    this should be zero.
 	 */
 	public SearchResult(DocumentRange range, int count, int markedCount) {
 		this.matchRange = range;
 		this.count = count;
 		this.markedCount = markedCount;
 	}
-	
+
 	/**
 	 * Compares this search result to another.
 	 *
-	 * @param other
-	 *            Another search result to compare to.
+	 * @param other Another search result to compare to.
 	 * @return How this result object should be sorted compared to
 	 *         <code>other</code>.
 	 */
@@ -96,14 +91,12 @@ public class SearchResult implements Comparable<SearchResult> {
 		}
 		return matchRange.compareTo(other.matchRange);
 	}
-	
+
 	/**
-	 * Returns whether this search result represents the same logical result
-	 * as another.
+	 * Returns whether this search result represents the same logical result as
+	 * another.
 	 *
-	 * @param other
-	 *            Another object (presumably another
-	 *            <code>SearchResult</code>).
+	 * @param other Another object (presumably another <code>SearchResult</code>).
 	 */
 	@Override
 	public boolean equals(Object other) {
@@ -115,12 +108,12 @@ public class SearchResult implements Comparable<SearchResult> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns the number of matches found or replaced. For regular "find" and
-	 * "replace" operations, this will be zero or <code>1</code>. For "replace
-	 * all" operations, this will be the number of replacements. For "mark
-	 * all" operations, this will be zero.
+	 * "replace" operations, this will be zero or <code>1</code>. For "replace all"
+	 * operations, this will be the number of replacements. For "mark all"
+	 * operations, this will be zero.
 	 *
 	 * @return The count.
 	 * @see #setCount(int)
@@ -128,10 +121,10 @@ public class SearchResult implements Comparable<SearchResult> {
 	public int getCount() {
 		return count;
 	}
-	
+
 	/**
-	 * Returns the number of instances marked. If "mark all" was not enabled,
-	 * this will be <code>0</code>.
+	 * Returns the number of instances marked. If "mark all" was not enabled, this
+	 * will be <code>0</code>.
 	 *
 	 * @return The number of instances marked.
 	 * @see #setMarkedCount(int)
@@ -139,14 +132,14 @@ public class SearchResult implements Comparable<SearchResult> {
 	public int getMarkedCount() {
 		return markedCount;
 	}
-	
+
 	/**
-	 * If a find or replace operation is successful, this will be the range
-	 * of text representing the found text (for "find" operations) or the
-	 * replacement text inserted (for "replace" operations; for "replace all"
-	 * operations this will be the last replacement region). If no match was
-	 * found, or this was a "mark all" operation, this will be
-	 * <code>null</code>, since they do not update the editor's selection.
+	 * If a find or replace operation is successful, this will be the range of text
+	 * representing the found text (for "find" operations) or the replacement text
+	 * inserted (for "replace" operations; for "replace all" operations this will be
+	 * the last replacement region). If no match was found, or this was a "mark all"
+	 * operation, this will be <code>null</code>, since they do not update the
+	 * editor's selection.
 	 *
 	 * @return The matched range of text.
 	 * @see #setMatchRange(DocumentRange)
@@ -154,7 +147,7 @@ public class SearchResult implements Comparable<SearchResult> {
 	public DocumentRange getMatchRange() {
 		return matchRange;
 	}
-	
+
 	/**
 	 * Overridden simply as a best practice, since {@link #equals(Object)} is
 	 * overridden.
@@ -169,43 +162,40 @@ public class SearchResult implements Comparable<SearchResult> {
 		}
 		return hash;
 	}
-	
+
 	/**
 	 * Sets the number of matches found or replaced. For regular "find" and
-	 * "replace" operations, this should be zero or <code>1</code>. For
-	 * "replace all" operations, this should be the number of replacements.
-	 * For "mark all" operations, this should be zero.
+	 * "replace" operations, this should be zero or <code>1</code>. For "replace
+	 * all" operations, this should be the number of replacements. For "mark all"
+	 * operations, this should be zero.
 	 *
-	 * @param count
-	 *            The count.
+	 * @param count The count.
 	 * @see #getCount()
 	 */
 	public void setCount(int count) {
 		this.count = count;
 	}
-	
+
 	/**
 	 * Sets the number of marked occurrences found.
 	 *
-	 * @param markedCount
-	 *            The number of marked occurrences found.
+	 * @param markedCount The number of marked occurrences found.
 	 * @see #getMarkedCount()
 	 */
 	public void setMarkedCount(int markedCount) {
 		this.markedCount = markedCount;
 	}
-	
+
 	/**
 	 * Sets the selected range for this search operation.
 	 *
-	 * @param range
-	 *            The new selected range.
+	 * @param range The new selected range.
 	 * @see #getMatchRange()
 	 */
 	public void setMatchRange(DocumentRange range) {
 		this.matchRange = range;
 	}
-	
+
 	/**
 	 * Returns a string representation of this object. Useful for debugging.
 	 *
@@ -213,9 +203,10 @@ public class SearchResult implements Comparable<SearchResult> {
 	 */
 	@Override
 	public String toString() {
-		return "[SearchResult: " + "count=" + getCount() + ", markedCount=" + getMarkedCount() + ", matchRange=" + getMatchRange() + "]";
+		return "[SearchResult: " + "count=" + getCount() + ", markedCount=" + getMarkedCount() + ", matchRange="
+				+ getMatchRange() + "]";
 	}
-	
+
 	/**
 	 * Returns whether anything was found in this search operation. This is
 	 * shorthand for <code>getCount()&gt;0</code>.

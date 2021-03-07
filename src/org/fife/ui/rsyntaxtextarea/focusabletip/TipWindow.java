@@ -50,21 +50,19 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  * @version 1.0
  */
 class TipWindow extends JWindow implements ActionListener {
-	
+
 	private FocusableTip ft;
 	private JEditorPane textArea;
 	private String text;
 	private transient TipListener tipListener;
 	private transient HyperlinkListener userHyperlinkListener;
 	private static TipWindow visibleInstance;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param owner
-	 *            The parent window.
-	 * @param msg
-	 *            The text of the tool tip. This can be HTML.
+	 * @param owner The parent window.
+	 * @param msg   The text of the tool tip. This can be HTML.
 	 */
 	TipWindow(Window owner, FocusableTip ft, String msg) {
 		super(owner);
@@ -85,7 +83,7 @@ class TipWindow extends JWindow implements ActionListener {
 		}
 		textArea.addMouseListener(tipListener);
 		textArea.addHyperlinkListener(new HyperlinkListener() {
-			
+
 			@Override
 			public void hyperlinkUpdate(HyperlinkEvent e) {
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
@@ -101,7 +99,7 @@ class TipWindow extends JWindow implements ActionListener {
 		// InputMap/ActionMap combo doesn't work for JWindows (even when
 		// using the JWindow's JRootPane), so we'll resort to KeyListener
 		KeyAdapter ka = new KeyAdapter() {
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -121,7 +119,7 @@ class TipWindow extends JWindow implements ActionListener {
 			visibleInstance = this;
 		}
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (!getFocusableWindowState()) {
@@ -130,7 +128,7 @@ class TipWindow extends JWindow implements ActionListener {
 			textArea.removeMouseListener(tipListener);
 			pack();
 			addWindowFocusListener(new WindowAdapter() {
-				
+
 				@Override
 				public void windowLostFocus(WindowEvent e) {
 					ft.possiblyDisposeOfTipWindow();
@@ -142,7 +140,7 @@ class TipWindow extends JWindow implements ActionListener {
 			}
 		}
 	}
-	
+
 	/**
 	 * Disposes of this window.
 	 */
@@ -157,10 +155,10 @@ class TipWindow extends JWindow implements ActionListener {
 		ft.removeListeners();
 		super.dispose();
 	}
-	
+
 	/**
-	 * Workaround for JEditorPane not returning its proper preferred size
-	 * when rendering HTML until after layout already done. See
+	 * Workaround for JEditorPane not returning its proper preferred size when
+	 * rendering HTML until after layout already done. See
 	 * http://forums.sun.com/thread.jspa?forumID=57&threadID=574810 for a
 	 * discussion.
 	 */
@@ -195,11 +193,11 @@ class TipWindow extends JWindow implements ActionListener {
 		}
 		pack(); // Must re-pack to calculate proper size.
 	}
-	
+
 	public String getText() {
 		return text;
 	}
-	
+
 	private void setBottomPanel() {
 		final JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JSeparator(), BorderLayout.NORTH);
@@ -209,9 +207,9 @@ class TipWindow extends JWindow implements ActionListener {
 			sg.applyComponentOrientation(sg.getComponentOrientation()); // Workaround
 			panel.add(sg, BorderLayout.LINE_END);
 			MouseInputAdapter adapter = new MouseInputAdapter() {
-				
+
 				private Point lastPoint;
-				
+
 				@Override
 				public void mouseDragged(MouseEvent e) {
 					Point p = e.getPoint();
@@ -225,7 +223,7 @@ class TipWindow extends JWindow implements ActionListener {
 						lastPoint = p;
 					}
 				}
-				
+
 				@Override
 				public void mousePressed(MouseEvent e) {
 					lastPoint = e.getPoint();
@@ -272,13 +270,12 @@ class TipWindow extends JWindow implements ActionListener {
 		}
 		cp.add(panel, BorderLayout.SOUTH);
 	}
-	
+
 	/**
 	 * Sets the listener for hyperlink events in this tip window.
 	 *
-	 * @param listener
-	 *            The new listener. The old listener (if any) is
-	 *            removed. A value of <code>null</code> means "no listener."
+	 * @param listener The new listener. The old listener (if any) is removed. A
+	 *                 value of <code>null</code> means "no listener."
 	 */
 	public void setHyperlinkListener(HyperlinkListener listener) {
 		// We've added a separate listener, so remove only the user's.
@@ -290,19 +287,20 @@ class TipWindow extends JWindow implements ActionListener {
 			textArea.addHyperlinkListener(userHyperlinkListener);
 		}
 	}
-	
+
 	/**
 	 * Listens for events in this window.
 	 */
 	private final class TipListener extends MouseAdapter {
-		
-		private TipListener() {}
-		
+
+		private TipListener() {
+		}
+
 		@Override
 		public void mousePressed(MouseEvent e) {
 			actionPerformed(null); // Manually create "real" window
 		}
-		
+
 		@Override
 		public void mouseExited(MouseEvent e) {
 			// Since we registered this listener on the child components of

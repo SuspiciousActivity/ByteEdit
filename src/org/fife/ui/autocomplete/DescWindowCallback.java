@@ -14,15 +14,13 @@ package org.fife.ui.autocomplete;
  * @see ExternalURLHandler
  */
 public interface DescWindowCallback {
-	
+
 	/**
-	 * Callback allowing a new code completion's description to be displayed
-	 * in the description window.
+	 * Callback allowing a new code completion's description to be displayed in the
+	 * description window.
 	 *
-	 * @param completion
-	 *            The new completion.
-	 * @param anchor
-	 *            The anchor to scroll to, or <code>null</code> if none.
+	 * @param completion The new completion.
+	 * @param anchor     The anchor to scroll to, or <code>null</code> if none.
 	 */
 	public void showSummaryFor(Completion completion, String anchor);
 }

@@ -22,15 +22,13 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
  * @version 1.0
  */
 public interface ExtendedHyperlinkListener extends EventListener {
-	
+
 	/**
 	 * Called when a link in a
 	 * {@link org.fife.ui.rsyntaxtextarea.focusabletip.FocusableTip} is clicked.
 	 *
-	 * @param textArea
-	 *            The text area displaying the tip.
-	 * @param e
-	 *            The event.
+	 * @param textArea The text area displaying the tip.
+	 * @param e        The event.
 	 */
 	void linkClicked(RSyntaxTextArea textArea, HyperlinkEvent e);
 }

@@ -12,7 +12,7 @@
     <baseFont size="12"/>
    
    <!--  General editor colors. -->
-   <background color="ffffff"/>
+   <background color="c0c0c0"/>
    <caret color="000000"/>
    <selection bg="dddddd" fg="000000"/>
    <currentLineHighlight color="dddddd" fade="false"/>

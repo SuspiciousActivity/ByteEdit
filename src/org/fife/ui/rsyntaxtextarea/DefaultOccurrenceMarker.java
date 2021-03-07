@@ -13,14 +13,14 @@ import javax.swing.text.Caret;
 import org.fife.ui.rtextarea.SmartHighlightPainter;
 
 /**
- * The default implementation of {@link OccurrenceMarker}. It goes through
- * the document and marks all instances of the specified token.
+ * The default implementation of {@link OccurrenceMarker}. It goes through the
+ * document and marks all instances of the specified token.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 class DefaultOccurrenceMarker implements OccurrenceMarker {
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -45,7 +45,7 @@ class DefaultOccurrenceMarker implements OccurrenceMarker {
 		}
 		return t;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -53,7 +53,7 @@ class DefaultOccurrenceMarker implements OccurrenceMarker {
 	public boolean isValidType(RSyntaxTextArea textArea, Token t) {
 		return textArea.getMarkOccurrencesOfTokenType(t.getType());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -61,21 +61,18 @@ class DefaultOccurrenceMarker implements OccurrenceMarker {
 	public void markOccurrences(RSyntaxDocument doc, Token t, RSyntaxTextAreaHighlighter h, SmartHighlightPainter p) {
 		markOccurrencesOfToken(doc, t, h, p);
 	}
-	
+
 	/**
 	 * Highlights all instances of tokens identical to <code>t</code> in the
 	 * specified document.
 	 *
-	 * @param doc
-	 *            The document.
-	 * @param t
-	 *            The document whose relevant occurrences should be marked.
-	 * @param h
-	 *            The highlighter to add the highlights to.
-	 * @param p
-	 *            The painter for the highlights.
+	 * @param doc The document.
+	 * @param t   The document whose relevant occurrences should be marked.
+	 * @param h   The highlighter to add the highlights to.
+	 * @param p   The painter for the highlights.
 	 */
-	public static final void markOccurrencesOfToken(RSyntaxDocument doc, Token t, RSyntaxTextAreaHighlighter h, SmartHighlightPainter p) {
+	public static final void markOccurrencesOfToken(RSyntaxDocument doc, Token t, RSyntaxTextAreaHighlighter h,
+			SmartHighlightPainter p) {
 		char[] lexeme = t.getLexeme().toCharArray();
 		int type = t.getType();
 		int lineCount = doc.getDefaultRootElement().getElementCount();

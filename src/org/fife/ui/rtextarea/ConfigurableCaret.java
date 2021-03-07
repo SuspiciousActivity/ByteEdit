@@ -42,21 +42,20 @@ import org.fife.ui.rsyntaxtextarea.folding.FoldManager;
  *
  * <ul>
  * <li>This caret can render itself many different ways; see the
- * {@link #setStyle(CaretStyle)} method and {@link CaretStyle} for
- * more information.</li>
- * <li>On Microsoft Windows and other operating systems that do not
- * support system selection (i.e., selecting text, then pasting
- * via the middle mouse button), clicking the middle mouse button
- * will cause a regular paste operation to occur. On systems
- * that support system selection (i.e., all UNIX variants),
- * the middle mouse button will behave normally.</li>
+ * {@link #setStyle(CaretStyle)} method and {@link CaretStyle} for more
+ * information.</li>
+ * <li>On Microsoft Windows and other operating systems that do not support
+ * system selection (i.e., selecting text, then pasting via the middle mouse
+ * button), clicking the middle mouse button will cause a regular paste
+ * operation to occur. On systems that support system selection (i.e., all UNIX
+ * variants), the middle mouse button will behave normally.</li>
  * </ul>
  *
  * @author Robert Futrell
  * @version 0.6
  */
 public class ConfigurableCaret extends DefaultCaret {
-	
+
 	/**
 	 * Action used to select a word on a double click.
 	 */
@@ -70,8 +69,8 @@ public class ConfigurableCaret extends DefaultCaret {
 	 */
 	private transient MouseEvent selectedWordEvent = null;
 	/**
-	 * Used for fastest-possible retrieval of the character at the
-	 * caret's position in the document.
+	 * Used for fastest-possible retrieval of the character at the caret's position
+	 * in the document.
 	 */
 	private transient Segment seg;
 	/**
@@ -79,8 +78,8 @@ public class ConfigurableCaret extends DefaultCaret {
 	 */
 	private CaretStyle style;
 	/**
-	 * The selection painter. By default this paints selections with the
-	 * text area's selection color.
+	 * The selection painter. By default this paints selections with the text area's
+	 * selection color.
 	 */
 	private ChangeableHighlightPainter selectionPainter;
 	private boolean alwaysVisible;
@@ -89,21 +88,19 @@ public class ConfigurableCaret extends DefaultCaret {
 	 * editable) on middle-mouse clicks.
 	 */
 	private boolean pasteOnMiddleMouseClick;
-	
+
 	/**
 	 * Creates the caret using {@link CaretStyle#THICK_VERTICAL_LINE_STYLE}.
 	 */
 	public ConfigurableCaret() {
 		this(CaretStyle.THICK_VERTICAL_LINE_STYLE);
 	}
-	
+
 	/**
 	 * Constructs a new <code>ConfigurableCaret</code>.
 	 *
-	 * @param style
-	 *            The style to use when painting the caret. If this is
-	 *            invalid, then {@link CaretStyle#THICK_VERTICAL_LINE_STYLE} is
-	 *            used.
+	 * @param style The style to use when painting the caret. If this is invalid,
+	 *              then {@link CaretStyle#THICK_VERTICAL_LINE_STYLE} is used.
 	 */
 	public ConfigurableCaret(CaretStyle style) {
 		seg = new Segment();
@@ -111,7 +108,7 @@ public class ConfigurableCaret extends DefaultCaret {
 		selectionPainter = new ChangeableHighlightPainter();
 		pasteOnMiddleMouseClick = true;
 	}
-	
+
 	/**
 	 * Adjusts the caret location based on the MouseEvent.
 	 */
@@ -122,12 +119,11 @@ public class ConfigurableCaret extends DefaultCaret {
 			positionCaret(e);
 		}
 	}
-	
+
 	/**
 	 * Adjusts the focus, if necessary.
 	 *
-	 * @param inWindow
-	 *            if true indicates requestFocusInWindow should be used
+	 * @param inWindow if true indicates requestFocusInWindow should be used
 	 */
 	private void adjustFocus(boolean inWindow) {
 		RTextArea textArea = getTextArea();
@@ -139,13 +135,12 @@ public class ConfigurableCaret extends DefaultCaret {
 			}
 		}
 	}
-	
+
 	/**
-	 * Overridden to damage the correct width of the caret, since this caret
-	 * can be different sizes.
+	 * Overridden to damage the correct width of the caret, since this caret can be
+	 * different sizes.
 	 *
-	 * @param r
-	 *            The current location of the caret.
+	 * @param r The current location of the caret.
 	 */
 	@Override
 	protected synchronized void damage(Rectangle r) {
@@ -158,16 +153,13 @@ public class ConfigurableCaret extends DefaultCaret {
 			repaint();
 		}
 	}
-	
+
 	/**
-	 * Called when the UI is being removed from the
-	 * interface of a JTextComponent. This is used to
-	 * unregister any listeners that were attached.
+	 * Called when the UI is being removed from the interface of a JTextComponent.
+	 * This is used to unregister any listeners that were attached.
 	 *
-	 * @param c
-	 *            The text component. If this is not an
-	 *            <code>RTextArea</code>, an <code>Exception</code>
-	 *            will be thrown.
+	 * @param c The text component. If this is not an <code>RTextArea</code>, an
+	 *          <code>Exception</code> will be thrown.
 	 */
 	@Override
 	public void deinstall(JTextComponent c) {
@@ -177,10 +169,10 @@ public class ConfigurableCaret extends DefaultCaret {
 		super.deinstall(c);
 		c.setNavigationFilter(null);
 	}
-	
+
 	/**
-	 * Returns whether this caret will paste the contents of the clipboard into
-	 * the editor (assuming it is editable) on middle-mouse-button clicks.
+	 * Returns whether this caret will paste the contents of the clipboard into the
+	 * editor (assuming it is editable) on middle-mouse-button clicks.
 	 *
 	 * @return Whether a paste operation will be performed.
 	 * @see #setPasteOnMiddleMouseClick(boolean)
@@ -188,7 +180,7 @@ public class ConfigurableCaret extends DefaultCaret {
 	public boolean getPasteOnMiddleMouseClick() {
 		return pasteOnMiddleMouseClick;
 	}
-	
+
 	/**
 	 * Gets the text editor component that this caret is bound to.
 	 *
@@ -197,7 +189,7 @@ public class ConfigurableCaret extends DefaultCaret {
 	protected RTextArea getTextArea() {
 		return (RTextArea) getComponent();
 	}
-	
+
 	/**
 	 * Returns whether this caret's selection uses rounded edges.
 	 *
@@ -207,10 +199,10 @@ public class ConfigurableCaret extends DefaultCaret {
 	public boolean getRoundedSelectionEdges() {
 		return ((ChangeableHighlightPainter) getSelectionPainter()).getRoundedEdges();
 	}
-	
+
 	/**
-	 * Gets the painter for the Highlighter. This is overridden to return
-	 * our custom selection painter.
+	 * Gets the painter for the Highlighter. This is overridden to return our custom
+	 * selection painter.
 	 *
 	 * @return The painter.
 	 */
@@ -218,7 +210,7 @@ public class ConfigurableCaret extends DefaultCaret {
 	protected Highlighter.HighlightPainter getSelectionPainter() {
 		return selectionPainter;
 	}
-	
+
 	/**
 	 * Gets the current style of this caret.
 	 *
@@ -228,13 +220,12 @@ public class ConfigurableCaret extends DefaultCaret {
 	public CaretStyle getStyle() {
 		return style;
 	}
-	
+
 	/**
 	 * Installs this caret on a text component.
 	 *
-	 * @param c
-	 *            The text component. If this is not an {@link RTextArea},
-	 *            an <code>Exception</code> will be thrown.
+	 * @param c The text component. If this is not an {@link RTextArea}, an
+	 *          <code>Exception</code> will be thrown.
 	 */
 	@Override
 	public void install(JTextComponent c) {
@@ -244,12 +235,12 @@ public class ConfigurableCaret extends DefaultCaret {
 		super.install(c);
 		c.setNavigationFilter(new FoldAwareNavigationFilter());
 	}
-	
+
 	/**
-	 * Returns whether this caret is always visible (as opposed to
-	 * blinking, or not visible when the editor's window is not focused).
-	 * This can be used by popup windows that want the caret's location
-	 * to still be visible for contextual purposes while they are displayed.
+	 * Returns whether this caret is always visible (as opposed to blinking, or not
+	 * visible when the editor's window is not focused). This can be used by popup
+	 * windows that want the caret's location to still be visible for contextual
+	 * purposes while they are displayed.
 	 *
 	 * @return Whether this caret is always visible.
 	 * @see #setAlwaysVisible(boolean)
@@ -257,14 +248,12 @@ public class ConfigurableCaret extends DefaultCaret {
 	public boolean isAlwaysVisible() {
 		return alwaysVisible;
 	}
-	
+
 	/**
-	 * Called when the mouse is clicked. If the click was generated from
-	 * button1, a double click selects a word, and a triple click the
-	 * current line.
+	 * Called when the mouse is clicked. If the click was generated from button1, a
+	 * double click selects a word, and a triple click the current line.
 	 *
-	 * @param e
-	 *            the mouse event
+	 * @param e the mouse event
 	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -275,23 +264,24 @@ public class ConfigurableCaret extends DefaultCaret {
 				if (nclicks > 2) {
 					nclicks %= 2; // Alternate selecting word/line.
 					switch (nclicks) {
-						case 0:
-							selectWord(e);
-							selectedWordEvent = null;
-							break;
-						case 1:
-							Action a = null;
-							ActionMap map = textArea.getActionMap();
-							if (map != null) {
-								a = map.get(RTextAreaEditorKit.selectLineAction);
+					case 0:
+						selectWord(e);
+						selectedWordEvent = null;
+						break;
+					case 1:
+						Action a = null;
+						ActionMap map = textArea.getActionMap();
+						if (map != null) {
+							a = map.get(RTextAreaEditorKit.selectLineAction);
+						}
+						if (a == null) {
+							if (selectLine == null) {
+								selectLine = new RTextAreaEditorKit.SelectLineAction();
 							}
-							if (a == null) {
-								if (selectLine == null) {
-									selectLine = new RTextAreaEditorKit.SelectLineAction();
-								}
-								a = selectLine;
-							}
-							a.actionPerformed(new ActionEvent(textArea, ActionEvent.ACTION_PERFORMED, null, e.getWhen(), e.getModifiers()));
+							a = selectLine;
+						}
+						a.actionPerformed(new ActionEvent(textArea, ActionEvent.ACTION_PERFORMED, null, e.getWhen(),
+								e.getModifiers()));
 					}
 				}
 			} else if (SwingUtilities.isMiddleMouseButton(e) && getPasteOnMiddleMouseClick()) {
@@ -334,12 +324,11 @@ public class ConfigurableCaret extends DefaultCaret {
 			} // else if (SwingUtilities.isMiddleMouseButton(e))
 		} // if (!c.isConsumed())
 	}
-	
+
 	/**
 	 * Overridden to also focus the text component on right mouse clicks.
 	 *
-	 * @param e
-	 *            The mouse event.
+	 * @param e The mouse event.
 	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -351,12 +340,11 @@ public class ConfigurableCaret extends DefaultCaret {
 			}
 		}
 	}
-	
+
 	/**
 	 * Paints the cursor.
 	 *
-	 * @param g
-	 *            The graphics context in which to paint.
+	 * @param g The graphics context in which to paint.
 	 */
 	@Override
 	public void paint(Graphics g) {
@@ -398,49 +386,49 @@ public class ConfigurableCaret extends DefaultCaret {
 				// the caret will expand too far vertically.
 				r.height -= 2;
 				switch (style) {
-					// Draw a big rectangle, and xor the foreground color.
-					case BLOCK_STYLE:
-						Color textAreaBg = textArea.getBackground();
-						if (textAreaBg == null) {
-							textAreaBg = Color.white;
-						}
-						g.setXORMode(textAreaBg);
-						// fills x==r.x to x==(r.x+(r.width)-1), inclusive.
-						g.fillRect(r.x, r.y, r.width, r.height);
-						break;
-					// Draw a rectangular border.
-					case BLOCK_BORDER_STYLE:
-						// fills x==r.x to x==(r.x+(r.width-1)), inclusive.
-						g.drawRect(r.x, r.y, r.width - 1, r.height);
-						break;
-					// Draw an "underline" below the current position.
-					case UNDERLINE_STYLE:
-						textAreaBg = textArea.getBackground();
-						if (textAreaBg == null) {
-							textAreaBg = Color.white;
-						}
-						g.setXORMode(textAreaBg);
-						int y = r.y + r.height;
-						g.drawLine(r.x, y, r.x + r.width - 1, y);
-						break;
-					// Draw a vertical line.
-					default:
-					case VERTICAL_LINE_STYLE:
-						g.drawLine(r.x, r.y, r.x, r.y + r.height);
-						break;
-					// A thicker vertical line.
-					case THICK_VERTICAL_LINE_STYLE:
-						g.drawLine(r.x, r.y, r.x, r.y + r.height);
-						r.x++;
-						g.drawLine(r.x, r.y, r.x, r.y + r.height);
-						break;
+				// Draw a big rectangle, and xor the foreground color.
+				case BLOCK_STYLE:
+					Color textAreaBg = textArea.getBackground();
+					if (textAreaBg == null) {
+						textAreaBg = Color.white;
+					}
+					g.setXORMode(textAreaBg);
+					// fills x==r.x to x==(r.x+(r.width)-1), inclusive.
+					g.fillRect(r.x, r.y, r.width, r.height);
+					break;
+				// Draw a rectangular border.
+				case BLOCK_BORDER_STYLE:
+					// fills x==r.x to x==(r.x+(r.width-1)), inclusive.
+					g.drawRect(r.x, r.y, r.width - 1, r.height);
+					break;
+				// Draw an "underline" below the current position.
+				case UNDERLINE_STYLE:
+					textAreaBg = textArea.getBackground();
+					if (textAreaBg == null) {
+						textAreaBg = Color.white;
+					}
+					g.setXORMode(textAreaBg);
+					int y = r.y + r.height;
+					g.drawLine(r.x, y, r.x + r.width - 1, y);
+					break;
+				// Draw a vertical line.
+				default:
+				case VERTICAL_LINE_STYLE:
+					g.drawLine(r.x, r.y, r.x, r.y + r.height);
+					break;
+				// A thicker vertical line.
+				case THICK_VERTICAL_LINE_STYLE:
+					g.drawLine(r.x, r.y, r.x, r.y + r.height);
+					r.x++;
+					g.drawLine(r.x, r.y, r.x, r.y + r.height);
+					break;
 				} // End of switch (style).
 			} catch (BadLocationException ble) {
 				ble.printStackTrace();
 			}
 		} // End of if (isVisible()).
 	}
-	
+
 	/**
 	 * Selects word based on a mouse event.
 	 */
@@ -464,15 +452,14 @@ public class ConfigurableCaret extends DefaultCaret {
 		a.actionPerformed(new ActionEvent(textArea, ActionEvent.ACTION_PERFORMED, null, e.getWhen(), e.getModifiers()));
 		selectedWordEvent = e;
 	}
-	
+
 	/**
-	 * Toggles whether this caret should always be visible (as opposed to
-	 * blinking, or not visible when the editor's window is not focused).
-	 * This can be used by popup windows that want the caret's location
-	 * to still be visible for contextual purposes while they are displayed.
+	 * Toggles whether this caret should always be visible (as opposed to blinking,
+	 * or not visible when the editor's window is not focused). This can be used by
+	 * popup windows that want the caret's location to still be visible for
+	 * contextual purposes while they are displayed.
 	 *
-	 * @param alwaysVisible
-	 *            Whether this caret should always be visible.
+	 * @param alwaysVisible Whether this caret should always be visible.
 	 * @see #isAlwaysVisible()
 	 */
 	public void setAlwaysVisible(boolean alwaysVisible) {
@@ -485,48 +472,44 @@ public class ConfigurableCaret extends DefaultCaret {
 			}
 		}
 	}
-	
+
 	/**
-	 * Sets whether this caret will paste the contents of the clipboard into
-	 * the editor (assuming it is editable) on middle-mouse-button clicks.
+	 * Sets whether this caret will paste the contents of the clipboard into the
+	 * editor (assuming it is editable) on middle-mouse-button clicks.
 	 *
-	 * @param paste
-	 *            Whether a paste operation will be performed.
+	 * @param paste Whether a paste operation will be performed.
 	 * @see #getPasteOnMiddleMouseClick()
 	 */
 	public void setPasteOnMiddleMouseClick(boolean paste) {
 		pasteOnMiddleMouseClick = paste;
 	}
-	
+
 	/**
 	 * Sets whether this caret's selection should have rounded edges.
 	 *
-	 * @param rounded
-	 *            Whether it should have rounded edges.
+	 * @param rounded Whether it should have rounded edges.
 	 * @see #getRoundedSelectionEdges()
 	 */
 	public void setRoundedSelectionEdges(boolean rounded) {
 		((ChangeableHighlightPainter) getSelectionPainter()).setRoundedEdges(rounded);
 	}
-	
+
 	/**
-	 * Overridden to always render the selection, even when the text component
-	 * loses focus.
+	 * Overridden to always render the selection, even when the text component loses
+	 * focus.
 	 *
-	 * @param visible
-	 *            Whether the selection should be visible. This parameter
-	 *            is ignored.
+	 * @param visible Whether the selection should be visible. This parameter is
+	 *                ignored.
 	 */
 	@Override
 	public void setSelectionVisible(boolean visible) {
 		super.setSelectionVisible(true);
 	}
-	
+
 	/**
 	 * Sets the style used when painting the caret.
 	 *
-	 * @param style
-	 *            The style to use. This should not be <code>null</code>.
+	 * @param style The style to use. This should not be <code>null</code>.
 	 * @see #getStyle()
 	 */
 	public void setStyle(CaretStyle style) {
@@ -538,29 +521,25 @@ public class ConfigurableCaret extends DefaultCaret {
 			repaint();
 		}
 	}
-	
+
 	/**
-	 * Helper function used by the block and underline carets to ensure the
-	 * width of the painted caret is valid. This is done for the following
-	 * reasons:
+	 * Helper function used by the block and underline carets to ensure the width of
+	 * the painted caret is valid. This is done for the following reasons:
 	 *
 	 * <ul>
-	 * <li>The <code>View</code> classes in the javax.swing.text package
-	 * always return a width of "1" when <code>modelToView</code> is
-	 * called. We'll be needing the actual width.</li>
+	 * <li>The <code>View</code> classes in the javax.swing.text package always
+	 * return a width of "1" when <code>modelToView</code> is called. We'll be
+	 * needing the actual width.</li>
 	 * <li>Even in smart views, such as <code>RSyntaxTextArea</code>'s
-	 * <code>SyntaxView</code> and <code>WrappedSyntaxView</code> that
-	 * return the width of the current character, if the caret is at the
-	 * end of a line for example, the width returned from
-	 * <code>modelToView</code> will be 0 (as the width of unprintable
-	 * characters such as '\n' is calculated as 0). In this case, we'll
-	 * use a default width value.</li>
+	 * <code>SyntaxView</code> and <code>WrappedSyntaxView</code> that return the
+	 * width of the current character, if the caret is at the end of a line for
+	 * example, the width returned from <code>modelToView</code> will be 0 (as the
+	 * width of unprintable characters such as '\n' is calculated as 0). In this
+	 * case, we'll use a default width value.</li>
 	 * </ul>
 	 *
-	 * @param rect
-	 *            The rectangle returned by the current
-	 *            <code>View</code>'s <code>modelToView</code>
-	 *            method for the caret position.
+	 * @param rect The rectangle returned by the current <code>View</code>'s
+	 *             <code>modelToView</code> method for the caret position.
 	 */
 	private void validateWidth(Rectangle rect) {
 		// If the width value > 1, we assume the View is
@@ -595,19 +574,19 @@ public class ConfigurableCaret extends DefaultCaret {
 			}
 		} // End of if (rect!=null && rect.width<=1).
 	}
-	
+
 	/**
-	 * Keeps the caret out of folded regions in edge cases where it doesn't
-	 * happen automatically, for example, when the caret moves automatically in
-	 * response to Document.insert() and Document.remove() calls. Most keyboard
-	 * shortcuts already take folding into account, as do viewToModel() and
-	 * modelToView(), so this filter usually does not do anything.
+	 * Keeps the caret out of folded regions in edge cases where it doesn't happen
+	 * automatically, for example, when the caret moves automatically in response to
+	 * Document.insert() and Document.remove() calls. Most keyboard shortcuts
+	 * already take folding into account, as do viewToModel() and modelToView(), so
+	 * this filter usually does not do anything.
 	 * <p>
 	 *
 	 * Common cases: backspacing to visible line of collapsed region.
 	 */
 	private class FoldAwareNavigationFilter extends NavigationFilter {
-		
+
 		@Override
 		public void setDot(FilterBypass fb, int dot, Position.Bias bias) {
 			RTextArea textArea = getTextArea();
@@ -628,7 +607,8 @@ public class ConfigurableCaret extends DefaultCaret {
 						try {
 							if (dot > lastDot) { // Moving to further line
 								int lineCount = textArea.getLineCount();
-								while (++line < lineCount && fm.isLineHidden(line));
+								while (++line < lineCount && fm.isLineHidden(line))
+									;
 								if (line < lineCount) {
 									dot = textArea.getLineStartOffset(line);
 								} else { // No lower lines visible
@@ -637,7 +617,8 @@ public class ConfigurableCaret extends DefaultCaret {
 								}
 							} else if (dot < lastDot) { // Moving to earlier
 														// line
-								while (--line >= 0 && fm.isLineHidden(line));
+								while (--line >= 0 && fm.isLineHidden(line))
+									;
 								if (line >= 0) {
 									dot = textArea.getLineEndOffset(line) - 1;
 								}
@@ -651,7 +632,7 @@ public class ConfigurableCaret extends DefaultCaret {
 			}
 			super.setDot(fb, dot, bias);
 		}
-		
+
 		@Override
 		public void moveDot(FilterBypass fb, int dot, Position.Bias bias) {
 			super.moveDot(fb, dot, bias);

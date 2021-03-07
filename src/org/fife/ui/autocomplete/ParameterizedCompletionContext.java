@@ -48,8 +48,8 @@ import org.fife.ui.rtextarea.ChangeableHighlightPainter;
 /**
  * Manages UI and state specific to parameterized completions - the parameter
  * description tool tip, the parameter completion choices list, the actual
- * highlights in the editor, etc. This component installs new key bindings
- * when appropriate to allow the user to cycle through the parameters of the
+ * highlights in the editor, etc. This component installs new key bindings when
+ * appropriate to allow the user to cycle through the parameters of the
  * completion, and optionally cycle through completion choices for those
  * parameters.
  *
@@ -57,7 +57,7 @@ import org.fife.ui.rtextarea.ChangeableHighlightPainter;
  * @version 1.0
  */
 class ParameterizedCompletionContext {
-	
+
 	/**
 	 * The parent window.
 	 */
@@ -95,13 +95,13 @@ class ParameterizedCompletionContext {
 	 */
 	private Listener listener;
 	/**
-	 * The minimum offset into the document that the caret can move to
-	 * before this tool tip disappears.
+	 * The minimum offset into the document that the caret can move to before this
+	 * tool tip disappears.
 	 */
 	private int minPos;
 	/**
-	 * The maximum offset into the document that the caret can move to
-	 * before this tool tip disappears.
+	 * The maximum offset into the document that the caret can move to before this
+	 * tool tip disappears.
 	 */
 	private Position maxPos; // Moves with text inserted.
 	private Position defaultEndOffs;
@@ -140,7 +140,7 @@ class ParameterizedCompletionContext {
 	private static final String IM_KEY_ESCAPE = "ParamCompKey.Escape";
 	private static final String IM_KEY_ENTER = "ParamCompKey.Enter";
 	private static final String IM_KEY_CLOSING = "ParamCompKey.Closing";
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -156,7 +156,7 @@ class ParameterizedCompletionContext {
 		tags = new ArrayList<Object>(1); // Usually small
 		paramCopyInfos = new ArrayList<ParamCopyInfo>(1);
 	}
-	
+
 	/**
 	 * Activates parameter completion support.
 	 *
@@ -195,7 +195,7 @@ class ParameterizedCompletionContext {
 		prepareParamChoicesWindow();
 		paramChoicesWindow.setVisible(true);
 	}
-	
+
 	/**
 	 * Creates the completion window offering suggestions for parameters.
 	 *
@@ -206,10 +206,9 @@ class ParameterizedCompletionContext {
 		pcw.initialize(pc);
 		return pcw;
 	}
-	
+
 	/**
-	 * Hides any popup windows and terminates parameterized completion
-	 * assistance.
+	 * Hides any popup windows and terminates parameterized completion assistance.
 	 *
 	 * @see #activate()
 	 */
@@ -226,15 +225,13 @@ class ParameterizedCompletionContext {
 			paramChoicesWindow.setVisible(false);
 		}
 	}
-	
+
 	/**
-	 * Returns the text inserted for the parameter containing the specified
-	 * offset.
+	 * Returns the text inserted for the parameter containing the specified offset.
 	 *
-	 * @param offs
-	 *            The offset into the document.
-	 * @return The text of the parameter containing the offset, or
-	 *         <code>null</code> if the offset is not in a parameter.
+	 * @param offs The offset into the document.
+	 * @return The text of the parameter containing the offset, or <code>null</code>
+	 *         if the offset is not in a parameter.
 	 */
 	public String getArgumentText(int offs) {
 		List<Highlight> paramHighlights = getParameterHighlights();
@@ -258,12 +255,12 @@ class ParameterizedCompletionContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the highlight of the current parameter.
 	 *
-	 * @return The current parameter's highlight, or <code>null</code> if
-	 *         the caret is not in a parameter's bounds.
+	 * @return The current parameter's highlight, or <code>null</code> if the caret
+	 *         is not in a parameter's bounds.
 	 * @see #getCurrentParameterStartOffset()
 	 */
 	private Highlight getCurrentParameterHighlight() {
@@ -280,7 +277,7 @@ class ParameterizedCompletionContext {
 		}
 		return null;
 	}
-	
+
 	private int getCurrentParameterIndex() {
 		JTextComponent tc = ac.getTextComponent();
 		int dot = tc.getCaretPosition();
@@ -296,27 +293,26 @@ class ParameterizedCompletionContext {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Returns the starting offset of the current parameter.
 	 *
-	 * @return The current parameter's starting offset, or <code>-1</code> if
-	 *         the caret is not in a parameter's bounds.
+	 * @return The current parameter's starting offset, or <code>-1</code> if the
+	 *         caret is not in a parameter's bounds.
 	 * @see #getCurrentParameterHighlight()
 	 */
 	private int getCurrentParameterStartOffset() {
 		Highlight h = getCurrentParameterHighlight();
 		return h != null ? h.getStartOffset() + 1 : -1;
 	}
-	
+
 	/**
-	 * Returns the highlight from a list that comes "first" in a list. Even
-	 * though most parameter highlights are ordered, sometimes they aren't
-	 * (e.g. the "cursor" parameter in a template completion is always last,
-	 * even though it can be anywhere in the template).
+	 * Returns the highlight from a list that comes "first" in a list. Even though
+	 * most parameter highlights are ordered, sometimes they aren't (e.g. the
+	 * "cursor" parameter in a template completion is always last, even though it
+	 * can be anywhere in the template).
 	 *
-	 * @param highlights
-	 *            The list of highlights. Assumed to be non-empty.
+	 * @param highlights The list of highlights. Assumed to be non-empty.
 	 * @return The highlight that comes first in the document.
 	 * @see #getLastHighlight(List)
 	 */
@@ -332,15 +328,14 @@ class ParameterizedCompletionContext {
 		}
 		return first;
 	}
-	
+
 	/**
-	 * Returns the highlight from a list that comes "last" in that list. Even
-	 * though most parameter highlights are ordered, sometimes they aren't
-	 * (e.g. the "cursor" parameter in a template completion is always last,
-	 * even though it can be anywhere in the template.
+	 * Returns the highlight from a list that comes "last" in that list. Even though
+	 * most parameter highlights are ordered, sometimes they aren't (e.g. the
+	 * "cursor" parameter in a template completion is always last, even though it
+	 * can be anywhere in the template.
 	 *
-	 * @param highlights
-	 *            The list of highlights. Assumed to be non-empty.
+	 * @param highlights The list of highlights. Assumed to be non-empty.
 	 * @return The highlight that comes last in the document.
 	 * @see #getFirstHighlight(List)
 	 */
@@ -356,7 +351,7 @@ class ParameterizedCompletionContext {
 		}
 		return last;
 	}
-	
+
 	public List<Highlight> getParameterHighlights() {
 		List<Highlight> paramHighlights = new ArrayList<Highlight>(2);
 		JTextComponent tc = ac.getTextComponent();
@@ -369,12 +364,12 @@ class ParameterizedCompletionContext {
 		}
 		return paramHighlights;
 	}
-	
+
 	/**
 	 * Inserts the choice selected in the parameter choices window.
 	 *
-	 * @return Whether the choice was inserted. This will be <code>false</code>
-	 *         if the window is not visible, or no choice is selected.
+	 * @return Whether the choice was inserted. This will be <code>false</code> if
+	 *         the window is not visible, or no choice is selected.
 	 */
 	boolean insertSelectedChoice() {
 		if (paramChoicesWindow != null && paramChoicesWindow.isVisible()) {
@@ -396,10 +391,10 @@ class ParameterizedCompletionContext {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Installs key bindings on the text component that facilitate the user
-	 * editing this completion's parameters.
+	 * Installs key bindings on the text component that facilitate the user editing
+	 * this completion's parameters.
 	 *
 	 * @see #uninstallKeyBindings()
 	 */
@@ -447,7 +442,7 @@ class ParameterizedCompletionContext {
 		oldClosingAction = am.get(IM_KEY_CLOSING);
 		am.put(IM_KEY_CLOSING, new ClosingAction());
 	}
-	
+
 	/**
 	 * Moves to and selects the next parameter.
 	 *
@@ -486,7 +481,7 @@ class ParameterizedCompletionContext {
 		tc.setSelectionEnd(currentNext.getEndOffset());
 		updateToolTipText(pos);
 	}
-	
+
 	/**
 	 * Moves to and selects the previous parameter.
 	 *
@@ -507,8 +502,8 @@ class ParameterizedCompletionContext {
 		List<Highlight> highlights = getParameterHighlights();
 		for (int i = 0; i < highlights.size(); i++) {
 			Highlight h = highlights.get(i);
-			if (currentPrev == null || currentPrev.getStartOffset() >= dot
-					|| (h.getStartOffset() < selStart && (h.getStartOffset() > currentPrev.getStartOffset() || pos == lastSelectedParam))) {
+			if (currentPrev == null || currentPrev.getStartOffset() >= dot || (h.getStartOffset() < selStart
+					&& (h.getStartOffset() > currentPrev.getStartOffset() || pos == lastSelectedParam))) {
 				currentPrev = h;
 				pos = i;
 			}
@@ -533,7 +528,7 @@ class ParameterizedCompletionContext {
 			deactivate();
 		}
 	}
-	
+
 	private void possiblyUpdateParamCopies(Document doc) {
 		int index = getCurrentParameterIndex();
 		// FunctionCompletions add an extra param at end of inserted text
@@ -567,7 +562,7 @@ class ParameterizedCompletionContext {
 			deactivate();
 		}
 	}
-	
+
 	/**
 	 * Updates the optional window listing likely completion choices,
 	 */
@@ -595,7 +590,7 @@ class ParameterizedCompletionContext {
 			paramChoicesWindow.setParameter(lastSelectedParam, paramPrefix);
 		}
 	}
-	
+
 	/**
 	 * Removes the bounding boxes around parameters.
 	 */
@@ -611,19 +606,16 @@ class ParameterizedCompletionContext {
 		}
 		paramCopyInfos.clear();
 	}
-	
+
 	/**
-	 * Replaces highlighted text with new text. Takes special care so that
-	 * the highlight stays just around the newly-highlighted text, since
-	 * Swing's <code>Highlight</code> classes are funny about insertions at
-	 * their start offsets.
+	 * Replaces highlighted text with new text. Takes special care so that the
+	 * highlight stays just around the newly-highlighted text, since Swing's
+	 * <code>Highlight</code> classes are funny about insertions at their start
+	 * offsets.
 	 *
-	 * @param doc
-	 *            The document.
-	 * @param h
-	 *            The highlight whose text to change.
-	 * @param replacement
-	 *            The new text to be in the highlight.
+	 * @param doc         The document.
+	 * @param h           The highlight whose text to change.
+	 * @param replacement The new text to be in the highlight.
 	 * @return The replacement highlight for <code>h</code>.
 	 */
 	private Highlight replaceHighlightedText(Document doc, Highlight h, String replacement) {
@@ -646,7 +638,7 @@ class ParameterizedCompletionContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Removes the key bindings we installed.
 	 *
@@ -682,11 +674,10 @@ class ParameterizedCompletionContext {
 		im.put(ks, oldClosingKey);
 		am.put(IM_KEY_CLOSING, oldClosingAction);
 	}
-	
+
 	/**
-	 * Updates the text in the tool tip to have the current parameter
-	 * displayed in bold. The "current parameter" is determined from the
-	 * current caret position.
+	 * Updates the text in the tool tip to have the current parameter displayed in
+	 * bold. The "current parameter" is determined from the current caret position.
 	 *
 	 * @return The "prefix" of text in the caret's parameter before the caret.
 	 */
@@ -718,7 +709,7 @@ class ParameterizedCompletionContext {
 		updateToolTipText(index);
 		return paramPrefix;
 	}
-	
+
 	private void updateToolTipText(int selectedParam) {
 		if (selectedParam != lastSelectedParam) {
 			if (tip != null) {
@@ -727,7 +718,7 @@ class ParameterizedCompletionContext {
 			this.lastSelectedParam = selectedParam;
 		}
 	}
-	
+
 	/**
 	 * Updates the <code>LookAndFeel</code> of all popup windows this context
 	 * manages.
@@ -740,12 +731,12 @@ class ParameterizedCompletionContext {
 			paramChoicesWindow.updateUI();
 		}
 	}
-	
+
 	/**
 	 * Called when the user presses Enter while entering parameters.
 	 */
 	private class GotoEndAction extends AbstractAction {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// If the param choices window is visible and something is chosen,
@@ -771,19 +762,19 @@ class ParameterizedCompletionContext {
 				}
 			}
 		}
-		
+
 		private Action getDefaultEnterAction(JTextComponent tc) {
 			ActionMap am = tc.getActionMap();
 			return am.get(DefaultEditorKit.insertBreakAction);
 		}
 	}
-	
+
 	/**
-	 * Called when the user types the character marking the closing of the
-	 * parameter list, such as '<code>)</code>'.
+	 * Called when the user types the character marking the closing of the parameter
+	 * list, such as '<code>)</code>'.
 	 */
 	private class ClosingAction extends AbstractAction {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JTextComponent tc = ac.getTextComponent();
@@ -812,7 +803,7 @@ class ParameterizedCompletionContext {
 				tc.replaceSelection(Character.toString(end));
 			}
 		}
-		
+
 		public int getCount(String text, char ch) {
 			int count = 0;
 			int old = 0;
@@ -824,12 +815,12 @@ class ParameterizedCompletionContext {
 			return count;
 		}
 	}
-	
+
 	/**
 	 * Action performed when the user hits the escape key.
 	 */
 	private class HideAction extends AbstractAction {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// On first escape press, if the param choices window is visible,
@@ -844,20 +835,19 @@ class ParameterizedCompletionContext {
 			}
 		}
 	}
-	
+
 	/**
-	 * Listens for various events in the text component while this tool tip
-	 * is visible.
+	 * Listens for various events in the text component while this tool tip is
+	 * visible.
 	 */
 	private class Listener implements FocusListener, CaretListener, DocumentListener {
-		
+
 		private boolean markOccurrencesEnabled;
-		
+
 		/**
 		 * Called when the text component's caret moves.
 		 *
-		 * @param e
-		 *            The event.
+		 * @param e The event.
 		 */
 		@Override
 		public void caretUpdate(CaretEvent e) {
@@ -875,37 +865,36 @@ class ParameterizedCompletionContext {
 				prepareParamChoicesWindow();
 			}
 		}
-		
+
 		@Override
-		public void changedUpdate(DocumentEvent e) {}
-		
+		public void changedUpdate(DocumentEvent e) {
+		}
+
 		/**
 		 * Called when the text component gains focus.
 		 *
-		 * @param e
-		 *            The event.
+		 * @param e The event.
 		 */
 		@Override
 		public void focusGained(FocusEvent e) {
 			// Do nothing
 		}
-		
+
 		/**
 		 * Called when the text component loses focus.
 		 *
-		 * @param e
-		 *            The event.
+		 * @param e The event.
 		 */
 		@Override
 		public void focusLost(FocusEvent e) {
 			deactivate();
 		}
-		
+
 		private void handleDocumentEvent(final DocumentEvent e) {
 			if (!ignoringDocumentEvents) {
 				ignoringDocumentEvents = true;
 				SwingUtilities.invokeLater(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						possiblyUpdateParamCopies(e.getDocument());
@@ -914,17 +903,16 @@ class ParameterizedCompletionContext {
 				});
 			}
 		}
-		
+
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			handleDocumentEvent(e);
 		}
-		
+
 		/**
 		 * Installs this listener onto a text component.
 		 *
-		 * @param tc
-		 *            The text component to install onto.
+		 * @param tc The text component to install onto.
 		 * @see #uninstall()
 		 */
 		public void install(JTextComponent tc) {
@@ -950,7 +938,8 @@ class ParameterizedCompletionContext {
 				}
 				for (int i = 0; i < info.getReplacementCopyCount(); i++) {
 					ReplacementCopy rc = info.getReplacementCopy(i);
-					paramCopyInfos.add(new ParamCopyInfo(rc.getId(), (Highlight) h.addHighlight(rc.getStart(), rc.getEnd(), paramCopyP)));
+					paramCopyInfos.add(new ParamCopyInfo(rc.getId(),
+							(Highlight) h.addHighlight(rc.getStart(), rc.getEnd(), paramCopyP)));
 				}
 				// Go back and start at the first parameter.
 				tc.setCaretPosition(info.getSelectionStart());
@@ -981,12 +970,12 @@ class ParameterizedCompletionContext {
 			tc.addFocusListener(this);
 			installKeyBindings();
 		}
-		
+
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			handleDocumentEvent(e);
 		}
-		
+
 		/**
 		 * Uninstalls this listener from the current text component.
 		 */
@@ -1005,21 +994,21 @@ class ParameterizedCompletionContext {
 			removeParameterHighlights();
 		}
 	}
-	
+
 	/**
-	 * Action performed when the user presses the up or down arrow keys and
-	 * the parameter completion choices popup is visible.
+	 * Action performed when the user presses the up or down arrow keys and the
+	 * parameter completion choices popup is visible.
 	 */
 	private class NextChoiceAction extends AbstractAction {
-		
+
 		private Action oldAction;
 		private int amount;
-		
+
 		public NextChoiceAction(int amount, Action oldAction) {
 			this.amount = amount;
 			this.oldAction = oldAction;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (paramChoicesWindow != null && paramChoicesWindow.isVisible()) {
@@ -1031,34 +1020,34 @@ class ParameterizedCompletionContext {
 			}
 		}
 	}
-	
+
 	/**
 	 * Action performed when the user hits the tab key.
 	 */
 	private class NextParamAction extends AbstractAction {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			moveToNextParam();
 		}
 	}
-	
+
 	private static class ParamCopyInfo {
-		
+
 		private String paramName;
 		private Highlight h;
-		
+
 		public ParamCopyInfo(String paramName, Highlight h) {
 			this.paramName = paramName;
 			this.h = h;
 		}
 	}
-	
+
 	/**
 	 * Action performed when the user hits shift+tab.
 	 */
 	private class PrevParamAction extends AbstractAction {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			moveToPreviousParam();

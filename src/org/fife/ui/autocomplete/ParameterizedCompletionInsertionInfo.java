@@ -22,7 +22,7 @@ import org.fife.ui.rsyntaxtextarea.DocumentRange;
  * @version 1.0
  */
 class ParameterizedCompletionInsertionInfo {
-	
+
 	private int minOffs;
 	private Position maxOffs;
 	private int defaultEnd;
@@ -31,26 +31,24 @@ class ParameterizedCompletionInsertionInfo {
 	private String textToInsert;
 	private List<DocumentRange> replacementLocations;
 	private List<ReplacementCopy> replacementCopies;
-	
+
 	public ParameterizedCompletionInsertionInfo() {
 		defaultEnd = -1;
 	}
-	
+
 	public void addReplacementCopy(String id, int start, int end) {
 		if (replacementCopies == null) {
 			replacementCopies = new ArrayList<ReplacementCopy>(1);
 		}
 		replacementCopies.add(new ReplacementCopy(id, start, end));
 	}
-	
+
 	/**
-	 * Marks a region of the replacement text as representing a variable name
-	 * or some other construct that the user should replace.
+	 * Marks a region of the replacement text as representing a variable name or
+	 * some other construct that the user should replace.
 	 *
-	 * @param start
-	 *            The start offset.
-	 * @param end
-	 *            The end offset.
+	 * @param start The start offset.
+	 * @param end   The end offset.
 	 * @see #getReplacementCount()
 	 * @see #getReplacementLocation(int)
 	 */
@@ -60,14 +58,14 @@ class ParameterizedCompletionInsertionInfo {
 		}
 		replacementLocations.add(new DocumentRange(start, end));
 	}
-	
+
 	public int getDefaultEndOffs() {
 		return defaultEnd > -1 ? defaultEnd : getMaxOffset().getOffset();
 	}
-	
+
 	/**
-	 * Returns the maximum offset the caret can move to before being outside
-	 * of the text inserted for this completion.
+	 * Returns the maximum offset the caret can move to before being outside of the
+	 * text inserted for this completion.
 	 *
 	 * @return The maximum offset.
 	 * @see #getMinOffset()
@@ -75,10 +73,10 @@ class ParameterizedCompletionInsertionInfo {
 	public Position getMaxOffset() {
 		return maxOffs;
 	}
-	
+
 	/**
-	 * Returns the minimum offset the caret can move to before being outside
-	 * of the text inserted for this completion.
+	 * Returns the minimum offset the caret can move to before being outside of the
+	 * text inserted for this completion.
 	 *
 	 * @return The minimum offset.
 	 * @see #getMaxOffset()
@@ -86,11 +84,11 @@ class ParameterizedCompletionInsertionInfo {
 	public int getMinOffset() {
 		return minOffs;
 	}
-	
+
 	public int getReplacementCopyCount() {
 		return replacementCopies == null ? 0 : replacementCopies.size();
 	}
-	
+
 	/**
 	 * Returns the number of replacements in the completion.
 	 *
@@ -99,28 +97,27 @@ class ParameterizedCompletionInsertionInfo {
 	public int getReplacementCount() {
 		return replacementLocations == null ? 0 : replacementLocations.size();
 	}
-	
+
 	public ReplacementCopy getReplacementCopy(int index) {
 		return replacementCopies.get(index);
 	}
-	
+
 	/**
-	 * Returns the starting- and ending-offsets of the replacement regions
-	 * in the completion.
+	 * Returns the starting- and ending-offsets of the replacement regions in the
+	 * completion.
 	 *
-	 * @param index
-	 *            The replacement region.
+	 * @param index The replacement region.
 	 * @return The range in the document of that replacement region.
 	 * @see #getReplacementCount()
 	 */
 	public DocumentRange getReplacementLocation(int index) {
 		return replacementLocations.get(index);
 	}
-	
+
 	/**
-	 * Returns the offset that should be the end of the initially selected
-	 * text when the completion is inserted (i.e., the end offset of the first
-	 * replacement region).
+	 * Returns the offset that should be the end of the initially selected text when
+	 * the completion is inserted (i.e., the end offset of the first replacement
+	 * region).
 	 *
 	 * @return The end offset for the initial selection.
 	 * @see #getSelectionStart()
@@ -128,11 +125,11 @@ class ParameterizedCompletionInsertionInfo {
 	public int getSelectionEnd() {
 		return selEnd;
 	}
-	
+
 	/**
-	 * Returns the offset that should be the start of the initially selected
-	 * text when the completion is inserted (i.e., the start offset of the
-	 * first replacement region).
+	 * Returns the offset that should be the start of the initially selected text
+	 * when the completion is inserted (i.e., the start offset of the first
+	 * replacement region).
 	 *
 	 * @return The start offset for the initial selection.
 	 * @see #getSelectionEnd()
@@ -140,7 +137,7 @@ class ParameterizedCompletionInsertionInfo {
 	public int getSelectionStart() {
 		return selStart;
 	}
-	
+
 	/**
 	 * Returns the actual text to insert when the completion is selected.
 	 *
@@ -150,24 +147,22 @@ class ParameterizedCompletionInsertionInfo {
 	public String getTextToInsert() {
 		return textToInsert;
 	}
-	
+
 	/**
-	 * Returns whether or not there is an initial selected region for the
-	 * completion (i.e., whether the completion actually has any parameters).
+	 * Returns whether or not there is an initial selected region for the completion
+	 * (i.e., whether the completion actually has any parameters).
 	 *
 	 * @return Whether there is a region to initially select for the completion.
 	 */
 	public boolean hasSelection() {
 		return selEnd != selStart;
 	}
-	
+
 	/**
 	 * Sets the initially selected region for the completion.
 	 *
-	 * @param selStart
-	 *            The selection start.
-	 * @param selEnd
-	 *            The selection end.
+	 * @param selStart The selection start.
+	 * @param selEnd   The selection end.
 	 * @see #getSelectionEnd()
 	 * @see #getSelectionStart()
 	 */
@@ -175,16 +170,14 @@ class ParameterizedCompletionInsertionInfo {
 		this.selStart = selStart;
 		this.selEnd = selEnd;
 	}
-	
+
 	/**
-	 * Sets the document range the caret can move around in before being
-	 * outside of the text inserted for the completion.
+	 * Sets the document range the caret can move around in before being outside of
+	 * the text inserted for the completion.
 	 *
-	 * @param minOffs
-	 *            The minimum offset.
-	 * @param maxOffs
-	 *            The maximum offset, that will track its location as the
-	 *            document is modified.
+	 * @param minOffs The minimum offset.
+	 * @param maxOffs The maximum offset, that will track its location as the
+	 *                document is modified.
 	 * @see #getMinOffset()
 	 * @see #getMaxOffset()
 	 */
@@ -192,42 +185,41 @@ class ParameterizedCompletionInsertionInfo {
 		this.minOffs = minOffs;
 		this.maxOffs = maxOffs;
 	}
-	
+
 	public void setDefaultEndOffs(int end) {
 		defaultEnd = end;
 	}
-	
+
 	/**
 	 * Sets the text to insert for the completion.
 	 *
-	 * @param text
-	 *            The text to insert.
+	 * @param text The text to insert.
 	 * @see #getTextToInsert()
 	 */
 	public void setTextToInsert(String text) {
 		this.textToInsert = text;
 	}
-	
+
 	public static class ReplacementCopy {
-		
+
 		private String id;
 		private int start;
 		private int end;
-		
+
 		public ReplacementCopy(String id, int start, int end) {
 			this.id = id;
 			this.start = start;
 			this.end = end;
 		}
-		
+
 		public int getEnd() {
 			return end;
 		}
-		
+
 		public String getId() {
 			return id;
 		}
-		
+
 		public int getStart() {
 			return start;
 		}

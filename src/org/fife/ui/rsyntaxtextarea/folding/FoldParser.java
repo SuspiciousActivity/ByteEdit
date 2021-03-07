@@ -13,9 +13,9 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 /**
  * Locates folds in a document. If you are implementing a language that has
  * sections of source code that can be logically "folded," you can create an
- * instance of this interface that locates those regions and represents them
- * as {@link Fold}s. <code>RSyntaxTextArea</code> knows how to take it from
- * there and implement code folding in the editor.
+ * instance of this interface that locates those regions and represents them as
+ * {@link Fold}s. <code>RSyntaxTextArea</code> knows how to take it from there
+ * and implement code folding in the editor.
  *
  * @author Robert Futrell
  * @version 1.0
@@ -23,14 +23,13 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
  * @see XmlFoldParser
  */
 public interface FoldParser {
-	
+
 	/**
 	 * Returns a list of all folds in the text area.
 	 *
-	 * @param textArea
-	 *            The text area whose contents should be analyzed.
-	 * @return The list of folds. If this method returns <code>null</code>,
-	 *         it is treated as if no folds were found.
+	 * @param textArea The text area whose contents should be analyzed.
+	 * @return The list of folds. If this method returns <code>null</code>, it is
+	 *         treated as if no folds were found.
 	 */
 	List<Fold> getFolds(RSyntaxTextArea textArea);
 }

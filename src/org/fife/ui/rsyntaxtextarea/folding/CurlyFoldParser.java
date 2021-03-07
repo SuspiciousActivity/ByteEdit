@@ -15,24 +15,23 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Token;
 
 /**
- * A basic fold parser that can be used for languages such as C, that use
- * curly braces to denote code blocks. This parser searches for curly brace
- * pairs and creates code folds out of them. It can also optionally find
- * C-style multi-line comments ("<code>/* ... *&#47;</code>") and make them
- * foldable as well.
+ * A basic fold parser that can be used for languages such as C, that use curly
+ * braces to denote code blocks. This parser searches for curly brace pairs and
+ * creates code folds out of them. It can also optionally find C-style
+ * multi-line comments ("<code>/* ... *&#47;</code>") and make them foldable as
+ * well.
  * <p>
  *
  * This parser knows nothing about language semantics; it uses
- * <code>RSyntaxTextArea</code>'s syntax highlighting tokens to identify
- * curly braces. By default, it looks for single-char tokens of type
+ * <code>RSyntaxTextArea</code>'s syntax highlighting tokens to identify curly
+ * braces. By default, it looks for single-char tokens of type
  * {@link Token#SEPARATOR}, with lexemes '<code>{</code>' or '<code>}</code>'.
  * If your {@link org.fife.ui.rsyntaxtextarea.TokenMaker} uses a different token
  * type for curly braces, you should override the {@link #isLeftCurly(Token)}
- * and
- * {@link #isRightCurly(Token)} methods with your own definitions. In theory,
- * you could extend this fold parser to parse languages that use completely
- * different tokens than curly braces to denote foldable regions by overriding
- * those two methods.
+ * and {@link #isRightCurly(Token)} methods with your own definitions. In
+ * theory, you could extend this fold parser to parse languages that use
+ * completely different tokens than curly braces to denote foldable regions by
+ * overriding those two methods.
  * <p>
  *
  * Note also that this class may impose somewhat of a performance penalty on
@@ -43,7 +42,7 @@ import org.fife.ui.rsyntaxtextarea.Token;
  * @version 1.0
  */
 public class CurlyFoldParser implements FoldParser {
-	
+
 	/**
 	 * Whether to scan for C-style multi-line comments and make them foldable.
 	 */
@@ -60,31 +59,29 @@ public class CurlyFoldParser implements FoldParser {
 	 * Ending of a multi-line comment in C, C++, Java, etc.
 	 */
 	protected static final char[] C_MLC_END = "*/".toCharArray();
-	
+
 	/**
-	 * Creates a fold parser that identifies foldable regions via curly braces
-	 * as well as C-style multi-line comments.
+	 * Creates a fold parser that identifies foldable regions via curly braces as
+	 * well as C-style multi-line comments.
 	 */
 	public CurlyFoldParser() {
 		this(true, false);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param cStyleMultiLineComments
-	 *            Whether to scan for C-style multi-line
-	 *            comments and make them foldable.
-	 * @param java
-	 *            Whether this parser is folding Java. This adds extra
-	 *            parsing rules, such as grouping all import statements into a
-	 *            fold section.
+	 * @param cStyleMultiLineComments Whether to scan for C-style multi-line
+	 *                                comments and make them foldable.
+	 * @param java                    Whether this parser is folding Java. This adds
+	 *                                extra parsing rules, such as grouping all
+	 *                                import statements into a fold section.
 	 */
 	public CurlyFoldParser(boolean cStyleMultiLineComments, boolean java) {
 		this.foldableMultiLineComments = cStyleMultiLineComments;
 		this.java = java;
 	}
-	
+
 	/**
 	 * Returns whether multi-line comments are foldable with this parser.
 	 *
@@ -94,7 +91,7 @@ public class CurlyFoldParser implements FoldParser {
 	public boolean getFoldableMultiLineComments() {
 		return foldableMultiLineComments;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -256,38 +253,35 @@ public class CurlyFoldParser implements FoldParser {
 		}
 		return folds;
 	}
-	
+
 	/**
-	 * Returns whether the token is a left curly brace. This method exists
-	 * so subclasses can provide their own curly brace definition.
+	 * Returns whether the token is a left curly brace. This method exists so
+	 * subclasses can provide their own curly brace definition.
 	 *
-	 * @param t
-	 *            The token.
+	 * @param t The token.
 	 * @return Whether it is a left curly brace.
 	 * @see #isRightCurly(Token)
 	 */
 	public boolean isLeftCurly(Token t) {
 		return t.isLeftCurly();
 	}
-	
+
 	/**
-	 * Returns whether the token is a right curly brace. This method exists
-	 * so subclasses can provide their own curly brace definition.
+	 * Returns whether the token is a right curly brace. This method exists so
+	 * subclasses can provide their own curly brace definition.
 	 *
-	 * @param t
-	 *            The token.
+	 * @param t The token.
 	 * @return Whether it is a right curly brace.
 	 * @see #isLeftCurly(Token)
 	 */
 	public boolean isRightCurly(Token t) {
 		return t.isRightCurly();
 	}
-	
+
 	/**
 	 * Sets whether multi-line comments are foldable with this parser.
 	 *
-	 * @param foldable
-	 *            Whether multi-line comments are foldable.
+	 * @param foldable Whether multi-line comments are foldable.
 	 * @see #getFoldableMultiLineComments()
 	 */
 	public void setFoldableMultiLineComments(boolean foldable) {

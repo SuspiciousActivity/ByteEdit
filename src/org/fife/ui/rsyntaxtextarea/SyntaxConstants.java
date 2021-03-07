@@ -8,8 +8,8 @@ package org.fife.ui.rsyntaxtextarea;
 
 /**
  * Constants that define the different programming languages understood by
- * <code>RSyntaxTextArea</code>. These constants are the values you can pass
- * to {@link RSyntaxTextArea#setSyntaxEditingStyle(String)} to get syntax
+ * <code>RSyntaxTextArea</code>. These constants are the values you can pass to
+ * {@link RSyntaxTextArea#setSyntaxEditingStyle(String)} to get syntax
  * highlighting.
  * <p>
  *
@@ -25,7 +25,7 @@ package org.fife.ui.rsyntaxtextarea;
  * @version 1.0
  */
 public interface SyntaxConstants {
-	
+
 	/**
 	 * Style meaning don't syntax highlight anything.
 	 */
@@ -123,8 +123,8 @@ public interface SyntaxConstants {
 	 */
 	String SYNTAX_STYLE_JSON = "text/json";
 	/**
-	 * Style for highlighting .jshintrc files (JSON with comments, so can be
-	 * used for other times when you want this behavior).
+	 * Style for highlighting .jshintrc files (JSON with comments, so can be used
+	 * for other times when you want this behavior).
 	 */
 	String SYNTAX_STYLE_JSON_WITH_COMMENTS = "text/jshintrc";
 	/**

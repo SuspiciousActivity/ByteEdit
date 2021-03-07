@@ -27,34 +27,33 @@ import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextAreaUI;
 
 /**
- * UI used by <code>RSyntaxTextArea</code>. This allows us to implement
- * syntax highlighting.
+ * UI used by <code>RSyntaxTextArea</code>. This allows us to implement syntax
+ * highlighting.
  *
  * @author Robert Futrell
  * @version 0.1
  */
 public class RSyntaxTextAreaUI extends RTextAreaUI {
-	
+
 	private static final String SHARED_ACTION_MAP_NAME = "RSyntaxTextAreaUI.actionMap";
 	private static final String SHARED_INPUT_MAP_NAME = "RSyntaxTextAreaUI.inputMap";
 	private static final EditorKit DEFAULT_KIT = new RSyntaxTextAreaEditorKit();
-	
+
 	public static ComponentUI createUI(JComponent ta) {
 		return new RSyntaxTextAreaUI(ta);
 	}
-	
+
 	/**
 	 * Constructor.
 	 */
 	public RSyntaxTextAreaUI(JComponent rSyntaxTextArea) {
 		super(rSyntaxTextArea);
 	}
-	
+
 	/**
 	 * Creates the view for an element.
 	 *
-	 * @param elem
-	 *            The element.
+	 * @param elem The element.
 	 * @return The view.
 	 */
 	@Override
@@ -72,7 +71,7 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates the highlighter to use for syntax text areas.
 	 *
@@ -82,11 +81,11 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 	protected Highlighter createHighlighter() {
 		return new RSyntaxTextAreaHighlighter();
 	}
-	
+
 	/**
-	 * Returns the name to use to cache/fetch the shared action map. This
-	 * should be overridden by subclasses if the subclass has its own custom
-	 * editor kit to install, so its actions get picked up.
+	 * Returns the name to use to cache/fetch the shared action map. This should be
+	 * overridden by subclasses if the subclass has its own custom editor kit to
+	 * install, so its actions get picked up.
 	 *
 	 * @return The name of the cached action map.
 	 */
@@ -94,12 +93,11 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 	protected String getActionMapName() {
 		return SHARED_ACTION_MAP_NAME;
 	}
-	
+
 	/**
 	 * Fetches the EditorKit for the UI.
 	 *
-	 * @param tc
-	 *            The text component for which this UI is installed.
+	 * @param tc The text component for which this UI is installed.
 	 * @return The editor capabilities.
 	 * @see javax.swing.plaf.TextUI#getEditorKit
 	 */
@@ -107,16 +105,16 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 	public EditorKit getEditorKit(JTextComponent tc) {
 		return DEFAULT_KIT;
 	}
-	
+
 	/**
 	 * Get the InputMap to use for the UI.
 	 * <p>
 	 *
-	 * This method is not named <code>getInputMap()</code> because there is
-	 * a package-private method in <code>BasicTextAreaUI</code> with that name.
-	 * Thus, creating a new method with that name causes certain compilers to
-	 * issue warnings that you are not actually overriding the original method
-	 * (since it is package-private).
+	 * This method is not named <code>getInputMap()</code> because there is a
+	 * package-private method in <code>BasicTextAreaUI</code> with that name. Thus,
+	 * creating a new method with that name causes certain compilers to issue
+	 * warnings that you are not actually overriding the original method (since it
+	 * is package-private).
 	 */
 	@Override
 	protected InputMap getRTextAreaInputMap() {
@@ -132,18 +130,17 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 		map.setParent(shared);
 		return map;
 	}
-	
+
 	@Override
 	protected void paintEditorAugmentations(Graphics g) {
 		super.paintEditorAugmentations(g);
 		paintMatchedBracket(g);
 	}
-	
+
 	/**
 	 * Paints the "matched bracket", if any.
 	 *
-	 * @param g
-	 *            The graphics context.
+	 * @param g The graphics context.
 	 */
 	protected void paintMatchedBracket(Graphics g) {
 		RSyntaxTextArea rsta = (RSyntaxTextArea) textArea;
@@ -160,7 +157,7 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 			}
 		}
 	}
-	
+
 	protected void paintMatchedBracketImpl(Graphics g, RSyntaxTextArea rsta, Rectangle r) {
 		// We must add "-1" to the height because otherwise we'll paint below
 		// the region that gets invalidated.
@@ -183,13 +180,12 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 			g.drawRect(r.x, r.y, r.width, r.height - 1);
 		}
 	}
-	
+
 	/**
 	 * Gets called whenever a bound property is changed on this UI's
 	 * <code>RSyntaxTextArea</code>.
 	 *
-	 * @param e
-	 *            The property change event.
+	 * @param e The property change event.
 	 */
 	@Override
 	protected void propertyChange(PropertyChangeEvent e) {
@@ -204,7 +200,7 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 			super.propertyChange(e);
 		}
 	}
-	
+
 	/**
 	 * Updates the view. This should be called when the underlying
 	 * <code>RSyntaxTextArea</code> changes its syntax editing style.
@@ -212,14 +208,13 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 	public void refreshSyntaxHighlighting() {
 		modelChanged();
 	}
-	
+
 	/**
 	 * Returns the y-coordinate of the specified line.
 	 * <p>
 	 *
-	 * This method is quicker than using traditional
-	 * <code>modelToView(int)</code> calls, as the entire bounding box isn't
-	 * computed.
+	 * This method is quicker than using traditional <code>modelToView(int)</code>
+	 * calls, as the entire bounding box isn't computed.
 	 */
 	@Override
 	public int yForLine(int line) throws BadLocationException {
@@ -230,7 +225,7 @@ public class RSyntaxTextAreaUI extends RTextAreaUI {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Returns the y-coordinate of the line containing a specified offset.
 	 * <p>

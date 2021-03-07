@@ -9,8 +9,8 @@ import javax.swing.text.Element;
 // import javax.swing.text.View;
 
 /**
- * Replacement for the old <code>WrappedSyntaxView</code> class, designed to
- * be faster with large wrapped documents. Heavily based off of
+ * Replacement for the old <code>WrappedSyntaxView</code> class, designed to be
+ * faster with large wrapped documents. Heavily based off of
  * <code>BoxView</code>, but streamlined to only care about the y-axis, and
  * takes code folding into account.
  * <p>
@@ -25,7 +25,7 @@ public class WrappedSyntaxView2 {// extends CompositeView {
 	// private int[] cachedOffsets;
 	// private int[] cachedSpans;
 	// private boolean sizeRequirementsValid;
-	
+
 	public WrappedSyntaxView2(Element root) {
 		// super(root);
 		// tempRect = new Rectangle();

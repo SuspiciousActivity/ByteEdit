@@ -21,23 +21,24 @@ import javax.swing.Icon;
  * @version 1.0
  */
 public class EmptyIcon implements Icon, Serializable {
-	
+
 	private int size;
-	
+
 	public EmptyIcon(int size) {
 		this.size = size;
 	}
-	
+
 	@Override
 	public int getIconHeight() {
 		return size;
 	}
-	
+
 	@Override
 	public int getIconWidth() {
 		return size;
 	}
-	
+
 	@Override
-	public void paintIcon(Component c, Graphics g, int x, int y) {}
+	public void paintIcon(Component c, Graphics g, int x, int y) {
+	}
 }

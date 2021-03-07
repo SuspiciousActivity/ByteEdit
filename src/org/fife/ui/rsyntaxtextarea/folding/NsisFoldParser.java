@@ -27,17 +27,17 @@ import org.fife.ui.rsyntaxtextarea.Token;
  * @version 1.0
  */
 public class NsisFoldParser implements FoldParser {
-	
+
 	private static final char[] KEYWORD_FUNCTION = "Function".toCharArray();
 	private static final char[] KEYWORD_FUNCTION_END = "FunctionEnd".toCharArray();
 	private static final char[] KEYWORD_SECTION = "Section".toCharArray();
 	private static final char[] KEYWORD_SECTION_END = "SectionEnd".toCharArray();
 	protected static final char[] C_MLC_END = "*/".toCharArray();
-	
+
 	private static boolean foundEndKeyword(char[] keyword, Token t, Stack<char[]> endWordStack) {
 		return t.is(Token.RESERVED_WORD, keyword) && !endWordStack.isEmpty() && keyword == endWordStack.peek();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

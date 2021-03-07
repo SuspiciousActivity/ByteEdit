@@ -41,11 +41,11 @@ import org.fife.ui.rsyntaxtextarea.focusabletip.TipUtil;
  * @version 1.0
  */
 class MatchedBracketPopup extends JWindow {
-	
+
 	private RSyntaxTextArea textArea;
 	private transient Listener listener;
 	private static final int LEFT_EMPTY_BORDER = 5;
-	
+
 	MatchedBracketPopup(Window parent, RSyntaxTextArea textArea, int offsToRender) {
 		super(parent);
 		this.textArea = textArea;
@@ -59,7 +59,7 @@ class MatchedBracketPopup extends JWindow {
 		listener = new Listener();
 		setLocation();
 	}
-	
+
 	/**
 	 * Overridden to ensure this popup stays in a specific size range.
 	 */
@@ -71,7 +71,7 @@ class MatchedBracketPopup extends JWindow {
 		}
 		return size;
 	}
-	
+
 	private String getText(int offsToRender) {
 		int line = 0;
 		try {
@@ -110,7 +110,7 @@ class MatchedBracketPopup extends JWindow {
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Adds key bindings to this popup.
 	 */
@@ -121,10 +121,9 @@ class MatchedBracketPopup extends JWindow {
 		im.put(escapeKS, "onEscape");
 		am.put("onEscape", new EscapeAction());
 	}
-	
+
 	/**
-	 * Positions this popup to be in the top right-hand corner of the parent
-	 * editor.
+	 * Positions this popup to be in the top right-hand corner of the parent editor.
 	 */
 	private void setLocation() {
 		Point topLeft = textArea.getVisibleRect().getLocation();
@@ -132,23 +131,23 @@ class MatchedBracketPopup extends JWindow {
 		topLeft.y = Math.max(topLeft.y - 24, 0);
 		setLocation(topLeft.x - LEFT_EMPTY_BORDER, topLeft.y);
 	}
-	
+
 	/**
 	 * Action performed when Escape is pressed in this popup.
 	 */
 	private class EscapeAction extends AbstractAction {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			listener.uninstallAndHide();
 		}
 	}
-	
+
 	/**
 	 * Listens for events in this popup.
 	 */
 	private class Listener extends WindowAdapter implements ComponentListener {
-		
+
 		Listener() {
 			addWindowFocusListener(this);
 			// If anything happens to the "parent" window, hide this popup
@@ -157,42 +156,42 @@ class MatchedBracketPopup extends JWindow {
 			parent.addWindowListener(this);
 			parent.addComponentListener(this);
 		}
-		
+
 		@Override
 		public void componentResized(ComponentEvent e) {
 			uninstallAndHide();
 		}
-		
+
 		@Override
 		public void componentMoved(ComponentEvent e) {
 			uninstallAndHide();
 		}
-		
+
 		@Override
 		public void componentShown(ComponentEvent e) {
 			uninstallAndHide();
 		}
-		
+
 		@Override
 		public void componentHidden(ComponentEvent e) {
 			uninstallAndHide();
 		}
-		
+
 		@Override
 		public void windowActivated(WindowEvent e) {
 			checkForParentWindowEvent(e);
 		}
-		
+
 		@Override
 		public void windowLostFocus(WindowEvent e) {
 			uninstallAndHide();
 		}
-		
+
 		@Override
 		public void windowIconified(WindowEvent e) {
 			checkForParentWindowEvent(e);
 		}
-		
+
 		private boolean checkForParentWindowEvent(WindowEvent e) {
 			if (e.getSource() == getParent()) {
 				uninstallAndHide();
@@ -200,7 +199,7 @@ class MatchedBracketPopup extends JWindow {
 			}
 			return false;
 		}
-		
+
 		private void uninstallAndHide() {
 			Window parent = (Window) getParent();
 			parent.removeWindowFocusListener(this);

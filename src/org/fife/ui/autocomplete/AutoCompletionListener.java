@@ -15,13 +15,12 @@ import java.util.EventListener;
  * @version 1.0
  */
 public interface AutoCompletionListener extends EventListener {
-	
+
 	/**
-	 * Callback notified when a change to the <code>AutoCompletion</code>'s
-	 * status occurs.
+	 * Callback notified when a change to the <code>AutoCompletion</code>'s status
+	 * occurs.
 	 *
-	 * @param e
-	 *            The event.
+	 * @param e The event.
 	 */
 	void autoCompleteUpdate(AutoCompletionEvent e);
 }

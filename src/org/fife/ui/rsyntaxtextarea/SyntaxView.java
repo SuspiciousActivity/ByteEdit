@@ -30,14 +30,14 @@ import org.fife.ui.rsyntaxtextarea.folding.FoldManager;
 
 /**
  * The <code>javax.swing.text.View</code> object used by {@link RSyntaxTextArea}
- * when word wrap is disabled. It implements syntax highlighting for
- * programming languages using the colors and font styles specified by the
+ * when word wrap is disabled. It implements syntax highlighting for programming
+ * languages using the colors and font styles specified by the
  * <code>RSyntaxTextArea</code>.
  * <p>
  *
  * You don't really have to do anything to use this class, as
- * {@link RSyntaxTextAreaUI} automatically sets the text area's view to be
- * an instance of this class if word wrap is disabled.
+ * {@link RSyntaxTextAreaUI} automatically sets the text area's view to be an
+ * instance of this class if word wrap is disabled.
  * <p>
  *
  * The tokens that specify how to paint the syntax-highlighted text are gleaned
@@ -47,7 +47,7 @@ import org.fife.ui.rsyntaxtextarea.folding.FoldManager;
  * @version 0.3
  */
 public class SyntaxView extends View implements TabExpander, TokenOrientedView, RSTAView {
-	
+
 	/**
 	 * The default font used by the text area. If this changes we need to
 	 * recalculate the longest line.
@@ -58,9 +58,9 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 	 */
 	private FontMetrics metrics;
 	/**
-	 * The current longest line. This is used to calculate the preferred width
-	 * of the view. Since the calculation is potentially expensive, we try to
-	 * avoid it by stashing which line is currently the longest.
+	 * The current longest line. This is used to calculate the preferred width of
+	 * the view. Since the calculation is potentially expensive, we try to avoid it
+	 * by stashing which line is currently the longest.
 	 */
 	private Element longLine;
 	private float longLineWidth;
@@ -78,30 +78,28 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 	private int clipStart;
 	private int clipEnd;
 	/**
-	 * Temporary token used when we need to "modify" tokens for rendering
-	 * purposes. Since tokens returned from RSyntaxDocuments are treated as
-	 * immutable, we use this temporary token to do that work.
+	 * Temporary token used when we need to "modify" tokens for rendering purposes.
+	 * Since tokens returned from RSyntaxDocuments are treated as immutable, we use
+	 * this temporary token to do that work.
 	 */
 	private TokenImpl tempToken;
-	
+
 	/**
 	 * Constructs a new <code>SyntaxView</code> wrapped around an element.
 	 *
-	 * @param elem
-	 *            The element representing the text to display.
+	 * @param elem The element representing the text to display.
 	 */
 	public SyntaxView(Element elem) {
 		super(elem);
 		tempToken = new TokenImpl();
 	}
-	
+
 	/**
-	 * Iterate over the lines represented by the child elements
-	 * of the element this view represents, looking for the line
-	 * that is the longest. The <em>longLine</em> variable is updated to
-	 * represent the longest line contained. The <em>font</em> variable
-	 * is updated to indicate the font used to calculate the
-	 * longest line.
+	 * Iterate over the lines represented by the child elements of the element this
+	 * view represents, looking for the line that is the longest. The
+	 * <em>longLine</em> variable is updated to represent the longest line
+	 * contained. The <em>font</em> variable is updated to indicate the font used to
+	 * calculate the longest line.
 	 */
 	void calculateLongestLine() {
 		Component c = getContainer();
@@ -119,37 +117,30 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 			}
 		}
 	}
-	
+
 	/**
-	 * Gives notification from the document that attributes were changed
-	 * in a location that this view is responsible for.
+	 * Gives notification from the document that attributes were changed in a
+	 * location that this view is responsible for.
 	 *
-	 * @param changes
-	 *            the change information from the associated document
-	 * @param a
-	 *            the current allocation of the view
-	 * @param f
-	 *            the factory to use to rebuild if the view has children
+	 * @param changes the change information from the associated document
+	 * @param a       the current allocation of the view
+	 * @param f       the factory to use to rebuild if the view has children
 	 * @see View#changedUpdate
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent changes, Shape a, ViewFactory f) {
 		updateDamage(changes, a, f);
 	}
-	
+
 	/**
 	 * Repaint the given line range.
 	 *
-	 * @param line0
-	 *            The starting line number to repaint. This must
-	 *            be a valid line number in the model.
-	 * @param line1
-	 *            The ending line number to repaint. This must
-	 *            be a valid line number in the model.
-	 * @param a
-	 *            The region allocated for the view to render into.
-	 * @param host
-	 *            The component hosting the view (used to call repaint).
+	 * @param line0 The starting line number to repaint. This must be a valid line
+	 *              number in the model.
+	 * @param line1 The ending line number to repaint. This must be a valid line
+	 *              number in the model.
+	 * @param a     The region allocated for the view to render into.
+	 * @param host  The component hosting the view (used to call repaint).
 	 */
 	protected void damageLineRange(int line0, int line1, Shape a, Component host) {
 		if (a != null) {
@@ -163,23 +154,17 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 			}
 		}
 	}
-	
+
 	/**
-	 * Draws the passed-in text using syntax highlighting for the current
-	 * language. It is assumed that the entire line is either not in a
-	 * selected region, or painting with a selection-foreground color is turned
-	 * off.
+	 * Draws the passed-in text using syntax highlighting for the current language.
+	 * It is assumed that the entire line is either not in a selected region, or
+	 * painting with a selection-foreground color is turned off.
 	 *
-	 * @param painter
-	 *            The painter to render the tokens.
-	 * @param token
-	 *            The list of tokens to draw.
-	 * @param g
-	 *            The graphics context in which to draw.
-	 * @param x
-	 *            The x-coordinate at which to draw.
-	 * @param y
-	 *            The y-coordinate at which to draw.
+	 * @param painter The painter to render the tokens.
+	 * @param token   The list of tokens to draw.
+	 * @param g       The graphics context in which to draw.
+	 * @param x       The x-coordinate at which to draw.
+	 * @param y       The y-coordinate at which to draw.
 	 * @return The x-coordinate representing the end of the painted text.
 	 */
 	private float drawLine(TokenPainter painter, Token token, Graphics2D g, float x, float y, int line) {
@@ -199,29 +184,23 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		// Return the x-coordinate at the end of the painted text.
 		return nextX;
 	}
-	
+
 	/**
-	 * Draws the passed-in text using syntax highlighting for the current
-	 * language. Tokens are checked for being in a selected region, and are
-	 * rendered appropriately if they are.
+	 * Draws the passed-in text using syntax highlighting for the current language.
+	 * Tokens are checked for being in a selected region, and are rendered
+	 * appropriately if they are.
 	 *
-	 * @param painter
-	 *            The painter to render the tokens.
-	 * @param token
-	 *            The list of tokens to draw.
-	 * @param g
-	 *            The graphics context in which to draw.
-	 * @param x
-	 *            The x-coordinate at which to draw.
-	 * @param y
-	 *            The y-coordinate at which to draw.
-	 * @param selStart
-	 *            The start of the selection.
-	 * @param selEnd
-	 *            The end of the selection.
+	 * @param painter  The painter to render the tokens.
+	 * @param token    The list of tokens to draw.
+	 * @param g        The graphics context in which to draw.
+	 * @param x        The x-coordinate at which to draw.
+	 * @param y        The y-coordinate at which to draw.
+	 * @param selStart The start of the selection.
+	 * @param selEnd   The end of the selection.
 	 * @return The x-coordinate representing the end of the painted text.
 	 */
-	private float drawLineWithSelection(TokenPainter painter, Token token, Graphics2D g, float x, float y, int selStart, int selEnd) {
+	private float drawLineWithSelection(TokenPainter painter, Token token, Graphics2D g, float x, float y, int selStart,
+			int selEnd) {
 		float nextX = x; // The x-value at the end of our text.
 		boolean useSTC = host.getUseSelectedTextColor();
 		while (token != null && token.isPaintable() && nextX < clipEnd) {
@@ -281,90 +260,81 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		// Return the x-coordinate at the end of the painted text.
 		return nextX;
 	}
-	
+
 	/**
 	 * Calculates the width of the line represented by the given element.
 	 *
-	 * @param line
-	 *            The line for which to get the length.
-	 * @param lineNumber
-	 *            The line number of the specified line in the document.
+	 * @param line       The line for which to get the length.
+	 * @param lineNumber The line number of the specified line in the document.
 	 * @return The width of the line.
 	 */
 	private float getLineWidth(int lineNumber) {
 		Token tokenList = ((RSyntaxDocument) getDocument()).getTokenListForLine(lineNumber);
 		return RSyntaxUtilities.getTokenListWidth(tokenList, (RSyntaxTextArea) getContainer(), this);
 	}
-	
+
 	/**
-	 * Provides a way to determine the next visually represented model
-	 * location that one might place a caret. Some views may not be visible,
-	 * they might not be in the same order found in the model, or they just
-	 * might not allow access to some of the locations in the model.
+	 * Provides a way to determine the next visually represented model location that
+	 * one might place a caret. Some views may not be visible, they might not be in
+	 * the same order found in the model, or they just might not allow access to
+	 * some of the locations in the model.
 	 *
-	 * @param pos
-	 *            the position to convert &gt;= 0
-	 * @param a
-	 *            the allocated region to render into
-	 * @param direction
-	 *            the direction from the current position that can
-	 *            be thought of as the arrow keys typically found on a keyboard.
-	 *            This may be SwingConstants.WEST, SwingConstants.EAST,
-	 *            SwingConstants.NORTH, or SwingConstants.SOUTH.
-	 * @return the location within the model that best represents the next
-	 *         location visual position.
+	 * @param pos       the position to convert &gt;= 0
+	 * @param a         the allocated region to render into
+	 * @param direction the direction from the current position that can be thought
+	 *                  of as the arrow keys typically found on a keyboard. This may
+	 *                  be SwingConstants.WEST, SwingConstants.EAST,
+	 *                  SwingConstants.NORTH, or SwingConstants.SOUTH.
+	 * @return the location within the model that best represents the next location
+	 *         visual position.
 	 * @exception BadLocationException
-	 * @exception IllegalArgumentException
-	 *                for an invalid direction
+	 * @exception IllegalArgumentException for an invalid direction
 	 */
 	@Override
 	public int getNextVisualPositionFrom(int pos, Position.Bias b, Shape a, int direction, Position.Bias[] biasRet)
 			throws BadLocationException {
 		return RSyntaxUtilities.getNextVisualPositionFrom(pos, b, a, direction, biasRet, this);
 	}
-	
+
 	/**
-	 * Determines the preferred span for this view along an
-	 * axis.
+	 * Determines the preferred span for this view along an axis.
 	 *
-	 * @param axis
-	 *            may be either View.X_AXIS or View.Y_AXIS
-	 * @return the span the view would like to be rendered into &gt;= 0.
-	 *         Typically the view is told to render into the span
-	 *         that is returned, although there is no guarantee.
-	 *         The parent may choose to resize or break the view.
-	 * @exception IllegalArgumentException
-	 *                for an invalid axis
+	 * @param axis may be either View.X_AXIS or View.Y_AXIS
+	 * @return the span the view would like to be rendered into &gt;= 0. Typically
+	 *         the view is told to render into the span that is returned, although
+	 *         there is no guarantee. The parent may choose to resize or break the
+	 *         view.
+	 * @exception IllegalArgumentException for an invalid axis
 	 */
 	@Override
 	public float getPreferredSpan(int axis) {
 		updateMetrics();
 		switch (axis) {
-			case View.X_AXIS:
-				float span = longLineWidth + getRhsCorrection(); // fudge factor
-				if (host.getEOLMarkersVisible()) {
-					span += metrics.charWidth('\u00B6');
-				}
-				return span;
-			case View.Y_AXIS:
-				// We update lineHeight here as when this method is first
-				// called, lineHeight isn't initialized. If we don't do it
-				// here, we get no vertical scrollbar (as lineHeight==0).
-				lineHeight = host != null ? host.getLineHeight() : lineHeight;
-				// return getElement().getElementCount() * lineHeight;
-				int visibleLineCount = getElement().getElementCount();
-				if (host.isCodeFoldingEnabled()) {
-					visibleLineCount -= host.getFoldManager().getHiddenLineCount();
-				}
-				return visibleLineCount * (float) lineHeight;
-			default:
-				throw new IllegalArgumentException("Invalid axis: " + axis);
+		case View.X_AXIS:
+			float span = longLineWidth + getRhsCorrection(); // fudge factor
+			if (host.getEOLMarkersVisible()) {
+				span += metrics.charWidth('\u00B6');
+			}
+			return span;
+		case View.Y_AXIS:
+			// We update lineHeight here as when this method is first
+			// called, lineHeight isn't initialized. If we don't do it
+			// here, we get no vertical scrollbar (as lineHeight==0).
+			lineHeight = host != null ? host.getLineHeight() : lineHeight;
+			// return getElement().getElementCount() * lineHeight;
+			int visibleLineCount = getElement().getElementCount();
+			if (host.isCodeFoldingEnabled()) {
+				visibleLineCount -= host.getFoldManager().getHiddenLineCount();
+			}
+			return visibleLineCount * (float) lineHeight;
+		default:
+			throw new IllegalArgumentException("Invalid axis: " + axis);
 		}
 	}
-	
+
 	/**
-	 * Workaround for JTextComponents allowing the caret to be rendered
-	 * entirely off-screen if the entire "previous" character fit entirely.
+	 * Workaround for JTextComponents allowing the caret to be rendered entirely
+	 * off-screen if the entire "previous" character fit entirely.
 	 *
 	 * @return The amount of space to add to the x-axis preferred span.
 	 */
@@ -375,7 +345,7 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		}
 		return rhsCorrection;
 	}
-	
+
 	/**
 	 * Returns the tab size set for the document, defaulting to 5.
 	 *
@@ -386,19 +356,17 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		int size = (i != null) ? i.intValue() : 5;
 		return size;
 	}
-	
+
 	/**
-	 * Returns a token list for the <i>physical</i> line above the physical
-	 * line containing the specified offset into the document. Note that for
-	 * this plain (non-wrapped) view, this is simply the token list for the
-	 * logical line above the line containing <code>offset</code>, since lines
-	 * are not wrapped.
+	 * Returns a token list for the <i>physical</i> line above the physical line
+	 * containing the specified offset into the document. Note that for this plain
+	 * (non-wrapped) view, this is simply the token list for the logical line above
+	 * the line containing <code>offset</code>, since lines are not wrapped.
 	 *
-	 * @param offset
-	 *            The offset in question.
-	 * @return A token list for the physical (and in this view, logical) line
-	 *         before this one. If <code>offset</code> is in the first line in
-	 *         the document, <code>null</code> is returned.
+	 * @param offset The offset in question.
+	 * @return A token list for the physical (and in this view, logical) line before
+	 *         this one. If <code>offset</code> is in the first line in the
+	 *         document, <code>null</code> is returned.
 	 */
 	@Override
 	public Token getTokenListForPhysicalLineAbove(int offset) {
@@ -422,19 +390,17 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		// return document.getTokenListForLine(line);
 		return null;
 	}
-	
+
 	/**
-	 * Returns a token list for the <i>physical</i> line below the physical
-	 * line containing the specified offset into the document. Note that for
-	 * this plain (non-wrapped) view, this is simply the token list for the
-	 * logical line below the line containing <code>offset</code>, since lines
-	 * are not wrapped.
+	 * Returns a token list for the <i>physical</i> line below the physical line
+	 * containing the specified offset into the document. Note that for this plain
+	 * (non-wrapped) view, this is simply the token list for the logical line below
+	 * the line containing <code>offset</code>, since lines are not wrapped.
 	 *
-	 * @param offset
-	 *            The offset in question.
-	 * @return A token list for the physical (and in this view, logical) line
-	 *         after this one. If <code>offset</code> is in the last physical
-	 *         line in the document, <code>null</code> is returned.
+	 * @param offset The offset in question.
+	 * @return A token list for the physical (and in this view, logical) line after
+	 *         this one. If <code>offset</code> is in the last physical line in the
+	 *         document, <code>null</code> is returned.
 	 */
 	@Override
 	public Token getTokenListForPhysicalLineBelow(int offset) {
@@ -459,31 +425,26 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		// return document.getTokenListForLine(line+1);
 		return null;
 	}
-	
+
 	/**
-	 * Gives notification that something was inserted into the document
-	 * in a location that this view is responsible for.
+	 * Gives notification that something was inserted into the document in a
+	 * location that this view is responsible for.
 	 *
-	 * @param changes
-	 *            The change information from the associated document.
-	 * @param a
-	 *            The current allocation of the view.
-	 * @param f
-	 *            The factory to use to rebuild if the view has children.
+	 * @param changes The change information from the associated document.
+	 * @param a       The current allocation of the view.
+	 * @param f       The factory to use to rebuild if the view has children.
 	 */
 	@Override
 	public void insertUpdate(DocumentEvent changes, Shape a, ViewFactory f) {
 		updateDamage(changes, a, f);
 	}
-	
+
 	/**
 	 * Determine the rectangle that represents the given line.
 	 *
-	 * @param a
-	 *            The region allocated for the view to render into
-	 * @param line
-	 *            The line number to find the region of. This must
-	 *            be a valid line number in the model.
+	 * @param a    The region allocated for the view to render into
+	 * @param line The line number to find the region of. This must be a valid line
+	 *             number in the model.
 	 */
 	protected Rectangle lineToRect(Shape a, int line) {
 		Rectangle r = null;
@@ -503,19 +464,16 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		}
 		return r;
 	}
-	
+
 	/**
-	 * Provides a mapping from the document model coordinate space
-	 * to the coordinate space of the view mapped to it.
+	 * Provides a mapping from the document model coordinate space to the coordinate
+	 * space of the view mapped to it.
 	 *
-	 * @param pos
-	 *            the position to convert &gt;= 0
-	 * @param a
-	 *            the allocated region to render into
+	 * @param pos the position to convert &gt;= 0
+	 * @param a   the allocated region to render into
 	 * @return the bounding box of the given position
-	 * @exception BadLocationException
-	 *                if the given position does not
-	 *                represent a valid location in the associated document
+	 * @exception BadLocationException if the given position does not represent a
+	 *                                 valid location in the associated document
 	 * @see View#modelToView
 	 */
 	@Override
@@ -535,48 +493,43 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		lineArea = tokenList.listOffsetToView((RSyntaxTextArea) getContainer(), this, pos, tabBase, lineArea);
 		return lineArea;
 	}
-	
+
 	/**
-	 * Provides a mapping, for a given region, from the document model
-	 * coordinate space to the view coordinate space. The specified region is
-	 * created as a union of the first and last character positions.
+	 * Provides a mapping, for a given region, from the document model coordinate
+	 * space to the view coordinate space. The specified region is created as a
+	 * union of the first and last character positions.
 	 * <p>
 	 *
-	 * This is implemented to subtract the width of the second character, as
-	 * this view's <code>modelToView</code> actually returns the width of the
-	 * character instead of "1" or "0" like the View implementations in
-	 * <code>javax.swing.text</code>. Thus, if we don't override this method,
-	 * the <code>View</code> implementation will return one character's width
-	 * too much for its consumers (implementations of
+	 * This is implemented to subtract the width of the second character, as this
+	 * view's <code>modelToView</code> actually returns the width of the character
+	 * instead of "1" or "0" like the View implementations in
+	 * <code>javax.swing.text</code>. Thus, if we don't override this method, the
+	 * <code>View</code> implementation will return one character's width too much
+	 * for its consumers (implementations of
 	 * <code>javax.swing.text.Highlighter</code>).
 	 *
-	 * @param p0
-	 *            the position of the first character (&gt;=0)
-	 * @param b0
-	 *            The bias of the first character position, toward the previous
-	 *            character or the next character represented by the offset, in
-	 *            case the position is a boundary of two views; <code>b0</code>
-	 *            will have one of these values:
-	 *            <ul>
-	 *            <li><code>Position.Bias.Forward</code>
-	 *            <li><code>Position.Bias.Backward</code>
-	 *            </ul>
-	 * @param p1
-	 *            the position of the last character (&gt;=0)
-	 * @param b1
-	 *            the bias for the second character position, defined
-	 *            one of the legal values shown above
-	 * @param a
-	 *            the area of the view, which encompasses the requested region
-	 * @return the bounding box which is a union of the region specified
-	 *         by the first and last character positions
-	 * @exception BadLocationException
-	 *                if the given position does
-	 *                not represent a valid location in the associated document
-	 * @exception IllegalArgumentException
-	 *                if <code>b0</code> or
-	 *                <code>b1</code> are not one of the
-	 *                legal <code>Position.Bias</code> values listed above
+	 * @param p0 the position of the first character (&gt;=0)
+	 * @param b0 The bias of the first character position, toward the previous
+	 *           character or the next character represented by the offset, in case
+	 *           the position is a boundary of two views; <code>b0</code> will have
+	 *           one of these values:
+	 *           <ul>
+	 *           <li><code>Position.Bias.Forward</code>
+	 *           <li><code>Position.Bias.Backward</code>
+	 *           </ul>
+	 * @param p1 the position of the last character (&gt;=0)
+	 * @param b1 the bias for the second character position, defined one of the
+	 *           legal values shown above
+	 * @param a  the area of the view, which encompasses the requested region
+	 * @return the bounding box which is a union of the region specified by the
+	 *         first and last character positions
+	 * @exception BadLocationException     if the given position does not represent
+	 *                                     a valid location in the associated
+	 *                                     document
+	 * @exception IllegalArgumentException if <code>b0</code> or <code>b1</code> are
+	 *                                     not one of the legal
+	 *                                     <code>Position.Bias</code> values listed
+	 *                                     above
 	 * @see View#viewToModel
 	 */
 	@Override
@@ -618,17 +571,15 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		}
 		return r0;
 	}
-	
+
 	/**
-	 * Returns the next tab stop position after a given reference position.
-	 * This implementation does not support things like centering so it
-	 * ignores the tabOffset argument.
+	 * Returns the next tab stop position after a given reference position. This
+	 * implementation does not support things like centering so it ignores the
+	 * tabOffset argument.
 	 *
-	 * @param x
-	 *            the current position &gt;= 0
-	 * @param tabOffset
-	 *            the position within the text stream
-	 *            that the tab occurred at &gt;= 0.
+	 * @param x         the current position &gt;= 0
+	 * @param tabOffset the position within the text stream that the tab occurred at
+	 *                  &gt;= 0.
 	 * @return the tab stop, measured in points &gt;= 0
 	 */
 	@Override
@@ -639,15 +590,13 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		int ntabs = (((int) x) - tabBase) / tabSize;
 		return tabBase + ((ntabs + 1f) * tabSize);
 	}
-	
+
 	/**
 	 * Actually paints the text area. Only lines that have been damaged are
 	 * repainted.
 	 *
-	 * @param g
-	 *            The graphics context with which to paint.
-	 * @param a
-	 *            The allocated region in which to render.
+	 * @param g The graphics context with which to paint.
+	 * @param a The allocated region in which to render.
 	 */
 	@Override
 	public void paint(Graphics g, Shape a) {
@@ -726,15 +675,13 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		}
 		// System.out.println("SyntaxView: lines painted=" + count);
 	}
-	
+
 	/**
-	 * If the passed-in line is longer than the current longest line, then
-	 * the longest line is updated.
+	 * If the passed-in line is longer than the current longest line, then the
+	 * longest line is updated.
 	 *
-	 * @param line
-	 *            The line to test against the current longest.
-	 * @param lineNumber
-	 *            The line number of the passed-in line.
+	 * @param line       The line to test against the current longest.
+	 * @param lineNumber The line number of the passed-in line.
 	 * @return <code>true</code> iff the current longest line was updated.
 	 */
 	private boolean possiblyUpdateLongLine(Element line, int lineNumber) {
@@ -746,36 +693,31 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Gives notification that something was removed from the document
-	 * in a location that this view is responsible for.
+	 * Gives notification that something was removed from the document in a location
+	 * that this view is responsible for.
 	 *
-	 * @param changes
-	 *            the change information from the associated document
-	 * @param a
-	 *            the current allocation of the view
-	 * @param f
-	 *            the factory to use to rebuild if the view has children
+	 * @param changes the change information from the associated document
+	 * @param a       the current allocation of the view
+	 * @param f       the factory to use to rebuild if the view has children
 	 */
 	@Override
 	public void removeUpdate(DocumentEvent changes, Shape a, ViewFactory f) {
 		updateDamage(changes, a, f);
 	}
-	
+
 	@Override
 	public void setSize(float width, float height) {
 		super.setSize(width, height);
 		updateMetrics();
 	}
-	
+
 	/**
-	 * Repaint the region of change covered by the given document
-	 * event. Damages the line that begins the range to cover
-	 * the case when the insert/remove is only on one line.
-	 * If lines are added or removed, damages the whole
-	 * view. The longest line is checked to see if it has
-	 * changed.
+	 * Repaint the region of change covered by the given document event. Damages the
+	 * line that begins the range to cover the case when the insert/remove is only
+	 * on one line. If lines are added or removed, damages the whole view. The
+	 * longest line is checked to see if it has changed.
 	 */
 	protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f) {
 		Component host = getContainer();
@@ -841,7 +783,7 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 			}
 		}
 	}
-	
+
 	/**
 	 * Checks to see if the font metrics and longest line are up-to-date.
 	 */
@@ -854,19 +796,16 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 			calculateLongestLine();
 		}
 	}
-	
+
 	/**
-	 * Provides a mapping from the view coordinate space to the logical
-	 * coordinate space of the model.
+	 * Provides a mapping from the view coordinate space to the logical coordinate
+	 * space of the model.
 	 *
-	 * @param fx
-	 *            the X coordinate &gt;= 0
-	 * @param fy
-	 *            the Y coordinate &gt;= 0
-	 * @param a
-	 *            the allocated region to render into
-	 * @return the location within the model that best represents the
-	 *         given point in the view &gt;= 0
+	 * @param fx the X coordinate &gt;= 0
+	 * @param fy the Y coordinate &gt;= 0
+	 * @param a  the allocated region to render into
+	 * @return the location within the model that best represents the given point in
+	 *         the view &gt;= 0
 	 */
 	@Override
 	public int viewToModel(float fx, float fy, Shape a, Position.Bias[] bias) {
@@ -918,7 +857,7 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 			}
 		} // End of else.
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -941,7 +880,7 @@ public class SyntaxView extends View implements TabExpander, TokenOrientedView, 
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

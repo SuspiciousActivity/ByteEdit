@@ -21,10 +21,10 @@ import org.fife.ui.rtextarea.SmartHighlightPainter;
  * @version 1.0
  */
 public class XmlOccurrenceMarker implements OccurrenceMarker {
-	
+
 	private static final char[] CLOSE_TAG_START = { '<', '/' };
 	private static final char[] TAG_SELF_CLOSE = { '/', '>' };
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -32,7 +32,7 @@ public class XmlOccurrenceMarker implements OccurrenceMarker {
 	public Token getTokenToMark(RSyntaxTextArea textArea) {
 		return HtmlOccurrenceMarker.getTagNameTokenForCaretOffset(textArea, this);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -40,7 +40,7 @@ public class XmlOccurrenceMarker implements OccurrenceMarker {
 	public boolean isValidType(RSyntaxTextArea textArea, Token t) {
 		return textArea.getMarkOccurrencesOfTokenType(t.getType());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -173,15 +173,15 @@ public class XmlOccurrenceMarker implements OccurrenceMarker {
 			} while (curLine >= 0);
 		}
 	}
-	
+
 	/**
 	 * Used internally when searching backward for a matching "open" tag.
 	 */
 	private static class Entry {
-		
+
 		private boolean open;
 		private Token t;
-		
+
 		Entry(boolean open, Token t) {
 			this.open = open;
 			this.t = t;

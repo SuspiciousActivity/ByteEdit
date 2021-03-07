@@ -11,17 +11,17 @@ package org.fife.ui.rsyntaxtextarea;
  * <p>
  *
  * Note that all valid token types are &gt;= 0, so extensions of the TokenMaker
- * class are free to internally use all ints &lt; 0 ONLY for "end-of-line"
- * style markers; they are ignored by painting implementations.
+ * class are free to internally use all ints &lt; 0 ONLY for "end-of-line" style
+ * markers; they are ignored by painting implementations.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public interface TokenTypes {
-	
+
 	/**
-	 * Tokens of type <code>NULL</code> mark the end of lines with no
-	 * multi-line token at the end (such as a block comment in C++).
+	 * Tokens of type <code>NULL</code> mark the end of lines with no multi-line
+	 * token at the end (such as a block comment in C++).
 	 */
 	int NULL = 0;
 	int COMMENT_EOL = 1;

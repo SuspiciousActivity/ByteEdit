@@ -25,10 +25,10 @@ import org.fife.ui.rsyntaxtextarea.TokenTypes;
  * @version 1.0
  */
 public class JsonFoldParser implements FoldParser {
-	
+
 	private static final Object OBJECT_BLOCK = new Object();
 	private static final Object ARRAY_BLOCK = new Object();
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -95,39 +95,35 @@ public class JsonFoldParser implements FoldParser {
 		}
 		return folds;
 	}
-	
+
 	/**
 	 * Returns whether a token is the left bracket token.
 	 *
-	 * @param t
-	 *            The token.
+	 * @param t The token.
 	 * @return Whether the token is the left bracket token.
 	 * @see #isRightBracket(Token)
 	 */
 	private static boolean isLeftBracket(Token t) {
 		return t.getType() == TokenTypes.SEPARATOR && t.isSingleChar('[');
 	}
-	
+
 	/**
 	 * Returns whether a token is the right bracket token.
 	 *
-	 * @param t
-	 *            The token.
+	 * @param t The token.
 	 * @return Whether the token is the right bracket token.
 	 * @see #isLeftBracket(Token)
 	 */
 	private static boolean isRightBracket(Token t) {
 		return t.getType() == TokenTypes.SEPARATOR && t.isSingleChar(']');
 	}
-	
+
 	/**
 	 * If the specified value is on top of the stack, pop it off and return
 	 * <code>true</code>. Otherwise, return <code>false</code>.
 	 *
-	 * @param stack
-	 *            The stack.
-	 * @param value
-	 *            The value to check for.
+	 * @param stack The stack.
+	 * @param value The value to check for.
 	 * @return Whether the value was found on top of the stack.
 	 */
 	private static boolean popOffTop(Stack<Object> stack, Object value) {

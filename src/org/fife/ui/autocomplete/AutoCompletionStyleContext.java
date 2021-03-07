@@ -15,32 +15,32 @@ import java.awt.Color;
  * @version 1.0
  */
 public class AutoCompletionStyleContext {
-	
+
 	/**
 	 * The color used to denote the ending caret position for parameterized
 	 * completions.
 	 */
 	private Color parameterizedCompletionCursorPositionColor;
 	/**
-	 * The color used to highlight copies of editable parameters in
-	 * parameterized completions.
+	 * The color used to highlight copies of editable parameters in parameterized
+	 * completions.
 	 */
 	private Color parameterCopyColor;
 	/**
-	 * The color of the outline highlight used to denote editable parameters
-	 * in parameterized completions.
+	 * The color of the outline highlight used to denote editable parameters in
+	 * parameterized completions.
 	 */
 	private Color parameterOutlineColor;
-	
+
 	public AutoCompletionStyleContext() {
 		setParameterOutlineColor(Color.gray);
 		setParameterCopyColor(new Color(0xb4d7ff));
 		setParameterizedCompletionCursorPositionColor(new Color(0x00b400));
 	}
-	
+
 	/**
-	 * Returns the color of the highlight painted on copies of editable
-	 * parameters in parameterized completions.
+	 * Returns the color of the highlight painted on copies of editable parameters
+	 * in parameterized completions.
 	 *
 	 * @return The color used.
 	 * @see #setParameterCopyColor(Color)
@@ -48,10 +48,10 @@ public class AutoCompletionStyleContext {
 	public Color getParameterCopyColor() {
 		return parameterCopyColor;
 	}
-	
+
 	/**
-	 * Returns the color used to denote the ending caret position for
-	 * parameterized completions.
+	 * Returns the color used to denote the ending caret position for parameterized
+	 * completions.
 	 *
 	 * @return The color used.
 	 * @see #setParameterizedCompletionCursorPositionColor(Color)
@@ -59,10 +59,10 @@ public class AutoCompletionStyleContext {
 	public Color getParameterizedCompletionCursorPositionColor() {
 		return parameterizedCompletionCursorPositionColor;
 	}
-	
+
 	/**
-	 * Returns the color of the outline highlight used to denote editable
-	 * parameters in parameterized completions.
+	 * Returns the color of the outline highlight used to denote editable parameters
+	 * in parameterized completions.
 	 *
 	 * @return The color used.
 	 * @see #setParameterOutlineColor(Color)
@@ -70,37 +70,34 @@ public class AutoCompletionStyleContext {
 	public Color getParameterOutlineColor() {
 		return parameterOutlineColor;
 	}
-	
+
 	/**
-	 * Sets the color of the highlight painted on copies of editable
-	 * parameters in parameterized completions.
+	 * Sets the color of the highlight painted on copies of editable parameters in
+	 * parameterized completions.
 	 *
-	 * @param color
-	 *            The color to use.
+	 * @param color The color to use.
 	 * @see #setParameterCopyColor(Color)
 	 */
 	public void setParameterCopyColor(Color color) {
 		this.parameterCopyColor = color;
 	}
-	
+
 	/**
-	 * Sets the color used to denote the ending caret position for
-	 * parameterized completions.
+	 * Sets the color used to denote the ending caret position for parameterized
+	 * completions.
 	 *
-	 * @param color
-	 *            The color to use.
+	 * @param color The color to use.
 	 * @see #getParameterizedCompletionCursorPositionColor()
 	 */
 	public void setParameterizedCompletionCursorPositionColor(Color color) {
 		this.parameterizedCompletionCursorPositionColor = color;
 	}
-	
+
 	/**
-	 * Sets the color of the outline highlight used to denote editable
-	 * parameters in parameterized completions.
+	 * Sets the color of the outline highlight used to denote editable parameters in
+	 * parameterized completions.
 	 *
-	 * @param color
-	 *            The color to use.
+	 * @param color The color to use.
 	 * @see #getParameterOutlineColor()
 	 */
 	public void setParameterOutlineColor(Color color) {

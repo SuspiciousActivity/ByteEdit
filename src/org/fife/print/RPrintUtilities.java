@@ -30,7 +30,7 @@ import javax.swing.text.Utilities;
  * @version 1.0
  */
 public abstract class RPrintUtilities {
-	
+
 	private static int currentDocLineNumber; // The line number in the document
 												// we are currently on.
 	private static int numDocLines; // The number of lines in the current
@@ -52,27 +52,21 @@ public abstract class RPrintUtilities {
 	 * The metrics of the font currently being used to print.
 	 */
 	private static FontMetrics fm;
-	
+
 	/**
 	 * Returns the position closest to, but before, position
-	 * <code>maxCharsPerLine</code> in
-	 * <code>line</code> of one of the chars in <code>breakChars</code>, or
-	 * simply returns
-	 * <code>maxCharsPerLine-1</code> if none of the <code>breakChars</code>
-	 * comes before
-	 * that position. This position represents the logical line break for this
-	 * <code>java.lang.String</code>
-	 * if it is being printed in a monospaced font when lines can only be
-	 * <code>maxCharsPerLine</code>
-	 * characters long.
+	 * <code>maxCharsPerLine</code> in <code>line</code> of one of the chars in
+	 * <code>breakChars</code>, or simply returns <code>maxCharsPerLine-1</code> if
+	 * none of the <code>breakChars</code> comes before that position. This position
+	 * represents the logical line break for this <code>java.lang.String</code> if
+	 * it is being printed in a monospaced font when lines can only be
+	 * <code>maxCharsPerLine</code> characters long.
 	 *
-	 * @param line
-	 *            The text being printed.
-	 * @param maxCharsPerLine
-	 *            Only up-to this many characters from
-	 *            <code>line</code> can be printed on one line.
-	 * @return The logical position at which to stop printing <code>line</code>
-	 *         to simulate word wrap.
+	 * @param line            The text being printed.
+	 * @param maxCharsPerLine Only up-to this many characters from <code>line</code>
+	 *                        can be printed on one line.
+	 * @return The logical position at which to stop printing <code>line</code> to
+	 *         simulate word wrap.
 	 */
 	private static int getLineBreakPoint(String line, final int maxCharsPerLine) {
 		int breakPoint = -1;
@@ -84,30 +78,23 @@ public abstract class RPrintUtilities {
 		}
 		return (breakPoint == -1 ? maxCharsPerLine - 1 : breakPoint);
 	}
-	
+
 	/**
 	 * Prints a <code>Document</code> using a monospaced font, and does no word
-	 * wrapping (ie,
-	 * words will wrap mid-word to the next line). This method is expected to be
-	 * called from
-	 * Printable 'print(Graphics g)' functions.
+	 * wrapping (ie, words will wrap mid-word to the next line). This method is
+	 * expected to be called from Printable 'print(Graphics g)' functions.
 	 *
-	 * @param g
-	 *            The graphics context to write to.
-	 * @param doc
-	 *            The <code>javax.swing.text.Document</code> to print.
-	 * @param fontSize
-	 *            the point size to use for the monospaced font.
-	 * @param pageIndex
-	 *            The page number to print.
-	 * @param pageFormat
-	 *            The format to print the page with.
-	 * @param tabSize
-	 *            The number of spaces to expand tabs to.
+	 * @param g          The graphics context to write to.
+	 * @param doc        The <code>javax.swing.text.Document</code> to print.
+	 * @param fontSize   the point size to use for the monospaced font.
+	 * @param pageIndex  The page number to print.
+	 * @param pageFormat The format to print the page with.
+	 * @param tabSize    The number of spaces to expand tabs to.
 	 *
 	 * @see #printDocumentMonospacedWordWrap
 	 */
-	public static int printDocumentMonospaced(Graphics g, Document doc, int fontSize, int pageIndex, PageFormat pageFormat, int tabSize) {
+	public static int printDocumentMonospaced(Graphics g, Document doc, int fontSize, int pageIndex,
+			PageFormat pageFormat, int tabSize) {
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("Monospaced", Font.PLAIN, fontSize));
 		// Initialize our static variables (these are used by our tab expander
@@ -202,29 +189,23 @@ public abstract class RPrintUtilities {
 		}
 		return Printable.NO_SUCH_PAGE;
 	}
-	
+
 	/**
-	 * Prints a <code>Document</code> using a monospaced font, word wrapping on
-	 * the characters ' ', '\t', '\n', ',', '.', and ';'. This method is
-	 * expected to be called from Printable 'print(Graphics g)' functions.
+	 * Prints a <code>Document</code> using a monospaced font, word wrapping on the
+	 * characters ' ', '\t', '\n', ',', '.', and ';'. This method is expected to be
+	 * called from Printable 'print(Graphics g)' functions.
 	 *
-	 * @param g
-	 *            The graphics context to write to.
-	 * @param doc
-	 *            The <code>javax.swing.text.Document</code> to print.
-	 * @param fontSize
-	 *            the point size to use for the monospaced font.
-	 * @param pageIndex
-	 *            The page number to print.
-	 * @param pageFormat
-	 *            The format to print the page with.
-	 * @param tabSize
-	 *            The number of spaces to expand tabs to.
+	 * @param g          The graphics context to write to.
+	 * @param doc        The <code>javax.swing.text.Document</code> to print.
+	 * @param fontSize   the point size to use for the monospaced font.
+	 * @param pageIndex  The page number to print.
+	 * @param pageFormat The format to print the page with.
+	 * @param tabSize    The number of spaces to expand tabs to.
 	 *
 	 * @see #printDocumentMonospaced
 	 */
-	public static int printDocumentMonospacedWordWrap(Graphics g, Document doc, int fontSize, int pageIndex, PageFormat pageFormat,
-			int tabSize) {
+	public static int printDocumentMonospacedWordWrap(Graphics g, Document doc, int fontSize, int pageIndex,
+			PageFormat pageFormat, int tabSize) {
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("Monospaced", Font.PLAIN, fontSize));
 		// Initialize our static variables (these are used by our tab expander
@@ -320,30 +301,24 @@ public abstract class RPrintUtilities {
 		}
 		return Printable.NO_SUCH_PAGE;
 	}
-	
+
 	/**
-	 * Prints a <code>Document</code> using the specified font, word wrapping
-	 * on the characters ' ', '\t', '\n', ',', '.', and ';'. This method is
-	 * expected to be called from Printable 'print(Graphics g)' functions.
+	 * Prints a <code>Document</code> using the specified font, word wrapping on the
+	 * characters ' ', '\t', '\n', ',', '.', and ';'. This method is expected to be
+	 * called from Printable 'print(Graphics g)' functions.
 	 *
-	 * @param g
-	 *            The graphics context to write to.
-	 * @param textComponent
-	 *            The <code>javax.swing.text.JTextComponent</code>
-	 *            whose text you're printing.
-	 * @param font
-	 *            The font to use for printing. If <code>null</code>, then
-	 *            <code>textComponent</code>'s font is used.
-	 * @param pageIndex
-	 *            The page number to print.
-	 * @param pageFormat
-	 *            The format to print the page with.
-	 * @param tabSize
-	 *            The number of spaces to convert tabs to.
+	 * @param g             The graphics context to write to.
+	 * @param textComponent The <code>javax.swing.text.JTextComponent</code> whose
+	 *                      text you're printing.
+	 * @param font          The font to use for printing. If <code>null</code>, then
+	 *                      <code>textComponent</code>'s font is used.
+	 * @param pageIndex     The page number to print.
+	 * @param pageFormat    The format to print the page with.
+	 * @param tabSize       The number of spaces to convert tabs to.
 	 *
 	 */
-	public static int printDocumentWordWrap(Graphics g, JTextComponent textComponent, Font font, int pageIndex, PageFormat pageFormat,
-			int tabSize) {
+	public static int printDocumentWordWrap(Graphics g, JTextComponent textComponent, Font font, int pageIndex,
+			PageFormat pageFormat, int tabSize) {
 		// Initialize our graphics object.
 		g.setColor(Color.BLACK);
 		g.setFont(font != null ? font : textComponent.getFont());
@@ -389,7 +364,8 @@ public abstract class RPrintUtilities {
 			// we'd start after the part
 			// that has already been printed).
 			try {
-				doc.getText(currentLineStart + startingOffset, currentLineEnd - (currentLineStart + startingOffset), currentLineSeg);
+				doc.getText(currentLineStart + startingOffset, currentLineEnd - (currentLineStart + startingOffset),
+						currentLineSeg);
 			} catch (BadLocationException ble) {
 				System.err.println("BadLocationException in print (where there shouldn't be one!): " + ble);
 				return Printable.NO_SUCH_PAGE;
@@ -452,7 +428,8 @@ public abstract class RPrintUtilities {
 								System.err.println(ble);
 								return Printable.NO_SUCH_PAGE;
 							}
-							currentLineLengthInPixels = Utilities.getTabbedTextWidth(currentLineSeg, fm, 0, tabExpander, 0);
+							currentLineLengthInPixels = Utilities.getTabbedTextWidth(currentLineSeg, fm, 0, tabExpander,
+									0);
 						} while (currentLineLengthInPixels <= lineLengthInPixels);
 						currentPos--;
 					}
@@ -460,8 +437,8 @@ public abstract class RPrintUtilities {
 						doc.getText((currentLineStart + startingOffset), currentPos, currentLineSeg);
 					} catch (BadLocationException ble) {
 						System.err.println("BadLocationException in print (a):");
-						System.err.println("==> currentLineStart: " + currentLineStart + "; startingOffset: " + startingOffset
-								+ "; currentPos: " + currentPos);
+						System.err.println("==> currentLineStart: " + currentLineStart + "; startingOffset: "
+								+ startingOffset + "; currentPos: " + currentPos);
 						System.err.println("==> Range: " + (currentLineStart + startingOffset) + " - "
 								+ (currentLineStart + startingOffset + currentPos));
 						ble.printStackTrace();
@@ -491,12 +468,11 @@ public abstract class RPrintUtilities {
 		}
 		return Printable.NO_SUCH_PAGE;
 	}
-	
+
 	/**
 	 * Removes any spaces or tabs from the end of the segment.
 	 *
-	 * @param segment
-	 *            The segment from which to remove tailing whitespace.
+	 * @param segment The segment from which to remove tailing whitespace.
 	 * @return <code>segment</code> with trailing whitespace removed.
 	 */
 	private static Segment removeEndingWhitespace(Segment segment) {
@@ -510,15 +486,16 @@ public abstract class RPrintUtilities {
 		String newStringVal = stringVal.substring(0, stringVal.length() - toTrim);
 		return new Segment(newStringVal.toCharArray(), 0, newStringVal.length());
 	}
-	
+
 	/**
-	 * A tab expander for the document currently being printed with the
-	 * font being used for the printing.
+	 * A tab expander for the document currently being printed with the font being
+	 * used for the printing.
 	 */
 	private static class RPrintTabExpander implements TabExpander {
-		
-		RPrintTabExpander() {}
-		
+
+		RPrintTabExpander() {
+		}
+
 		@Override
 		public float nextTabStop(float x, int tabOffset) {
 			if (tabSizeInSpaces == 0) {

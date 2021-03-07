@@ -16,16 +16,15 @@ import java.util.Iterator;
  * @version 1.0
  */
 class TokenIterator implements Iterator<Token> {
-	
+
 	private RSyntaxDocument doc;
 	private int curLine;
 	private Token token;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param doc
-	 *            The document whose tokens we should iterate over.
+	 * @param doc The document whose tokens we should iterate over.
 	 */
 	TokenIterator(RSyntaxDocument doc) {
 		this.doc = doc;
@@ -36,11 +35,11 @@ class TokenIterator implements Iterator<Token> {
 			loadTokenListForCurLine();
 		}
 	}
-	
+
 	private int getLineCount() {
 		return doc.getDefaultRootElement().getElementCount();
 	}
-	
+
 	/**
 	 * Returns whether any more paintable tokens are in the document.
 	 *
@@ -51,7 +50,7 @@ class TokenIterator implements Iterator<Token> {
 	public boolean hasNext() {
 		return token != null;
 	}
-	
+
 	private void loadTokenListForCurLine() {
 		token = doc.getTokenListForLine(curLine);
 		if (token != null && !token.isPaintable()) {
@@ -59,7 +58,7 @@ class TokenIterator implements Iterator<Token> {
 			token = null;
 		}
 	}
-	
+
 	/**
 	 * Returns the next paintable token in the document.
 	 *
@@ -96,13 +95,12 @@ class TokenIterator implements Iterator<Token> {
 		}
 		return t;
 	}
-	
+
 	/**
-	 * Always throws {@link UnsupportedOperationException}, as
-	 * <code>Token</code> removal is not supported.
+	 * Always throws {@link UnsupportedOperationException}, as <code>Token</code>
+	 * removal is not supported.
 	 *
-	 * @throws UnsupportedOperationException
-	 *             always.
+	 * @throws UnsupportedOperationException always.
 	 */
 	@Override
 	public void remove() {

@@ -14,7 +14,7 @@ package org.fife.ui.rsyntaxtextarea.modes;
  * @version 1.0
  */
 public class JshintrcTokenMaker extends JsonTokenMaker {
-	
+
 	/**
 	 * Constructor; overridden to enable highlighting of EOL comments.
 	 */

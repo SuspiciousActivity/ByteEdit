@@ -20,7 +20,7 @@ import javax.swing.text.Position;
  * @version 1.0
  */
 public class FunctionCompletion extends VariableCompletion implements ParameterizedCompletion {
-	
+
 	/**
 	 * Parameters to the function.
 	 */
@@ -33,33 +33,29 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 	 * Used to improve performance of sorting FunctionCompletions.
 	 */
 	private String compareString;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param provider
-	 *            The parent provider.
-	 * @param name
-	 *            The name of this function.
-	 * @param returnType
-	 *            The return type of this function.
+	 * @param provider   The parent provider.
+	 * @param name       The name of this function.
+	 * @param returnType The return type of this function.
 	 */
 	public FunctionCompletion(CompletionProvider provider, String name, String returnType) {
 		super(provider, name, returnType);
 	}
-	
+
 	@Override
 	protected void addDefinitionString(StringBuilder sb) {
 		sb.append("<html><b>");
 		sb.append(getDefinitionString());
 		sb.append("</b>");
 	}
-	
+
 	/**
 	 * Adds HTML describing the parameters to this function to a buffer.
 	 *
-	 * @param sb
-	 *            The buffer to append to.
+	 * @param sb The buffer to append to.
 	 */
 	protected void addParameters(StringBuilder sb) {
 		// TODO: Localize me
@@ -86,12 +82,11 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 			sb.append("</td></tr></table></center><br><br>");
 		}
 	}
-	
+
 	/**
 	 * Overridden to compare methods by their comparison strings.
 	 *
-	 * @param c2
-	 *            A <code>Completion</code> to compare to.
+	 * @param c2 A <code>Completion</code> to compare to.
 	 * @return The sort order.
 	 */
 	@Override
@@ -106,7 +101,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		}
 		return rc;
 	}
-	
+
 	/**
 	 * Returns a string used to compare this method completion to another.
 	 *
@@ -114,11 +109,9 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 	 */
 	private String getCompareString() {
 		/*
-		 * This string compares the following parts of methods in this order,
-		 * to optimize sort order in completion lists.
-		 * 1. First, by name
-		 * 2. Next, by number of parameters.
-		 * 3. Finally, by parameter type.
+		 * This string compares the following parts of methods in this order, to
+		 * optimize sort order in completion lists. 1. First, by name 2. Next, by number
+		 * of parameters. 3. Finally, by parameter type.
 		 */
 		if (compareString == null) {
 			StringBuilder sb = new StringBuilder(getName());
@@ -139,10 +132,10 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		}
 		return compareString;
 	}
-	
+
 	/**
-	 * Returns the "definition string" for this function completion. For
-	 * example, for the C "<code>printf</code>" function, this would return
+	 * Returns the "definition string" for this function completion. For example,
+	 * for the C "<code>printf</code>" function, this would return
 	 * "<code>int printf(const char *, ...)</code>".
 	 * 
 	 * @return The definition string.
@@ -186,7 +179,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
 	public ParameterizedCompletionInsertionInfo getInsertionInfo(JTextComponent tc, boolean replaceTabsWithSpaces) {
 		ParameterizedCompletionInsertionInfo info = new ParameterizedCompletionInsertionInfo();
@@ -238,7 +231,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		info.setTextToInsert(sb.toString());
 		return info;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -246,7 +239,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 	public Parameter getParam(int index) {
 		return params.get(index);
 	}
-	
+
 	/**
 	 * Returns the number of parameters to this function.
 	 *
@@ -257,7 +250,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 	public int getParamCount() {
 		return params == null ? 0 : params.size();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -265,12 +258,11 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 	public boolean getShowParameterToolTip() {
 		return true;
 	}
-	
+
 	/**
 	 * Returns the text to insert for a parameter.
 	 *
-	 * @param param
-	 *            The parameter.
+	 * @param param The parameter.
 	 * @return The text.
 	 */
 	private String getParamText(ParameterizedCompletion.Parameter param) {
@@ -283,7 +275,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		}
 		return text;
 	}
-	
+
 	/**
 	 * Returns the description of the return value of this function.
 	 *
@@ -293,7 +285,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 	public String getReturnValueDescription() {
 		return returnValDesc;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -308,7 +300,7 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		possiblyAddDefinedIn(sb);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -320,13 +312,12 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 		}
 		return text;
 	}
-	
+
 	/**
 	 * Sets the parameters to this function.
 	 *
-	 * @param params
-	 *            The parameters. This should be a list of
-	 *            {@link ParameterizedCompletion.Parameter}s.
+	 * @param params The parameters. This should be a list of
+	 *               {@link ParameterizedCompletion.Parameter}s.
 	 * @see #getParam(int)
 	 * @see #getParamCount()
 	 */
@@ -336,12 +327,11 @@ public class FunctionCompletion extends VariableCompletion implements Parameteri
 			this.params = new ArrayList<Parameter>(params);
 		}
 	}
-	
+
 	/**
 	 * Sets the description of the return value of this function.
 	 *
-	 * @param desc
-	 *            The description.
+	 * @param desc The description.
 	 * @see #getReturnValueDescription()
 	 */
 	public void setReturnValueDescription(String desc) {

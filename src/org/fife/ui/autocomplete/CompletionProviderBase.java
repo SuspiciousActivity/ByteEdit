@@ -182,7 +182,8 @@ public abstract class CompletionProviderBase implements CompletionProvider {
 		} catch (BadLocationException ble) { // Never happens
 			ble.printStackTrace();
 		}
-		return (autoActivateAfterLetters && Character.isLetter(ch)) || (autoActivateChars != null && autoActivateChars.indexOf(ch) > -1);
+		return (autoActivateAfterLetters && Character.isLetter(ch))
+				|| (autoActivateChars != null && autoActivateChars.indexOf(ch) > -1);
 	}
 
 	/**

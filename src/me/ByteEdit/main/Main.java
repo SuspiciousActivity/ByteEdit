@@ -33,12 +33,12 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -311,7 +311,7 @@ public class Main extends JFrame {
 							new Thread(new Runnable() {
 								public void run() {
 									try {
-										ArchiveTreeModel model = new ArchiveTreeModel(new JarFile(jarFile));
+										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile));
 										EventQueue.invokeLater(new Runnable() {
 											public void run() {
 												synchronized (treeLock) {
@@ -466,7 +466,7 @@ public class Main extends JFrame {
 							new Thread(new Runnable() {
 								public void run() {
 									try {
-										ArchiveTreeModel model = new ArchiveTreeModel(new JarFile(jarFile));
+										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile));
 										EventQueue.invokeLater(new Runnable() {
 											public void run() {
 												synchronized (treeLock) {
@@ -560,7 +560,7 @@ public class Main extends JFrame {
 									new Thread(new Runnable() {
 										public void run() {
 											try {
-												ArchiveTreeModel model = new ArchiveTreeModel(new JarFile(jarFile));
+												ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile));
 												EventQueue.invokeLater(new Runnable() {
 													public void run() {
 														synchronized (treeLock) {
@@ -786,6 +786,8 @@ public class Main extends JFrame {
 	public void goToSelected() throws BadLocationException {
 		int lineStart = txtByteEditView.getLineStartOffsetOfCurrentLine();
 		int lineEnd = txtByteEditView.getLineEndOffsetOfCurrentLine() - 1;
+		if (lineEnd < lineStart)
+			return;
 		String line = txtByteEditView.getText(lineStart, lineEnd - lineStart);
 		if (!jumpableInstructionPattern.matcher(line).matches()) {
 			return;
@@ -1042,7 +1044,7 @@ public class Main extends JFrame {
 
 	public void save(File jar, Collection<ClassNode> classes) {
 		try {
-			final JarOutputStream output = new JarOutputStream(new FileOutputStream(jar));
+			final ZipOutputStream output = new ZipOutputStream(new FileOutputStream(jar));
 			if (tree.getModel().getClass().equals(DefaultTreeModel.class)
 					|| ((ArchiveTreeModel) tree.getModel()).newCreated) {
 				int acc = ClassUtil.ACC_PUBLIC | ClassUtil.ACC_STATIC;
@@ -1067,7 +1069,7 @@ public class Main extends JFrame {
 					((ArchiveTreeModel) tree.getModel()).newCreated = false;
 			}
 			for (Entry<String, byte[]> entry : OTHER_FILES.entrySet()) {
-				JarEntry ent = new JarEntry(entry.getKey());
+				ZipEntry ent = new ZipEntry(entry.getKey());
 				output.putNextEntry(ent);
 				output.write(entry.getValue());
 				output.closeEntry();
@@ -1082,7 +1084,7 @@ public class Main extends JFrame {
 			for (ClassNode node : classes) {
 				ClassWriter writer = new ClassWriter(computeFlags);
 				node.accept(writer);
-				output.putNextEntry(new JarEntry(getFullName(node.name)));
+				output.putNextEntry(new ZipEntry(getFullName(node.name)));
 				output.write(writer.toByteArray());
 				output.closeEntry();
 			}
@@ -1123,16 +1125,16 @@ public class Main extends JFrame {
 			newCreated = true;
 		}
 
-		public ArchiveTreeModel(JarFile jar) {
+		public ArchiveTreeModel(ZipFile jar) {
 			super(new ByteEditTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
 					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
 							- 1]));
 			try {
 				classNodes.clear();
 				OTHER_FILES.clear();
-				Enumeration<JarEntry> enumeration = jar.entries();
+				Enumeration<? extends ZipEntry> enumeration = jar.entries();
 				while (enumeration.hasMoreElements()) {
-					JarEntry next = enumeration.nextElement();
+					ZipEntry next = enumeration.nextElement();
 					byte[] data = toByteArray(jar.getInputStream(next));
 					if (next.getSize() != 0 && !next.getName().startsWith("META-INF")
 							&& (next.getName().endsWith(".class") || next.getName().endsWith(".class/"))) {

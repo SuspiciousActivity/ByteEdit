@@ -28,17 +28,16 @@ import org.fife.ui.rtextarea.IconRowHeader;
  * @version 1.0
  */
 public class FoldingAwareIconRowHeader extends IconRowHeader {
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param textArea
-	 *            The parent text area.
+	 * @param textArea The parent text area.
 	 */
 	public FoldingAwareIconRowHeader(RSyntaxTextArea textArea) {
 		super(textArea);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -160,11 +159,11 @@ public class FoldingAwareIconRowHeader extends IconRowHeader {
 			}
 		}
 	}
-	
+
 	/**
-	 * Paints icons when line wrapping is enabled. Note that this does not
-	 * override the parent class's implementation to avoid this version being
-	 * called when line wrapping is disabled.
+	 * Paints icons when line wrapping is enabled. Note that this does not override
+	 * the parent class's implementation to avoid this version being called when
+	 * line wrapping is disabled.
 	 */
 	private void paintComponentWrapped(Graphics g) {
 		// The variables we use are as follows:

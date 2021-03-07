@@ -16,26 +16,26 @@ import java.net.URL;
  * @version 1.0
  */
 public abstract class AbstractParser implements Parser {
-	
+
 	/**
-	 * Whether this parser is enabled. If this is <code>false</code>, then
-	 * this parser will not be run.
+	 * Whether this parser is enabled. If this is <code>false</code>, then this
+	 * parser will not be run.
 	 */
 	private boolean enabled;
 	/**
 	 * Listens for events from
-	 * {@link org.fife.ui.rsyntaxtextarea.focusabletip.FocusableTip}s generated
-	 * from this parser's notices.
+	 * {@link org.fife.ui.rsyntaxtextarea.focusabletip.FocusableTip}s generated from
+	 * this parser's notices.
 	 */
 	private ExtendedHyperlinkListener linkListener;
-	
+
 	/**
 	 * Constructor.
 	 */
 	protected AbstractParser() {
 		setEnabled(true);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -43,10 +43,10 @@ public abstract class AbstractParser implements Parser {
 	public ExtendedHyperlinkListener getHyperlinkListener() {
 		return linkListener;
 	}
-	
+
 	/**
-	 * Returns <code>null</code>. Parsers that wish to show images in their
-	 * tool tips should override this method to return the image base URL.
+	 * Returns <code>null</code>. Parsers that wish to show images in their tool
+	 * tips should override this method to return the image base URL.
 	 *
 	 * @return <code>null</code> always.
 	 */
@@ -54,7 +54,7 @@ public abstract class AbstractParser implements Parser {
 	public URL getImageBase() {
 		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -62,23 +62,21 @@ public abstract class AbstractParser implements Parser {
 	public boolean isEnabled() {
 		return enabled;
 	}
-	
+
 	/**
 	 * Toggles whether this parser is enabled.
 	 *
-	 * @param enabled
-	 *            Whether this parser is enabled.
+	 * @param enabled Whether this parser is enabled.
 	 * @see #isEnabled()
 	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
 	/**
 	 * Returns the listener for this parser.
 	 *
-	 * @param listener
-	 *            The new listener.
+	 * @param listener The new listener.
 	 * @see #getHyperlinkListener()
 	 */
 	public void setHyperlinkListener(ExtendedHyperlinkListener listener) {

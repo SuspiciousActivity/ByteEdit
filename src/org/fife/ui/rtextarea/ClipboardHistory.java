@@ -11,13 +11,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Listens for cuts and copies from instances of {@link RTextArea}. This is
- * used for the "clipboard history" shortcut (Ctrl+Shift+V by default).
+ * Listens for cuts and copies from instances of {@link RTextArea}. This is used
+ * for the "clipboard history" shortcut (Ctrl+Shift+V by default).
  * <p>
  *
  * Note that this class does not listen for all events on the system clipboard,
- * because that functionality is pretty fragile. See
- * <a href=
+ * because that functionality is pretty fragile. See <a href=
  * "http://stackoverflow.com/questions/5484927/listen-to-clipboard-changes-check-ownership">
  * http://stackoverflow.com/questions/5484927/listen-to-clipboard-changes-check-ownership</a>
  * for more information.
@@ -26,22 +25,21 @@ import java.util.List;
  * @version 1.0
  */
 public final class ClipboardHistory {
-	
+
 	private static ClipboardHistory instance;
 	private List<String> history;
 	private int maxSize;
 	private static final int DEFAULT_MAX_SIZE = 12;
-	
+
 	private ClipboardHistory() {
 		history = new ArrayList<String>();
 		maxSize = DEFAULT_MAX_SIZE;
 	}
-	
+
 	/**
 	 * Adds an entry to the clipboard history.
 	 *
-	 * @param str
-	 *            The text to add.
+	 * @param str The text to add.
 	 * @see #getHistory()
 	 */
 	public void add(String str) {
@@ -59,7 +57,7 @@ public final class ClipboardHistory {
 			trim();
 		}
 	}
-	
+
 	/**
 	 * Returns the singleton instance of this class, lazily creating it if
 	 * necessary.
@@ -75,7 +73,7 @@ public final class ClipboardHistory {
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Returns the clipboard history, in most-recently-used order.
 	 *
@@ -86,7 +84,7 @@ public final class ClipboardHistory {
 		Collections.reverse(copy);
 		return copy;
 	}
-	
+
 	/**
 	 * Returns the maximum number of clipboard values remembered.
 	 *
@@ -96,15 +94,13 @@ public final class ClipboardHistory {
 	public int getMaxSize() {
 		return maxSize;
 	}
-	
+
 	/**
 	 * Sets the maximum number of clipboard values remembered.
 	 *
-	 * @param maxSize
-	 *            The maximum number of clipboard values to remember.
-	 * @throws IllegalArgumentException
-	 *             If <code>maxSize</code> is not greater
-	 *             than zero.
+	 * @param maxSize The maximum number of clipboard values to remember.
+	 * @throws IllegalArgumentException If <code>maxSize</code> is not greater than
+	 *                                  zero.
 	 * @see #getMaxSize()
 	 */
 	public void setMaxSize(int maxSize) {
@@ -114,10 +110,10 @@ public final class ClipboardHistory {
 		this.maxSize = maxSize;
 		trim();
 	}
-	
+
 	/**
-	 * Ensures the remembered set of strings is not larger than the maximum
-	 * allowed size.
+	 * Ensures the remembered set of strings is not larger than the maximum allowed
+	 * size.
 	 */
 	private void trim() {
 		while (history.size() > maxSize) {

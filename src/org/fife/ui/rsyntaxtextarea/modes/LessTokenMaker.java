@@ -17,14 +17,14 @@ import org.fife.ui.rsyntaxtextarea.TokenTypes;
  * @version 1.0
  */
 public class LessTokenMaker extends CSSTokenMaker {
-	
+
 	/**
 	 * Constructor; overridden to enable the niceties added by Less.
 	 */
 	public LessTokenMaker() {
 		setHighlightingLess(true);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -32,7 +32,7 @@ public class LessTokenMaker extends CSSTokenMaker {
 	public String[] getLineCommentStartAndEnd(int languageIndex) {
 		return new String[] { "//", null };
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

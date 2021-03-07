@@ -37,12 +37,12 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  * }
  * </pre>
  *
- * In the above example, the first <code>${i}</code> is a parameter for the
- * user to type into; all the other <code>${i}</code> instances are
- * automatically changed to what the user types in the first one. The parameter
- * named <code>${cursor}</code> is the "ending position" of the template. It's
- * where the caret moves after it cycles through all other parameters. If the
- * user types into it, template mode terminates. If more than one
+ * In the above example, the first <code>${i}</code> is a parameter for the user
+ * to type into; all the other <code>${i}</code> instances are automatically
+ * changed to what the user types in the first one. The parameter named
+ * <code>${cursor}</code> is the "ending position" of the template. It's where
+ * the caret moves after it cycles through all other parameters. If the user
+ * types into it, template mode terminates. If more than one
  * <code>${cursor}</code> parameter is specified, behavior is undefined.
  * <p>
  * 
@@ -51,15 +51,15 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  * fault-tolerant.
  * <p>
  *
- * Leading whitespace is automatically added to lines if the template spans
- * more than one line, and if used with a text component using a
+ * Leading whitespace is automatically added to lines if the template spans more
+ * than one line, and if used with a text component using a
  * <code>PlainDocument</code>, tabs will be converted to spaces if requested.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class TemplateCompletion extends AbstractCompletion implements ParameterizedCompletion {
-	
+
 	private List<TemplatePiece> pieces;
 	private String inputText;
 	private String definitionString;
@@ -69,11 +69,11 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 	 * The template's parameters.
 	 */
 	private List<Parameter> params;
-	
+
 	public TemplateCompletion(CompletionProvider provider, String inputText, String definitionString, String template) {
 		this(provider, inputText, definitionString, template, null, null);
 	}
-	
+
 	public TemplateCompletion(CompletionProvider provider, String inputText, String definitionString, String template,
 			String shortDescription, String summary) {
 		super(provider);
@@ -85,7 +85,7 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 		params = new ArrayList<Parameter>(3);
 		parse(template);
 	}
-	
+
 	private void addTemplatePiece(TemplatePiece piece) {
 		pieces.add(piece);
 		if (piece instanceof Param && !"cursor".equals(piece.getText())) {
@@ -94,12 +94,12 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 			params.add(param);
 		}
 	}
-	
+
 	@Override
 	public String getInputText() {
 		return inputText;
 	}
-	
+
 	private String getPieceText(int index, String leadingWS) {
 		TemplatePiece piece = pieces.get(index);
 		String text = piece.getText();
@@ -108,10 +108,10 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 		}
 		return text;
 	}
-	
+
 	/**
-	 * Returns <code>null</code>; template completions insert all of their
-	 * text via <code>getInsertionInfo()</code>.
+	 * Returns <code>null</code>; template completions insert all of their text via
+	 * <code>getInsertionInfo()</code>.
 	 *
 	 * @return <code>null</code> always.
 	 */
@@ -119,21 +119,21 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 	public String getReplacementText() {
 		return null;
 	}
-	
+
 	@Override
 	public String getSummary() {
 		return summary;
 	}
-	
+
 	@Override
 	public String getDefinitionString() {
 		return definitionString;
 	}
-	
+
 	public String getShortDescription() {
 		return shortDescription;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -141,7 +141,7 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 	public boolean getShowParameterToolTip() {
 		return false;
 	}
-	
+
 	@Override
 	public ParameterizedCompletionInsertionInfo getInsertionInfo(JTextComponent tc, boolean replaceTabsWithSpaces) {
 		ParameterizedCompletionInsertionInfo info = new ParameterizedCompletionInsertionInfo();
@@ -214,7 +214,7 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 		info.setTextToInsert(sb.toString());
 		return info;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -222,7 +222,7 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 	public Parameter getParam(int index) {
 		return params.get(index);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -230,12 +230,11 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 	public int getParamCount() {
 		return params == null ? 0 : params.size();
 	}
-	
+
 	/**
 	 * Returns whether a parameter is already defined with a specific name.
 	 *
-	 * @param name
-	 *            The name.
+	 * @param name The name.
 	 * @return Whether a parameter is defined with that name.
 	 */
 	private boolean isParamDefined(String name) {
@@ -247,12 +246,11 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Parses a template string into logical pieces used by this class.
 	 *
-	 * @param template
-	 *            The template to parse.
+	 * @param template The template to parse.
 	 */
 	private void parse(String template) {
 		int offs = 0;
@@ -260,23 +258,23 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 		while ((offs = template.indexOf('$', lastOffs)) > -1 && offs < template.length() - 1) {
 			char next = template.charAt(offs + 1);
 			switch (next) {
-				case '$': // "$$" => escaped single dollar sign
-					addTemplatePiece(new TemplatePiece.Text(template.substring(lastOffs, offs + 1)));
-					lastOffs = offs + 2;
-					break;
-				case '{': // "${...}" => variable
-					int closingCurly = template.indexOf('}', offs + 2);
-					if (closingCurly > -1) {
-						addTemplatePiece(new TemplatePiece.Text(template.substring(lastOffs, offs)));
-						String varName = template.substring(offs + 2, closingCurly);
-						if (!"cursor".equals(varName) && isParamDefined(varName)) {
-							addTemplatePiece(new TemplatePiece.ParamCopy(varName));
-						} else {
-							addTemplatePiece(new TemplatePiece.Param(varName));
-						}
-						lastOffs = closingCurly + 1;
+			case '$': // "$$" => escaped single dollar sign
+				addTemplatePiece(new TemplatePiece.Text(template.substring(lastOffs, offs + 1)));
+				lastOffs = offs + 2;
+				break;
+			case '{': // "${...}" => variable
+				int closingCurly = template.indexOf('}', offs + 2);
+				if (closingCurly > -1) {
+					addTemplatePiece(new TemplatePiece.Text(template.substring(lastOffs, offs)));
+					String varName = template.substring(offs + 2, closingCurly);
+					if (!"cursor".equals(varName) && isParamDefined(varName)) {
+						addTemplatePiece(new TemplatePiece.ParamCopy(varName));
+					} else {
+						addTemplatePiece(new TemplatePiece.Param(varName));
 					}
-					break;
+					lastOffs = closingCurly + 1;
+				}
+				break;
 			}
 		}
 		if (lastOffs < template.length()) {
@@ -284,7 +282,7 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 			addTemplatePiece(new TemplatePiece.Text(text));
 		}
 	}
-	
+
 	private int possiblyReplaceTabsWithSpaces(StringBuilder sb, String text, JTextComponent tc, int start) {
 		int tab = text.indexOf('\t');
 		if (tab > -1) {
@@ -315,18 +313,17 @@ public class TemplateCompletion extends AbstractCompletion implements Parameteri
 		}
 		return start;
 	}
-	
+
 	/**
 	 * Sets the short description of this template completion.
 	 *
-	 * @param shortDesc
-	 *            The new short description.
+	 * @param shortDesc The new short description.
 	 * @see #getShortDescription()
 	 */
 	public void setShortDescription(String shortDesc) {
 		this.shortDescription = shortDesc;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getDefinitionString();

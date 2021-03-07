@@ -18,6 +18,7 @@ import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -141,6 +142,7 @@ public class GlobalSearchBox extends JFrame {
 			if (ignoreCase) {
 				str = str.toLowerCase();
 			}
+			String fstr = str;
 			for (ClassNode cn : Main.classNodes.values()) {
 				for (MethodNode mn : cn.methods) {
 					for (AbstractInsnNode insn : mn.instructions.toArray()) {
@@ -152,6 +154,15 @@ public class GlobalSearchBox extends JFrame {
 							if (s.contains(str)) {
 								set.add(new Info(cn.name, mn.name, mn.desc, mn));
 							}
+						}
+					}
+					if (mn.visibleAnnotations != null) {
+						for (AnnotationNode anno : mn.visibleAnnotations) {
+							if (anno.values == null)
+								continue;
+							anno.values.stream().filter(o -> o instanceof String).map(o -> (String) o)
+									.map(s -> ignoreCase ? s.toLowerCase() : s).filter(s -> s.contains(fstr))
+									.forEach(s -> set.add(new Info(cn.name, mn.name, mn.desc, mn)));
 						}
 					}
 				}

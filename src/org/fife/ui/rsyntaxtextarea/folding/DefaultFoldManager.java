@@ -28,16 +28,16 @@ import org.fife.ui.rsyntaxtextarea.parser.Parser;
 import org.fife.ui.rtextarea.RDocument;
 
 /**
- * The default implementation of a fold manager. Besides keeping track of
- * folds, this class behaves as follows:
+ * The default implementation of a fold manager. Besides keeping track of folds,
+ * this class behaves as follows:
  *
  * <ul>
- * <li>If text containing a newline is inserted in a collapsed fold,
- * that fold, and any ancestor folds, are expanded. This ensures that
- * modified text is always visible to the user.
- * <li>If the text area's {@link RSyntaxTextArea#SYNTAX_STYLE_PROPERTY}
- * changes, the current fold parser is uninstalled, and one appropriate
- * for the new language, if any, is installed.
+ * <li>If text containing a newline is inserted in a collapsed fold, that fold,
+ * and any ancestor folds, are expanded. This ensures that modified text is
+ * always visible to the user.
+ * <li>If the text area's {@link RSyntaxTextArea#SYNTAX_STYLE_PROPERTY} changes,
+ * the current fold parser is uninstalled, and one appropriate for the new
+ * language, if any, is installed.
  * </ul>
  *
  * The folding strategy to use is retrieved from {@link FoldParserManager}.
@@ -46,7 +46,7 @@ import org.fife.ui.rtextarea.RDocument;
  * @version 1.0
  */
 public class DefaultFoldManager implements FoldManager {
-	
+
 	private RSyntaxTextArea textArea;
 	private Parser rstaParser;
 	private FoldParser foldParser;
@@ -54,12 +54,11 @@ public class DefaultFoldManager implements FoldManager {
 	private boolean codeFoldingEnabled;
 	private PropertyChangeSupport support;
 	private Listener l;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param textArea
-	 *            The text area whose folds we are managing.
+	 * @param textArea The text area whose folds we are managing.
 	 */
 	public DefaultFoldManager(RSyntaxTextArea textArea) {
 		this.textArea = textArea;
@@ -71,17 +70,17 @@ public class DefaultFoldManager implements FoldManager {
 		folds = new ArrayList<Fold>();
 		updateFoldParser();
 	}
-	
+
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		support.addPropertyChangeListener(l);
 	}
-	
+
 	@Override
 	public void clear() {
 		folds.clear();
 	}
-	
+
 	@Override
 	public boolean ensureOffsetNotInClosedFold(int offs) {
 		boolean foldsOpened = false;
@@ -98,7 +97,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return foldsOpened;
 	}
-	
+
 	@Override
 	public Fold getDeepestFoldContaining(int offs) {
 		Fold deepestFold = null;
@@ -113,7 +112,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return deepestFold;
 	}
-	
+
 	@Override
 	public Fold getDeepestOpenFoldContaining(int offs) {
 		Fold deepestFold = null;
@@ -131,22 +130,22 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return deepestFold;
 	}
-	
+
 	@Override
 	public Fold getFold(int index) {
 		return folds.get(index);
 	}
-	
+
 	@Override
 	public int getFoldCount() {
 		return folds.size();
 	}
-	
+
 	@Override
 	public Fold getFoldForLine(int line) {
 		return getFoldForLineImpl(null, folds, line);
 	}
-	
+
 	private Fold getFoldForLineImpl(Fold parent, List<Fold> folds, int line) {
 		int low = 0;
 		int high = folds.size() - 1;
@@ -170,7 +169,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return null; // No fold for this line
 	}
-	
+
 	@Override
 	public int getHiddenLineCount() {
 		int count = 0;
@@ -179,12 +178,12 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return count;
 	}
-	
+
 	@Override
 	public int getHiddenLineCountAbove(int line) {
 		return getHiddenLineCountAbove(line, false);
 	}
-	
+
 	@Override
 	public int getHiddenLineCountAbove(int line, boolean physical) {
 		int count = 0;
@@ -197,27 +196,21 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return count;
 	}
-	
+
 	/**
-	 * Returns the number of lines "hidden" by collapsed folds above the
-	 * specified line.
+	 * Returns the number of lines "hidden" by collapsed folds above the specified
+	 * line.
 	 *
-	 * @param fold
-	 *            The current fold in the recursive algorithm. It and its
-	 *            children are examined.
-	 * @param line
-	 *            The line.
-	 * @param physical
-	 *            Whether <code>line</code> is the number of a physical
-	 *            line (i.e. visible, not code-folded), or a logical one (i.e.
-	 *            any
-	 *            line from the model). If <code>line</code> was determined by a
-	 *            raw line calculation (i.e.
-	 *            <code>(visibleTopY / lineHeight)</code>),
-	 *            this value should be <code>true</code>. It should be
-	 *            <code>false</code> when it was calculated from an offset in
-	 *            the
-	 *            document (for example).
+	 * @param fold     The current fold in the recursive algorithm. It and its
+	 *                 children are examined.
+	 * @param line     The line.
+	 * @param physical Whether <code>line</code> is the number of a physical line
+	 *                 (i.e. visible, not code-folded), or a logical one (i.e. any
+	 *                 line from the model). If <code>line</code> was determined by
+	 *                 a raw line calculation (i.e.
+	 *                 <code>(visibleTopY / lineHeight)</code>), this value should
+	 *                 be <code>true</code>. It should be <code>false</code> when it
+	 *                 was calculated from an offset in the document (for example).
 	 * @return The number of lines hidden in folds that are descendants of
 	 *         <code>fold</code>, or <code>fold</code> itself, above
 	 *         <code>line</code>.
@@ -239,7 +232,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return count;
 	}
-	
+
 	@Override
 	public int getLastVisibleLine() {
 		int lastLine = textArea.getLineCount() - 1;
@@ -268,7 +261,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return lastLine;
 	}
-	
+
 	@Override
 	public int getVisibleLineAbove(int line) {
 		if (line <= 0 || line >= textArea.getLineCount()) {
@@ -279,7 +272,7 @@ public class DefaultFoldManager implements FoldManager {
 		} while (line >= 0 && isLineHidden(line));
 		return line;
 	}
-	
+
 	@Override
 	public int getVisibleLineBelow(int line) {
 		int lineCount = textArea.getLineCount();
@@ -291,7 +284,7 @@ public class DefaultFoldManager implements FoldManager {
 		} while (line < lineCount && isLineHidden(line));
 		return line == lineCount ? -1 : line;
 	}
-	
+
 	// private static int binaryFindFoldContainingLine(int line) {
 	//
 	// List allFolds;
@@ -320,17 +313,17 @@ public class DefaultFoldManager implements FoldManager {
 	public boolean isCodeFoldingEnabled() {
 		return codeFoldingEnabled;
 	}
-	
+
 	@Override
 	public boolean isCodeFoldingSupportedAndEnabled() {
 		return codeFoldingEnabled && foldParser != null;
 	}
-	
+
 	@Override
 	public boolean isFoldStartLine(int line) {
 		return getFoldForLine(line) != null;
 	}
-	
+
 	@Override
 	public boolean isLineHidden(int line) {
 		for (Fold fold : folds) {
@@ -344,7 +337,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return false;
 	}
-	
+
 	private boolean isLineHiddenImpl(Fold parent, int line) {
 		for (int i = 0; i < parent.getChildCount(); i++) {
 			Fold child = parent.getChild(i);
@@ -358,7 +351,7 @@ public class DefaultFoldManager implements FoldManager {
 		}
 		return false;
 	}
-	
+
 	private void keepFoldState(Fold newFold, List<Fold> oldFolds) {
 		int previousLoc = Collections.binarySearch(oldFolds, newFold);
 		// System.out.println(newFold + " => " + previousLoc);
@@ -379,7 +372,7 @@ public class DefaultFoldManager implements FoldManager {
 			}
 		}
 	}
-	
+
 	private void keepFoldStates(List<Fold> newFolds, List<Fold> oldFolds) {
 		for (Fold newFold : newFolds) {
 			keepFoldState(newFold, folds);
@@ -389,12 +382,12 @@ public class DefaultFoldManager implements FoldManager {
 			}
 		}
 	}
-	
+
 	@Override
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		support.removePropertyChangeListener(l);
 	}
-	
+
 	@Override
 	public void reparse() {
 		if (codeFoldingEnabled && foldParser != null) {
@@ -414,7 +407,7 @@ public class DefaultFoldManager implements FoldManager {
 			folds.clear();
 		}
 	}
-	
+
 	@Override
 	public void setCodeFoldingEnabled(boolean enabled) {
 		if (enabled != codeFoldingEnabled) {
@@ -424,7 +417,7 @@ public class DefaultFoldManager implements FoldManager {
 			}
 			if (enabled) {
 				rstaParser = new AbstractParser() {
-					
+
 					@Override
 					public ParseResult parse(RSyntaxDocument doc, String style) {
 						reparse();
@@ -441,28 +434,29 @@ public class DefaultFoldManager implements FoldManager {
 			}
 		}
 	}
-	
+
 	@Override
 	public void setFolds(List<Fold> folds) {
 		this.folds = folds;
 	}
-	
+
 	/**
-	 * Updates the fold parser to be the one appropriate for the language
-	 * currently being highlighted.
+	 * Updates the fold parser to be the one appropriate for the language currently
+	 * being highlighted.
 	 */
 	private void updateFoldParser() {
 		foldParser = FoldParserManager.get().getFoldParser(textArea.getSyntaxEditingStyle());
 	}
-	
+
 	/**
 	 * Listens for events in the text editor.
 	 */
 	private class Listener implements DocumentListener, PropertyChangeListener {
-		
+
 		@Override
-		public void changedUpdate(DocumentEvent e) {}
-		
+		public void changedUpdate(DocumentEvent e) {
+		}
+
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			// Adding text containing a newline to the visible line of a folded
@@ -481,7 +475,7 @@ public class DefaultFoldManager implements FoldManager {
 				}
 			}
 		}
-		
+
 		@Override
 		public void propertyChange(PropertyChangeEvent e) {
 			String name = e.getPropertyName();
@@ -502,7 +496,7 @@ public class DefaultFoldManager implements FoldManager {
 				reparse();
 			}
 		}
-		
+
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			// Removing text from the visible line of a folded Fold causes that

@@ -18,15 +18,15 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Parser for an XML file describing a procedural language such as C. XML
- * files will be validated against the <code>CompletionXml.dtd</code> DTD
- * found in this package.
+ * Parser for an XML file describing a procedural language such as C. XML files
+ * will be validated against the <code>CompletionXml.dtd</code> DTD found in
+ * this package.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class CompletionXMLParser extends DefaultHandler {
-	
+
 	/**
 	 * The completions found after parsing the XML.
 	 */
@@ -68,36 +68,31 @@ public class CompletionXMLParser extends DefaultHandler {
 	 */
 	private String funcCompletionType;
 	/**
-	 * The class loader to use to load custom completion classes, such as
-	 * the one defined by {@link #funcCompletionType}. If this is
-	 * <code>null</code>, then a default class loader is used. This field
-	 * will usually be <code>null</code>.
+	 * The class loader to use to load custom completion classes, such as the one
+	 * defined by {@link #funcCompletionType}. If this is <code>null</code>, then a
+	 * default class loader is used. This field will usually be <code>null</code>.
 	 */
 	private static ClassLoader DEFAULT_COMPLETION_CLASS_LOADER;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param provider
-	 *            The provider to get completions for.
+	 * @param provider The provider to get completions for.
 	 * @see #reset(CompletionProvider)
 	 */
 	public CompletionXMLParser(CompletionProvider provider) {
 		this(provider, null);
 	}
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param provider
-	 *            The provider to get completions for.
-	 * @param cl
-	 *            The class loader to use, if necessary, when loading classes
-	 *            from the XML (custom {@link FunctionCompletion}s, for
-	 *            example).
-	 *            This may be <code>null</code> if the default is to be used, or
-	 *            if the XML does not define specific classes for completion
-	 *            types.
+	 * @param provider The provider to get completions for.
+	 * @param cl       The class loader to use, if necessary, when loading classes
+	 *                 from the XML (custom {@link FunctionCompletion}s, for
+	 *                 example). This may be <code>null</code> if the default is to
+	 *                 be used, or if the XML does not define specific classes for
+	 *                 completion types.
 	 * @see #reset(CompletionProvider)
 	 */
 	public CompletionXMLParser(CompletionProvider provider, ClassLoader cl) {
@@ -115,7 +110,7 @@ public class CompletionXMLParser extends DefaultHandler {
 		paramStartChar = paramEndChar = 0;
 		paramSeparator = null;
 	}
-	
+
 	/**
 	 * Called when character data inside an element is found.
 	 */
@@ -129,7 +124,7 @@ public class CompletionXMLParser extends DefaultHandler {
 			returnValDesc.append(ch, start, length);
 		}
 	}
-	
+
 	private FunctionCompletion createFunctionCompletion() {
 		FunctionCompletion fc = null;
 		if (funcCompletionType != null) {
@@ -163,7 +158,7 @@ public class CompletionXMLParser extends DefaultHandler {
 		}
 		return fc;
 	}
-	
+
 	private BasicCompletion createOtherCompletion() {
 		BasicCompletion bc = new BasicCompletion(provider, name);
 		if (desc.length() > 0) {
@@ -172,7 +167,7 @@ public class CompletionXMLParser extends DefaultHandler {
 		}
 		return bc;
 	}
-	
+
 	private MarkupTagCompletion createMarkupTagCompletion() {
 		MarkupTagCompletion mc = new MarkupTagCompletion(provider, name);
 		if (desc.length() > 0) {
@@ -183,7 +178,7 @@ public class CompletionXMLParser extends DefaultHandler {
 		mc.setDefinedIn(definedIn);
 		return mc;
 	}
-	
+
 	private VariableCompletion createVariableCompletion() {
 		VariableCompletion vc = new VariableCompletion(provider, name, returnType);
 		if (desc.length() > 0) {
@@ -193,7 +188,7 @@ public class CompletionXMLParser extends DefaultHandler {
 		vc.setDefinedIn(definedIn);
 		return vc;
 	}
-	
+
 	/**
 	 * Called when an element is closed.
 	 */
@@ -246,12 +241,12 @@ public class CompletionXMLParser extends DefaultHandler {
 			}
 		}
 	}
-	
+
 	@Override
 	public void error(SAXParseException e) throws SAXException {
 		throw e;
 	}
-	
+
 	/**
 	 * Returns the completions found after parsing the XML.
 	 *
@@ -260,7 +255,7 @@ public class CompletionXMLParser extends DefaultHandler {
 	public List<Completion> getCompletions() {
 		return completions;
 	}
-	
+
 	/**
 	 * Returns the parameter end character specified.
 	 *
@@ -269,7 +264,7 @@ public class CompletionXMLParser extends DefaultHandler {
 	public char getParamEndChar() {
 		return paramEndChar;
 	}
-	
+
 	/**
 	 * Returns the parameter end string specified.
 	 *
@@ -278,7 +273,7 @@ public class CompletionXMLParser extends DefaultHandler {
 	public String getParamSeparator() {
 		return paramSeparator;
 	}
-	
+
 	/**
 	 * Returns the parameter start character specified.
 	 *
@@ -287,16 +282,15 @@ public class CompletionXMLParser extends DefaultHandler {
 	public char getParamStartChar() {
 		return paramStartChar;
 	}
-	
+
 	private static final char getSingleChar(String str) {
 		return str.length() == 1 ? str.charAt(0) : 0;
 	}
-	
+
 	/**
 	 * Resets this parser to grab more completions.
 	 *
-	 * @param provider
-	 *            The new provider to get completions for.
+	 * @param provider The new provider to get completions for.
 	 */
 	public void reset(CompletionProvider provider) {
 		this.provider = provider;
@@ -305,28 +299,26 @@ public class CompletionXMLParser extends DefaultHandler {
 		paramStartChar = paramEndChar = 0;
 		paramSeparator = null;
 	}
-	
+
 	@Override
 	public InputSource resolveEntity(String publicID, String systemID) throws SAXException {
 		return new InputSource(getClass().getResourceAsStream("CompletionXml.dtd"));
 	}
-	
+
 	/**
-	 * Sets the class loader to use when loading custom classes to use for
-	 * various {@link Completion} types, such as {@link FunctionCompletion}s,
-	 * from XML.
+	 * Sets the class loader to use when loading custom classes to use for various
+	 * {@link Completion} types, such as {@link FunctionCompletion}s, from XML.
 	 * <p>
 	 *
 	 * Users should very rarely have a need to use this method.
 	 *
-	 * @param cl
-	 *            The class loader to use. If this is <code>null</code>, then
-	 *            a default is used.
+	 * @param cl The class loader to use. If this is <code>null</code>, then a
+	 *           default is used.
 	 */
 	public static void setDefaultCompletionClassLoader(ClassLoader cl) {
 		DEFAULT_COMPLETION_CLASS_LOADER = cl;
 	}
-	
+
 	/**
 	 * Called when an element starts.
 	 */
@@ -375,7 +367,7 @@ public class CompletionXMLParser extends DefaultHandler {
 			}
 		}
 	}
-	
+
 	@Override
 	public void warning(SAXParseException e) throws SAXException {
 		throw e;

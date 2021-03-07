@@ -28,17 +28,17 @@ import javax.swing.text.JTextComponent;
 import org.fife.ui.rsyntaxtextarea.PopupWindowDecorator;
 
 /**
- * A small popup window offering a list of likely choices for a parameter
- * when the user has code-completed a parameterized completion. For example,
- * if they have just code-completed the C function "<code>fprintf</code>",
- * when entering the file name, this popup might display all local variables
- * of type "<code>char *</code>".
+ * A small popup window offering a list of likely choices for a parameter when
+ * the user has code-completed a parameterized completion. For example, if they
+ * have just code-completed the C function "<code>fprintf</code>", when entering
+ * the file name, this popup might display all local variables of type
+ * "<code>char *</code>".
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class ParameterizedCompletionChoicesWindow extends JWindow {
-	
+
 	/**
 	 * The parent AutoCompletion instance.
 	 */
@@ -60,22 +60,20 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 	 */
 	private JScrollPane sp;
 	/**
-	 * Comparator used to sort completions by their relevance before sorting
-	 * them lexicographically.
+	 * Comparator used to sort completions by their relevance before sorting them
+	 * lexicographically.
 	 */
 	private static final Comparator<Completion> sortByRelevanceComparator = new SortByRelevanceComparator();
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param parent
-	 *            The parent window (hosting the text component).
-	 * @param ac
-	 *            The auto-completion instance.
-	 * @param context
-	 *            The completion context.
+	 * @param parent  The parent window (hosting the text component).
+	 * @param ac      The auto-completion instance.
+	 * @param context The completion context.
 	 */
-	public ParameterizedCompletionChoicesWindow(Window parent, AutoCompletion ac, final ParameterizedCompletionContext context) {
+	public ParameterizedCompletionChoicesWindow(Window parent, AutoCompletion ac,
+			final ParameterizedCompletionContext context) {
 		super(parent);
 		this.ac = ac;
 		ComponentOrientation o = ac.getTextComponentOrientation();
@@ -85,7 +83,7 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 			list.setCellRenderer(ac.getParamChoicesRenderer());
 		}
 		list.addMouseListener(new MouseAdapter() {
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -103,23 +101,21 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 			decorator.decorate(this);
 		}
 	}
-	
+
 	/**
 	 * Returns the selected value.
 	 *
-	 * @return The selected value, or <code>null</code> if nothing is
-	 *         selected.
+	 * @return The selected value, or <code>null</code> if nothing is selected.
 	 */
 	public String getSelectedChoice() {
 		Completion c = (Completion) list.getSelectedValue();
 		return c == null ? null : c.toString();
 	}
-	
+
 	/**
 	 * Changes the selected index.
 	 *
-	 * @param amount
-	 *            The amount by which to change the selected index.
+	 * @param amount The amount by which to change the selected index.
 	 */
 	public void incSelection(int amount) {
 		int selection = list.getSelectedIndex();
@@ -133,14 +129,12 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 		list.setSelectedIndex(selection);
 		list.ensureIndexIsVisible(selection);
 	}
-	
+
 	/**
-	 * Initializes this window to offer suggestions for the parameters of
-	 * a specific completion.
+	 * Initializes this window to offer suggestions for the parameters of a specific
+	 * completion.
 	 *
-	 * @param pc
-	 *            The completion whose parameters we should offer suggestions
-	 *            for.
+	 * @param pc The completion whose parameters we should offer suggestions for.
 	 */
 	public void initialize(ParameterizedCompletion pc) {
 		CompletionProvider provider = pc.getProvider();
@@ -158,12 +152,11 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 			choicesListList.add(choices);
 		}
 	}
-	
+
 	/**
 	 * Sets the location of this window relative to the given rectangle.
 	 *
-	 * @param r
-	 *            The visual position of the caret (in screen coordinates).
+	 * @param r The visual position of the caret (in screen coordinates).
 	 */
 	public void setLocationRelativeTo(Rectangle r) {
 		// Multi-monitor support - make sure the completion window (and
@@ -187,18 +180,16 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 		}
 		setLocation(x, y);
 	}
-	
+
 	/**
-	 * Displays the choices for the specified parameter matching the given
-	 * text. This will display or hide this popup window as necessary.
+	 * Displays the choices for the specified parameter matching the given text.
+	 * This will display or hide this popup window as necessary.
 	 *
-	 * @param param
-	 *            The index of the parameter the caret is currently in.
-	 *            This may be <code>-1</code> if not in a parameter (i.e., on
-	 *            the comma between parameters).
-	 * @param prefix
-	 *            Text in the parameter before the dot. This may
-	 *            be <code>null</code> to represent the empty string.
+	 * @param param  The index of the parameter the caret is currently in. This may
+	 *               be <code>-1</code> if not in a parameter (i.e., on the comma
+	 *               between parameters).
+	 * @param prefix Text in the parameter before the dot. This may be
+	 *               <code>null</code> to represent the empty string.
 	 */
 	public void setParameter(int param, String prefix) {
 		model.clear();
@@ -250,12 +241,11 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 			setVisible(false);
 		}
 	}
-	
+
 	/**
 	 * Toggles the visibility of this popup window.
 	 *
-	 * @param visible
-	 *            Whether this window should be visible.
+	 * @param visible Whether this window should be visible.
 	 */
 	@Override
 	public void setVisible(boolean visible) {
@@ -268,7 +258,7 @@ public class ParameterizedCompletionChoicesWindow extends JWindow {
 			super.setVisible(visible);
 		}
 	}
-	
+
 	/**
 	 * Updates the <tt>LookAndFeel</tt> of this window.
 	 */

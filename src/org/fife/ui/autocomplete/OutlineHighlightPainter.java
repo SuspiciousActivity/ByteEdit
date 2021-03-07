@@ -19,40 +19,39 @@ import javax.swing.text.Position;
 import javax.swing.text.View;
 
 /**
- * Highlight painter that draws an outline around the text. This is used to
- * draw bounds around function/method parameters.
+ * Highlight painter that draws an outline around the text. This is used to draw
+ * bounds around function/method parameters.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 /*
- * NOTE: Whenever you see text like "Workaround for Java Highlight issues",
- * this is because highlighted text in a JTextComponent gets "pushed" forward
- * when the caret is at the Highlight's start, when we need it to instead get
+ * NOTE: Whenever you see text like "Workaround for Java Highlight issues", this
+ * is because highlighted text in a JTextComponent gets "pushed" forward when
+ * the caret is at the Highlight's start, when we need it to instead get
  * prepended to. For this reason, the auto-complete package adds its Highlights
  * 1 char too long (1 char earlier than where it should really start), but only
  * paint the Highlight from the 2nd char on.
  */
 class OutlineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter {
-	
+
 	/**
-	 * DefaultHighlightPainter doesn't allow changing color, so we must cache
-	 * ours here.
+	 * DefaultHighlightPainter doesn't allow changing color, so we must cache ours
+	 * here.
 	 */
 	private Color color;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param color
-	 *            The color to draw the bounding boxes with. This cannot
-	 *            be <code>null</code>.
+	 * @param color The color to draw the bounding boxes with. This cannot be
+	 *              <code>null</code>.
 	 */
 	public OutlineHighlightPainter(Color color) {
 		super(color);
 		setColor(color);
 	}
-	
+
 	/**
 	 * Returns the color to paint bounding boxes with.
 	 *
@@ -63,7 +62,7 @@ class OutlineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter
 	public Color getColor() {
 		return color;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -110,12 +109,11 @@ class OutlineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Sets the color to paint the bounding boxes with.
 	 *
-	 * @param color
-	 *            The new color. This cannot be <code>null</code>.
+	 * @param color The new color. This cannot be <code>null</code>.
 	 * @see #getColor()
 	 */
 	public void setColor(Color color) {

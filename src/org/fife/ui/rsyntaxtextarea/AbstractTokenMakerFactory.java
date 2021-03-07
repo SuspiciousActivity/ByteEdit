@@ -18,15 +18,14 @@ import java.util.Set;
  * @version 1.0
  */
 public abstract class AbstractTokenMakerFactory extends TokenMakerFactory {
-	
+
 	/**
-	 * A mapping from keys to the names of {@link TokenMaker} implementation
-	 * class names. When {@link #getTokenMaker(String)} is called with a key
-	 * defined in this map, a <code>TokenMaker</code> of the corresponding type
-	 * is returned.
+	 * A mapping from keys to the names of {@link TokenMaker} implementation class
+	 * names. When {@link #getTokenMaker(String)} is called with a key defined in
+	 * this map, a <code>TokenMaker</code> of the corresponding type is returned.
 	 */
 	private Map<String, Object> tokenMakerMap;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -34,14 +33,13 @@ public abstract class AbstractTokenMakerFactory extends TokenMakerFactory {
 		tokenMakerMap = new HashMap<String, Object>();
 		initTokenMakerMap();
 	}
-	
+
 	/**
 	 * Returns a {@link TokenMaker} for the specified key.
 	 *
-	 * @param key
-	 *            The key.
-	 * @return The corresponding <code>TokenMaker</code>, or <code>null</code>
-	 *         if none matches the specified key.
+	 * @param key The key.
+	 * @return The corresponding <code>TokenMaker</code>, or <code>null</code> if
+	 *         none matches the specified key.
 	 */
 	@Override
 	protected TokenMaker getTokenMakerImpl(String key) {
@@ -57,18 +55,18 @@ public abstract class AbstractTokenMakerFactory extends TokenMakerFactory {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Populates the mapping from keys to instances of
-	 * <code>TokenMakerCreator</code>s. Subclasses should override this method
-	 * and call one of the <code>putMapping</code> overloads to register
+	 * <code>TokenMakerCreator</code>s. Subclasses should override this method and
+	 * call one of the <code>putMapping</code> overloads to register
 	 * {@link TokenMaker}s for syntax constants.
 	 *
 	 * @see #putMapping(String, String)
 	 * @see #putMapping(String, String, ClassLoader)
 	 */
 	protected abstract void initTokenMakerMap();
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -76,50 +74,45 @@ public abstract class AbstractTokenMakerFactory extends TokenMakerFactory {
 	public Set<String> keySet() {
 		return tokenMakerMap.keySet();
 	}
-	
+
 	/**
-	 * Adds a mapping from a key to a <code>TokenMaker</code> implementation
-	 * class name.
+	 * Adds a mapping from a key to a <code>TokenMaker</code> implementation class
+	 * name.
 	 *
-	 * @param key
-	 *            The key.
-	 * @param className
-	 *            The <code>TokenMaker</code> class name.
+	 * @param key       The key.
+	 * @param className The <code>TokenMaker</code> class name.
 	 * @see #putMapping(String, String, ClassLoader)
 	 */
 	public void putMapping(String key, String className) {
 		putMapping(key, className, null);
 	}
-	
+
 	/**
-	 * Adds a mapping from a key to a <code>TokenMaker</code> implementation
-	 * class name.
+	 * Adds a mapping from a key to a <code>TokenMaker</code> implementation class
+	 * name.
 	 *
-	 * @param key
-	 *            The key.
-	 * @param className
-	 *            The <code>TokenMaker</code> class name.
-	 * @param cl
-	 *            The class loader to use when loading the class.
+	 * @param key       The key.
+	 * @param className The <code>TokenMaker</code> class name.
+	 * @param cl        The class loader to use when loading the class.
 	 * @see #putMapping(String, String)
 	 */
 	public void putMapping(String key, String className, ClassLoader cl) {
 		tokenMakerMap.put(key, new TokenMakerCreator(className, cl));
 	}
-	
+
 	/**
 	 * Wrapper that handles the creation of TokenMaker instances.
 	 */
 	private static class TokenMakerCreator {
-		
+
 		private String className;
 		private ClassLoader cl;
-		
+
 		public TokenMakerCreator(String className, ClassLoader cl) {
 			this.className = className;
 			this.cl = cl != null ? cl : getClass().getClassLoader();
 		}
-		
+
 		public TokenMaker create() throws Exception {
 			return (TokenMaker) Class.forName(className, true, cl).newInstance();
 		}

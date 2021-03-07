@@ -28,29 +28,29 @@ import org.xml.sax.SAXException;
 
 /**
  * A basic completion provider implementation. This provider has no
- * understanding of language semantics. It simply checks the text entered up
- * to the caret position for a match against known completions. This is all
- * that is needed in the majority of cases.
+ * understanding of language semantics. It simply checks the text entered up to
+ * the caret position for a match against known completions. This is all that is
+ * needed in the majority of cases.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class DefaultCompletionProvider extends AbstractCompletionProvider {
-	
+
 	protected Segment seg;
 	/**
 	 * Used to speed up {@link #getCompletionsAt(JTextComponent, Point)}.
 	 */
 	private String lastCompletionsAtText;
 	/**
-	 * Used to speed up {@link #getCompletionsAt(JTextComponent, Point)},
-	 * since this may be called multiple times in succession (this is usually
-	 * called by <tt>JTextComponent.getToolTipText()</tt>, and if the user
-	 * wiggles the mouse while a tool tip is displayed, this method gets
-	 * repeatedly called. It can be costly so we try to speed it up a tad).
+	 * Used to speed up {@link #getCompletionsAt(JTextComponent, Point)}, since this
+	 * may be called multiple times in succession (this is usually called by
+	 * <tt>JTextComponent.getToolTipText()</tt>, and if the user wiggles the mouse
+	 * while a tool tip is displayed, this method gets repeatedly called. It can be
+	 * costly so we try to speed it up a tad).
 	 */
 	private List<Completion> lastParameterizedCompletionsAt;
-	
+
 	/**
 	 * Constructor. The returned provider will not be aware of any completions.
 	 *
@@ -59,28 +59,27 @@ public class DefaultCompletionProvider extends AbstractCompletionProvider {
 	public DefaultCompletionProvider() {
 		init();
 	}
-	
+
 	/**
-	 * Creates a completion provider that provides completion for a simple
-	 * list of words.
+	 * Creates a completion provider that provides completion for a simple list of
+	 * words.
 	 *
-	 * @param words
-	 *            The words to offer as completion suggestions. If this is
-	 *            <code>null</code>, no completions will be known.
+	 * @param words The words to offer as completion suggestions. If this is
+	 *              <code>null</code>, no completions will be known.
 	 * @see BasicCompletion
 	 */
 	public DefaultCompletionProvider(String[] words) {
 		init();
 		addWordCompletions(words);
 	}
-	
+
 	/**
-	 * Returns the text just before the current caret position that could be
-	 * the start of something auto-completable.
+	 * Returns the text just before the current caret position that could be the
+	 * start of something auto-completable.
 	 * <p>
 	 *
-	 * This method returns all characters before the caret that are matched
-	 * by {@link #isValidChar(char)}.
+	 * This method returns all characters before the caret that are matched by
+	 * {@link #isValidChar(char)}.
 	 *
 	 * {@inheritDoc}
 	 */
@@ -108,7 +107,7 @@ public class DefaultCompletionProvider extends AbstractCompletionProvider {
 		len = segEnd - start;
 		return len == 0 ? EMPTY_STRING : new String(seg.array, start, len);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -156,7 +155,7 @@ public class DefaultCompletionProvider extends AbstractCompletionProvider {
 		lastCompletionsAtText = null;
 		return lastParameterizedCompletionsAt = null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -212,36 +211,33 @@ public class DefaultCompletionProvider extends AbstractCompletionProvider {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * Initializes this completion provider.
 	 */
 	protected void init() {
 		seg = new Segment();
 	}
-	
+
 	/**
-	 * Returns whether the specified character is valid in an auto-completion.
-	 * The default implementation is equivalent to
-	 * "<code>Character.isLetterOrDigit(ch) || ch=='_'</code>". Subclasses
-	 * can override this method to change what characters are matched.
+	 * Returns whether the specified character is valid in an auto-completion. The
+	 * default implementation is equivalent to
+	 * "<code>Character.isLetterOrDigit(ch) || ch=='_'</code>". Subclasses can
+	 * override this method to change what characters are matched.
 	 *
-	 * @param ch
-	 *            The character.
+	 * @param ch The character.
 	 * @return Whether the character is valid.
 	 */
 	protected boolean isValidChar(char ch) {
 		return Character.isLetterOrDigit(ch) || ch == '_';
 	}
-	
+
 	/**
 	 * Loads completions from an XML file. The XML should validate against
 	 * <code>CompletionXml.dtd</code>.
 	 *
-	 * @param file
-	 *            An XML file to load from.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param file An XML file to load from.
+	 * @throws IOException If an IO error occurs.
 	 */
 	public void loadFromXML(File file) throws IOException {
 		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
@@ -251,34 +247,28 @@ public class DefaultCompletionProvider extends AbstractCompletionProvider {
 			bin.close();
 		}
 	}
-	
+
 	/**
-	 * Loads completions from an XML input stream. The XML should validate
-	 * against <code>CompletionXml.dtd</code>.
+	 * Loads completions from an XML input stream. The XML should validate against
+	 * <code>CompletionXml.dtd</code>.
 	 *
-	 * @param in
-	 *            The input stream to read from.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param in The input stream to read from.
+	 * @throws IOException If an IO error occurs.
 	 */
 	public void loadFromXML(InputStream in) throws IOException {
 		loadFromXML(in, null);
 	}
-	
+
 	/**
-	 * Loads completions from an XML input stream. The XML should validate
-	 * against <code>CompletionXml.dtd</code>.
+	 * Loads completions from an XML input stream. The XML should validate against
+	 * <code>CompletionXml.dtd</code>.
 	 *
-	 * @param in
-	 *            The input stream to read from.
-	 * @param cl
-	 *            The class loader to use when loading any extra classes defined
-	 *            in the XML, such as custom {@link FunctionCompletion}s. This
-	 *            may be <code>null</code> if the default is to be used, or if
-	 *            no
-	 *            custom completions are defined in the XML.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param in The input stream to read from.
+	 * @param cl The class loader to use when loading any extra classes defined in
+	 *           the XML, such as custom {@link FunctionCompletion}s. This may be
+	 *           <code>null</code> if the default is to be used, or if no custom
+	 *           completions are defined in the XML.
+	 * @throws IOException If an IO error occurs.
 	 */
 	public void loadFromXML(InputStream in, ClassLoader cl) throws IOException {
 		// long start = System.currentTimeMillis();
@@ -309,15 +299,13 @@ public class DefaultCompletionProvider extends AbstractCompletionProvider {
 			bin.close();
 		}
 	}
-	
+
 	/**
 	 * Loads completions from an XML file. The XML should validate against
 	 * <code>CompletionXml.dtd</code>.
 	 *
-	 * @param resource
-	 *            A resource the current ClassLoader can get to.
-	 * @throws IOException
-	 *             If an IO error occurs.
+	 * @param resource A resource the current ClassLoader can get to.
+	 * @throws IOException If an IO error occurs.
 	 */
 	public void loadFromXML(String resource) throws IOException {
 		ClassLoader cl = getClass().getClassLoader();

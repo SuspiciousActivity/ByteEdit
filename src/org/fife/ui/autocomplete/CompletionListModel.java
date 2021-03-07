@@ -13,30 +13,29 @@ import java.util.List;
 import javax.swing.AbstractListModel;
 
 /**
- * A list model implementation that allows the bulk addition of elements.
- * This is the only feature missing from <code>DefaultListModel</code> that
- * we need.
+ * A list model implementation that allows the bulk addition of elements. This
+ * is the only feature missing from <code>DefaultListModel</code> that we need.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 class CompletionListModel extends AbstractListModel {
-	
+
 	/**
 	 * Container for items in this model.
 	 */
 	private List<Completion> delegate;
-	
+
 	/**
 	 * Constructor.
 	 */
 	public CompletionListModel() {
 		delegate = new ArrayList<Completion>();
 	}
-	
+
 	/**
-	 * Removes all of the elements from this list. The list will
-	 * be empty after this call returns (unless it throws an exception).
+	 * Removes all of the elements from this list. The list will be empty after this
+	 * call returns (unless it throws an exception).
 	 *
 	 * @see #setContents(Collection)
 	 */
@@ -47,7 +46,7 @@ class CompletionListModel extends AbstractListModel {
 			fireIntervalRemoved(this, 0, end);
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -55,7 +54,7 @@ class CompletionListModel extends AbstractListModel {
 	public Object getElementAt(int index) {
 		return delegate.get(index);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -63,12 +62,11 @@ class CompletionListModel extends AbstractListModel {
 	public int getSize() {
 		return delegate.size();
 	}
-	
+
 	/**
 	 * Sets the contents of this model. All previous contents are removed.
 	 *
-	 * @param contents
-	 *            The new contents of this model.
+	 * @param contents The new contents of this model.
 	 */
 	public void setContents(Collection<Completion> contents) {
 		clear();

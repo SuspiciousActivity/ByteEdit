@@ -28,7 +28,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxUtilities;
  * @version 1.0
  */
 class ParameterizedCompletionDescriptionToolTip {
-	
+
 	/**
 	 * The actual tool tip.
 	 */
@@ -41,23 +41,21 @@ class ParameterizedCompletionDescriptionToolTip {
 	 * The completion being described.
 	 */
 	private ParameterizedCompletion pc;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param owner
-	 *            The parent window.
-	 * @param ac
-	 *            The parent auto-completion.
-	 * @param pc
-	 *            The completion being described.
+	 * @param owner The parent window.
+	 * @param ac    The parent auto-completion.
+	 * @param pc    The completion being described.
 	 */
-	public ParameterizedCompletionDescriptionToolTip(Window owner, ParameterizedCompletionContext context, AutoCompletion ac,
-			ParameterizedCompletion pc) {
+	public ParameterizedCompletionDescriptionToolTip(Window owner, ParameterizedCompletionContext context,
+			AutoCompletion ac, ParameterizedCompletion pc) {
 		tooltip = new JWindow(owner);
 		this.pc = pc;
 		descLabel = new JLabel();
-		descLabel.setBorder(BorderFactory.createCompoundBorder(TipUtil.getToolTipBorder(), BorderFactory.createEmptyBorder(2, 5, 2, 5)));
+		descLabel.setBorder(BorderFactory.createCompoundBorder(TipUtil.getToolTipBorder(),
+				BorderFactory.createEmptyBorder(2, 5, 2, 5)));
 		descLabel.setOpaque(true);
 		descLabel.setBackground(TipUtil.getToolTipBackground());
 		// It appears that if a JLabel is set as a content pane directly, when
@@ -77,7 +75,7 @@ class ParameterizedCompletionDescriptionToolTip {
 		updateText(0);
 		tooltip.setFocusableWindowState(false);
 	}
-	
+
 	/**
 	 * Returns whether this tool tip is visible.
 	 *
@@ -87,12 +85,11 @@ class ParameterizedCompletionDescriptionToolTip {
 	public boolean isVisible() {
 		return tooltip.isVisible();
 	}
-	
+
 	/**
 	 * Sets the location of this tool tip relative to the given rectangle.
 	 *
-	 * @param r
-	 *            The visual position of the caret (in screen coordinates).
+	 * @param r The visual position of the caret (in screen coordinates).
 	 */
 	public void setLocationRelativeTo(Rectangle r) {
 		// Multi-monitor support - make sure the completion window (and
@@ -119,24 +116,22 @@ class ParameterizedCompletionDescriptionToolTip {
 		}
 		tooltip.setLocation(x, y);
 	}
-	
+
 	/**
 	 * Toggles the visibility of this tool tip.
 	 *
-	 * @param visible
-	 *            Whether this tool tip should be visible.
+	 * @param visible Whether this tool tip should be visible.
 	 * @see #isVisible()
 	 */
 	public void setVisible(boolean visible) {
 		tooltip.setVisible(visible);
 	}
-	
+
 	/**
-	 * Updates the text in the tool tip to have the current parameter
-	 * displayed in bold.
+	 * Updates the text in the tool tip to have the current parameter displayed in
+	 * bold.
 	 *
-	 * @param selectedParam
-	 *            The index of the selected parameter.
+	 * @param selectedParam The index of the selected parameter.
 	 * @return Whether the text needed to be updated.
 	 */
 	public boolean updateText(int selectedParam) {
@@ -170,10 +165,9 @@ class ParameterizedCompletionDescriptionToolTip {
 		tooltip.pack();
 		return true;
 	}
-	
+
 	/**
-	 * Updates the <tt>LookAndFeel</tt> of this window and the description
-	 * window.
+	 * Updates the <tt>LookAndFeel</tt> of this window and the description window.
 	 */
 	public void updateUI() {
 		SwingUtilities.updateComponentTreeUI(tooltip);

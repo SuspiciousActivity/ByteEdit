@@ -23,9 +23,9 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * A parser for XML documents. Adds squiggle underlines for any XML errors
- * found (though most XML parsers don't really have error recovery and so only
- * can find one error at a time).
+ * A parser for XML documents. Adds squiggle underlines for any XML errors found
+ * (though most XML parsers don't really have error recovery and so only can
+ * find one error at a time).
  * <p>
  *
  * This class isn't actually used by RSyntaxTextArea anywhere, but you can
@@ -45,12 +45,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * textArea.addParser(xmlParser);
  * </pre>
  *
- * Also note that a single instance of this class can be installed on
- * multiple instances of <code>RSyntaxTextArea</code>.
+ * Also note that a single instance of this class can be installed on multiple
+ * instances of <code>RSyntaxTextArea</code>.
  * <p>
  *
- * For a more complete XML parsing/validation solution, see the
- * <a href=
+ * For a more complete XML parsing/validation solution, see the <a href=
  * "https://github.com/bobbylight/RSTALanguageSupport">RSTALanguageSupport
  * project</a>'s <code>XmlLanguageSupport</code> class.
  *
@@ -58,20 +57,19 @@ import org.xml.sax.helpers.DefaultHandler;
  * @version 1.1
  */
 public class XmlParser extends AbstractParser {
-	
+
 	private SAXParserFactory spf;
 	private DefaultParseResult result;
 	private EntityResolver entityResolver;
-	
+
 	public XmlParser() {
 		this(null);
 	}
-	
+
 	/**
 	 * Constructor allowing DTD validation of documents.
 	 *
-	 * @param resolver
-	 *            An entity resolver to use if validation is enabled.
+	 * @param resolver An entity resolver to use if validation is enabled.
 	 * @see #setValidating(boolean)
 	 */
 	public XmlParser(EntityResolver resolver) {
@@ -83,7 +81,7 @@ public class XmlParser extends AbstractParser {
 			fce.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Returns whether this parser does DTD validation.
 	 *
@@ -93,7 +91,7 @@ public class XmlParser extends AbstractParser {
 	public boolean isValidating() {
 		return spf.isValidating();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -121,64 +119,49 @@ public class XmlParser extends AbstractParser {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Sets whether this parser will use DTD validation if required.
 	 *
-	 * @param validating
-	 *            Whether DTD validation should be enabled. If this is
-	 *            <code>true</code>, documents must specify a DOCTYPE, and you
-	 *            should have used the constructor specifying an entity
-	 *            resolver.
+	 * @param validating Whether DTD validation should be enabled. If this is
+	 *                   <code>true</code>, documents must specify a DOCTYPE, and
+	 *                   you should have used the constructor specifying an entity
+	 *                   resolver.
 	 * @see #isValidating()
 	 */
 	public void setValidating(boolean validating) {
 		spf.setValidating(validating);
 	}
-	
+
 	/*
-	 * public static void main(String[] args) {
-	 * javax.swing.JFrame frame = new javax.swing.JFrame();
-	 * org.fife.ui.rsyntaxtextarea.RSyntaxTextArea textArea = new
-	 * org.fife.ui.rsyntaxtextarea.RSyntaxTextArea(25, 40);
-	 * textArea.setSyntaxEditingStyle("text/xml");
-	 * XmlParser parser = new XmlParser(new EntityResolver() {
-	 * public InputSource resolveEntity(String publicId, String systemId)
-	 * throws SAXException, IOException {
-	 * if ("http://fifesoft.com/rsyntaxtextarea/theme.dtd".equals(systemId)) {
-	 * return new
-	 * org.xml.sax.InputSource(getClass().getResourceAsStream("/theme.dtd"));
-	 * }
-	 * return null;
-	 * }
-	 * });
-	 * parser.setValidating(true);
-	 * textArea.addParser(parser);
-	 * try {
-	 * textArea.read(new java.io.BufferedReader(new
-	 * java.io.FileReader("C:/temp/test.xml")), null);
-	 * } catch (Exception e) {
-	 * e.printStackTrace();
-	 * }
-	 * frame.setContentPane(new
-	 * org.fife.ui.rtextarea.RTextScrollPane(textArea));
-	 * frame.pack();
+	 * public static void main(String[] args) { javax.swing.JFrame frame = new
+	 * javax.swing.JFrame(); org.fife.ui.rsyntaxtextarea.RSyntaxTextArea textArea =
+	 * new org.fife.ui.rsyntaxtextarea.RSyntaxTextArea(25, 40);
+	 * textArea.setSyntaxEditingStyle("text/xml"); XmlParser parser = new
+	 * XmlParser(new EntityResolver() { public InputSource resolveEntity(String
+	 * publicId, String systemId) throws SAXException, IOException { if
+	 * ("http://fifesoft.com/rsyntaxtextarea/theme.dtd".equals(systemId)) { return
+	 * new org.xml.sax.InputSource(getClass().getResourceAsStream("/theme.dtd")); }
+	 * return null; } }); parser.setValidating(true); textArea.addParser(parser);
+	 * try { textArea.read(new java.io.BufferedReader(new
+	 * java.io.FileReader("C:/temp/test.xml")), null); } catch (Exception e) {
+	 * e.printStackTrace(); } frame.setContentPane(new
+	 * org.fife.ui.rtextarea.RTextScrollPane(textArea)); frame.pack();
 	 * frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-	 * frame.setVisible(true);
-	 * }
+	 * frame.setVisible(true); }
 	 */
 	/**
-	 * Callback notified when errors are found in the XML document. Adds a
-	 * notice to be squiggle-underlined.
+	 * Callback notified when errors are found in the XML document. Adds a notice to
+	 * be squiggle-underlined.
 	 */
 	private final class Handler extends DefaultHandler {
-		
+
 		private Document doc;
-		
+
 		private Handler(Document doc) {
 			this.doc = doc;
 		}
-		
+
 		private void doError(SAXParseException e, ParserNotice.Level level) {
 			int line = e.getLineNumber() - 1;
 			Element root = doc.getDefaultRootElement();
@@ -192,17 +175,17 @@ public class XmlParser extends AbstractParser {
 			pn.setLevel(level);
 			result.addNotice(pn);
 		}
-		
+
 		@Override
 		public void error(SAXParseException e) {
 			doError(e, ParserNotice.Level.ERROR);
 		}
-		
+
 		@Override
 		public void fatalError(SAXParseException e) {
 			doError(e, ParserNotice.Level.ERROR);
 		}
-		
+
 		@Override
 		public InputSource resolveEntity(String publicId, String systemId) throws IOException, SAXException {
 			if (entityResolver != null) {
@@ -210,7 +193,7 @@ public class XmlParser extends AbstractParser {
 			}
 			return super.resolveEntity(publicId, systemId);
 		}
-		
+
 		@Override
 		public void warning(SAXParseException e) {
 			doError(e, ParserNotice.Level.WARNING);

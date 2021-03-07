@@ -106,7 +106,7 @@ public class Disassembler {
 			AtomicInteger lineFound = new AtomicInteger(-1);
 			StringContext ctx = new StringContext(18);
 			ctx.next("// #Annotations:\n");
-			ctx.next(doAnnotations(classNode.visibleAnnotations, hs));
+			ctx.next(doAnnotations(classNode.visibleAnnotations, hs, ""));
 			ctx.next("// #Class v:" + classNode.version + "\n");
 			if (classNode.signature != null)
 				ctx.next("// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, classNode.signature) + "\n");
@@ -165,12 +165,12 @@ public class Disassembler {
 		}
 	}
 
-	private static String doAnnotations(List<AnnotationNode> annotations, HugeStrings hs) {
+	private static String doAnnotations(List<AnnotationNode> annotations, HugeStrings hs, String linePrefix) {
 		if (annotations == null)
 			return "";
 		StringContext ctx = new StringContext(annotations.size());
 		for (AnnotationNode annotationNode : annotations) {
-			String s = "@" + UnicodeUtils.escapeWithSpaces(hs, annotationNode.desc);
+			String s = linePrefix + "@" + UnicodeUtils.escapeWithSpaces(hs, annotationNode.desc);
 			if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
 				s += " (";
 				boolean valBefore = true;
@@ -213,7 +213,7 @@ public class Disassembler {
 								s += ", ";
 							}
 							s = s.substring(0, s.length() - 2);
-							s += " }]";
+							s += " }], ";
 						} else if (o instanceof String) {
 							s += "\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"], ";
 						} else {
@@ -249,66 +249,8 @@ public class Disassembler {
 						String[] dis = disassembleMethod(className, mn, hs);
 						ms += dis[2];
 						ms += dis[1];
-						if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty()) {
-							for (AnnotationNode annotationNode : mn.visibleAnnotations) {
-								ms += "\t@" + annotationNode.desc;
-								if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
-									ms += " (";
-									boolean valBefore = true;
-									for (Object o : annotationNode.values) {
-										if (valBefore) {
-											ms += o + " = [";
-											valBefore = false;
-											continue;
-										} else {
-											if (o instanceof String[]) {
-												String[] arr = (String[]) o;
-												boolean w8ing = false;
-												for (String rofl : arr) {
-													if (!w8ing) {
-														ms += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
-														w8ing = true;
-													} else {
-														ms += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
-													}
-												}
-												ms += ", ";
-											} else if (o instanceof List) {
-												List list = (List) o;
-												ms += "{ ";
-												for (Object obj : list) {
-													if (obj instanceof String[]) {
-														String[] arr = (String[]) obj;
-														boolean w8ing = false;
-														for (String rofl : arr) {
-															if (!w8ing) {
-																ms += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
-																w8ing = true;
-															} else {
-																ms += UnicodeUtils.escapeWithSpaces(hs, rofl);
-															}
-														}
-													} else {
-														ms += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj))
-																+ "\"";
-													}
-													ms += ", ";
-												}
-												ms = ms.substring(0, ms.length() - 2);
-												ms += " }]";
-											} else {
-												ms += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
-											}
-											valBefore = true;
-										}
-									}
-									if (ms.endsWith(", "))
-										ms = ms.substring(0, ms.length() - 2);
-									ms += ")";
-								}
-								ms += "\n";
-							}
-						}
+						if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty())
+							ms += doAnnotations(mn.visibleAnnotations, hs, "\t");
 						if (mn.equals(nodeToFind)) {
 							lineFound.set(ms.split("\\n").length);
 						}
@@ -359,65 +301,8 @@ public class Disassembler {
 			String s = "";
 			if (fn.signature != null)
 				s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, fn.signature) + "\n";
-			if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty()) {
-				for (AnnotationNode annotationNode : fn.visibleAnnotations) {
-					s += "\t@" + UnicodeUtils.escapeWithSpaces(hs, annotationNode.desc);
-					if (annotationNode.values != null && !annotationNode.values.isEmpty()) {
-						s += " (";
-						boolean valBefore = true;
-						for (Object o : annotationNode.values) {
-							if (valBefore) {
-								s += o + " = [";
-								valBefore = false;
-								continue;
-							} else {
-								if (o instanceof String[]) {
-									String[] arr = (String[]) o;
-									boolean w8ing = false;
-									for (String rofl : arr) {
-										if (!w8ing) {
-											s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
-											w8ing = true;
-										} else {
-											s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
-										}
-									}
-									s += ", ";
-								} else if (o instanceof List) {
-									List list = (List) o;
-									s += "{ ";
-									for (Object obj : list) {
-										if (obj instanceof String[]) {
-											String[] arr = (String[]) obj;
-											boolean w8ing = false;
-											for (String rofl : arr) {
-												if (!w8ing) {
-													s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
-													w8ing = true;
-												} else {
-													s += UnicodeUtils.escapeWithSpaces(hs, rofl);
-												}
-											}
-										} else {
-											s += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj)) + "\"";
-										}
-										s += ", ";
-									}
-									s = s.substring(0, s.length() - 2);
-									s += " }]";
-								} else {
-									s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
-								}
-								valBefore = true;
-							}
-						}
-						if (s.endsWith(", "))
-							s = s.substring(0, s.length() - 2);
-						s += ")";
-					}
-					s += "\n";
-				}
-			}
+			if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty())
+				s += doAnnotations(fn.visibleAnnotations, hs, "\t");
 			if (fn.equals(nodeToFind)) {
 				lineFound.set(s.split("\\n").length);
 			}

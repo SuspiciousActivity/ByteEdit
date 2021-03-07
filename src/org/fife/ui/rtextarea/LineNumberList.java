@@ -41,7 +41,7 @@ import org.fife.ui.rsyntaxtextarea.folding.FoldManager;
  * @version 1.0
  */
 public class LineNumberList extends AbstractGutterComponent implements MouseInputListener {
-	
+
 	private int currentLine; // The last line the caret was on.
 	private int lastY = -1; // Used to check if caret changes lines when line
 							// wrap is enabled.
@@ -57,43 +57,39 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 	 */
 	private Listener l;
 	/**
-	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on
-	 * each paint.
+	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on each
+	 * paint.
 	 */
 	private Insets textAreaInsets;
 	/**
-	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on
-	 * each paint.
+	 * Used in {@link #paintComponent(Graphics)} to prevent reallocation on each
+	 * paint.
 	 */
 	private Rectangle visibleRect;
 	/**
 	 * The index at which line numbering should start. The default value is
-	 * <code>1</code>, but applications can change this if, for example, they
-	 * are displaying a subset of lines in a file.
+	 * <code>1</code>, but applications can change this if, for example, they are
+	 * displaying a subset of lines in a file.
 	 */
 	private int lineNumberingStartIndex;
-	
+
 	/**
-	 * Constructs a new <code>LineNumberList</code> using default values for
-	 * line number color (gray) and highlighting the current line.
+	 * Constructs a new <code>LineNumberList</code> using default values for line
+	 * number color (gray) and highlighting the current line.
 	 *
-	 * @param textArea
-	 *            The text component for which line numbers will be
-	 *            displayed.
+	 * @param textArea The text component for which line numbers will be displayed.
 	 */
 	public LineNumberList(RTextArea textArea) {
 		this(textArea, null);
 	}
-	
+
 	/**
 	 * Constructs a new <code>LineNumberList</code>.
 	 *
-	 * @param textArea
-	 *            The text component for which line numbers will be
-	 *            displayed.
-	 * @param numberColor
-	 *            The color to use for the line numbers. If this is
-	 *            <code>null</code>, gray will be used.
+	 * @param textArea    The text component for which line numbers will be
+	 *                    displayed.
+	 * @param numberColor The color to use for the line numbers. If this is
+	 *                    <code>null</code>, gray will be used.
 	 */
 	public LineNumberList(RTextArea textArea, Color numberColor) {
 		super(textArea);
@@ -103,11 +99,11 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			setForeground(Color.GRAY);
 		}
 	}
-	
+
 	/**
 	 * Overridden to set width of this component correctly when we are first
-	 * displayed (as keying off of the RTextArea gives us (0,0) when it isn't
-	 * yet displayed.
+	 * displayed (as keying off of the RTextArea gives us (0,0) when it isn't yet
+	 * displayed.
 	 */
 	@Override
 	public void addNotify() {
@@ -118,7 +114,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		updateCellWidths();
 		updateCellHeights();
 	}
-	
+
 	/**
 	 * Calculates the last line number index painted in this component.
 	 *
@@ -131,10 +127,9 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		}
 		return lastLine;
 	}
-	
+
 	/**
-	 * Returns the starting line's line number. The default value is
-	 * <code>1</code>.
+	 * Returns the starting line's line number. The default value is <code>1</code>.
 	 *
 	 * @return The index
 	 * @see #setLineNumberingStartIndex(int)
@@ -142,7 +137,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 	public int getLineNumberingStartIndex() {
 		return lineNumberingStartIndex;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -151,10 +146,10 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		int h = textArea != null ? textArea.getHeight() : 100; // Arbitrary
 		return new Dimension(cellWidth, h);
 	}
-	
+
 	/**
-	 * Returns the width of the empty border on this component's right-hand
-	 * side (or left-hand side, if the orientation is RTL).
+	 * Returns the width of the empty border on this component's right-hand side (or
+	 * left-hand side, if the orientation is RTL).
 	 *
 	 * @return The border width.
 	 */
@@ -167,7 +162,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		}
 		return w;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -184,7 +179,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			repaint();
 		}
 	}
-	
+
 	@Override
 	protected void init() {
 		super.init();
@@ -197,7 +192,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		addMouseMotionListener(this);
 		aaHints = RSyntaxUtilities.getDesktopAntiAliasHints();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -205,10 +200,11 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 	void lineHeightsChanged() {
 		updateCellHeights();
 	}
-	
+
 	@Override
-	public void mouseClicked(MouseEvent e) {}
-	
+	public void mouseClicked(MouseEvent e) {
+	}
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (mouseDragStartOffset > -1) {
@@ -219,16 +215,19 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			}
 		}
 	}
-	
+
 	@Override
-	public void mouseEntered(MouseEvent e) {}
-	
+	public void mouseEntered(MouseEvent e) {
+	}
+
 	@Override
-	public void mouseExited(MouseEvent e) {}
-	
+	public void mouseExited(MouseEvent e) {
+	}
+
 	@Override
-	public void mouseMoved(MouseEvent e) {}
-	
+	public void mouseMoved(MouseEvent e) {
+	}
+
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if (textArea == null) {
@@ -244,15 +243,15 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			mouseDragStartOffset = -1;
 		}
 	}
-	
+
 	@Override
-	public void mouseReleased(MouseEvent e) {}
-	
+	public void mouseReleased(MouseEvent e) {
+	}
+
 	/**
 	 * Paints this component.
 	 *
-	 * @param g
-	 *            The graphics context.
+	 * @param g The graphics context.
 	 */
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -301,13 +300,12 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		}
 		final int rhsBorderWidth = getRhsBorderWidth();
 		/*
-		 * // Highlight the current line's line number, if desired.
-		 * if (textArea.getHighlightCurrentLine() && currentLine>=topLine &&
+		 * // Highlight the current line's line number, if desired. if
+		 * (textArea.getHighlightCurrentLine() && currentLine>=topLine &&
 		 * currentLine<=bottomLine) {
 		 * g.setColor(textArea.getCurrentLineHighlightColor());
 		 * g.fillRect(0,actualTopY+(currentLine-topLine)*cellHeight,
-		 * cellWidth,cellHeight);
-		 * }
+		 * cellWidth,cellHeight); }
 		 */
 		// Paint line numbers
 		g.setColor(getForeground());
@@ -360,14 +358,12 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			}
 		}
 	}
-	
+
 	/**
 	 * Paints line numbers for text areas with line wrap enabled.
 	 *
-	 * @param g
-	 *            The graphics context.
-	 * @param visibleRect
-	 *            The visible rectangle of these line numbers.
+	 * @param g           The graphics context.
+	 * @param visibleRect The visible rectangle of these line numbers.
 	 */
 	private void paintWrappedLineNumbers(Graphics g, Rectangle visibleRect) {
 		// The variables we use are as follows:
@@ -433,12 +429,10 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		while (y < visibleBottom) {
 			r = LineNumberList.getChildViewBounds(v, topLine, visibleEditorRect);
 			/*
-			 * // Highlight the current line's line number, if desired.
-			 * if (currentLineHighlighted && topLine==currentLine) {
-			 * g.setColor(textArea.getCurrentLineHighlightColor());
-			 * g.fillRect(0,y, width,(r.y+r.height)-y);
-			 * g.setColor(getForeground());
-			 * }
+			 * // Highlight the current line's line number, if desired. if
+			 * (currentLineHighlighted && topLine==currentLine) {
+			 * g.setColor(textArea.getCurrentLineHighlightColor()); g.fillRect(0,y,
+			 * width,(r.y+r.height)-y); g.setColor(getForeground()); }
 			 */
 			// Paint the line number.
 			int index = (topLine + 1) + getLineNumberingStartIndex() - 1;
@@ -467,7 +461,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			}
 		}
 	}
-	
+
 	/**
 	 * Called when this component is removed from the view hierarchy.
 	 */
@@ -478,25 +472,23 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			l.uninstall(textArea);
 		}
 	}
-	
+
 	/**
 	 * Repaints a single line in this list.
 	 *
-	 * @param line
-	 *            The line to repaint.
+	 * @param line The line to repaint.
 	 */
 	private void repaintLine(int line) {
 		int y = textArea.getInsets().top;
 		y += line * cellHeight;
 		repaint(0, y, cellWidth, cellHeight);
 	}
-	
+
 	/**
-	 * Overridden to ensure line number cell sizes are updated with the
-	 * font size change.
+	 * Overridden to ensure line number cell sizes are updated with the font size
+	 * change.
 	 *
-	 * @param font
-	 *            The new font to use for line numbers.
+	 * @param font The new font to use for line numbers.
 	 */
 	@Override
 	public void setFont(Font font) {
@@ -504,14 +496,13 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		updateCellWidths();
 		updateCellHeights();
 	}
-	
+
 	/**
-	 * Sets the starting line's line number. The default value is
-	 * <code>1</code>. Applications can call this method to change this value
-	 * if they are displaying a subset of lines in a file, for example.
+	 * Sets the starting line's line number. The default value is <code>1</code>.
+	 * Applications can call this method to change this value if they are displaying
+	 * a subset of lines in a file, for example.
 	 *
-	 * @param index
-	 *            The new index.
+	 * @param index The new index.
 	 * @see #getLineNumberingStartIndex()
 	 */
 	public void setLineNumberingStartIndex(int index) {
@@ -521,12 +512,11 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			repaint();
 		}
 	}
-	
+
 	/**
 	 * Sets the text area being displayed.
 	 *
-	 * @param textArea
-	 *            The text area.
+	 * @param textArea The text area.
 	 */
 	@Override
 	public void setTextArea(RTextArea textArea) {
@@ -544,11 +534,11 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			updateCellWidths();
 		}
 	}
-	
+
 	/**
 	 * Changes the height of the cells in the JList so that they are as tall as
-	 * font. This function should be called whenever the user changes the Font
-	 * of <code>textArea</code>.
+	 * font. This function should be called whenever the user changes the Font of
+	 * <code>textArea</code>.
 	 */
 	private void updateCellHeights() {
 		if (textArea != null) {
@@ -560,10 +550,10 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 		}
 		repaint();
 	}
-	
+
 	/**
-	 * Changes the width of the cells in the JList so you can see every digit
-	 * of each.
+	 * Changes the width of the cells in the JList so you can see every digit of
+	 * each.
 	 */
 	void updateCellWidths() {
 		int oldCellWidth = cellWidth;
@@ -586,14 +576,14 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 			revalidate();
 		}
 	}
-	
+
 	/**
 	 * Listens for events in the text area we're interested in.
 	 */
 	private class Listener implements CaretListener, PropertyChangeListener {
-		
+
 		private boolean installed;
-		
+
 		@Override
 		public void caretUpdate(CaretEvent e) {
 			int dot = textArea.getCaretPosition();
@@ -624,7 +614,7 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 				}
 			}
 		}
-		
+
 		public void install(RTextArea textArea) {
 			if (!installed) {
 				// System.out.println("Installing");
@@ -634,16 +624,17 @@ public class LineNumberList extends AbstractGutterComponent implements MouseInpu
 				installed = true;
 			}
 		}
-		
+
 		@Override
 		public void propertyChange(PropertyChangeEvent e) {
 			String name = e.getPropertyName();
 			// If they change the current line highlight in any way...
-			if (RTextArea.HIGHLIGHT_CURRENT_LINE_PROPERTY.equals(name) || RTextArea.CURRENT_LINE_HIGHLIGHT_COLOR_PROPERTY.equals(name)) {
+			if (RTextArea.HIGHLIGHT_CURRENT_LINE_PROPERTY.equals(name)
+					|| RTextArea.CURRENT_LINE_HIGHLIGHT_COLOR_PROPERTY.equals(name)) {
 				repaintLine(currentLine);
 			}
 		}
-		
+
 		public void uninstall(RTextArea textArea) {
 			if (installed) {
 				// System.out.println("Uninstalling");

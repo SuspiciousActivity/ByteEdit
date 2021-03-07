@@ -13,30 +13,27 @@ package org.fife.ui.rsyntaxtextarea;
  * @version 1.0
  */
 public class DocumentRange implements Comparable<DocumentRange> {
-	
+
 	private int startOffs;
 	private int endOffs;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param startOffs
-	 *            The starting offset in the document, inclusive.
-	 * @param endOffs
-	 *            The ending offset in the document, exclusive.
-	 * @throws IllegalArgumentException
-	 *             If <code>endOffs</code> is less than
-	 *             <code>startOffs</code>, or either argument is less than zero.
+	 * @param startOffs The starting offset in the document, inclusive.
+	 * @param endOffs   The ending offset in the document, exclusive.
+	 * @throws IllegalArgumentException If <code>endOffs</code> is less than
+	 *                                  <code>startOffs</code>, or either argument
+	 *                                  is less than zero.
 	 */
 	public DocumentRange(int startOffs, int endOffs) {
 		set(startOffs, endOffs);
 	}
-	
+
 	/**
 	 * Compares this document range to another.
 	 *
-	 * @param other
-	 *            Another document range.
+	 * @param other Another document range.
 	 * @return How the two should be sorted relative to each other.
 	 */
 	@Override
@@ -50,14 +47,13 @@ public class DocumentRange implements Comparable<DocumentRange> {
 		}
 		return endOffs - other.endOffs;
 	}
-	
+
 	/**
 	 * Returns whether this document range is equal to another one.
 	 *
-	 * @param other
-	 *            Another object, presumably a document range.
-	 * @return Whether <code>other</code> is also a document range, and equal
-	 *         to this one.
+	 * @param other Another object, presumably a document range.
+	 * @return Whether <code>other</code> is also a document range, and equal to
+	 *         this one.
 	 */
 	@Override
 	public boolean equals(Object other) {
@@ -69,7 +65,7 @@ public class DocumentRange implements Comparable<DocumentRange> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Gets the end offset of the range.
 	 *
@@ -79,7 +75,7 @@ public class DocumentRange implements Comparable<DocumentRange> {
 	public int getEndOffset() {
 		return endOffs;
 	}
-	
+
 	/**
 	 * Gets the starting offset of the range.
 	 *
@@ -89,7 +85,7 @@ public class DocumentRange implements Comparable<DocumentRange> {
 	public int getStartOffset() {
 		return startOffs;
 	}
-	
+
 	/**
 	 * Overridden simply as a best practice, since {@link #equals(Object)} is
 	 * overridden.
@@ -100,29 +96,26 @@ public class DocumentRange implements Comparable<DocumentRange> {
 	public int hashCode() {
 		return startOffs + endOffs;
 	}
-	
+
 	/**
-	 * Returns whether this document range has zero length. This can happen,
-	 * for example, with regex searches of forms like
-	 * <code>"foo|"</code>, where the right-hand sub-expression matches empty
-	 * strings.
+	 * Returns whether this document range has zero length. This can happen, for
+	 * example, with regex searches of forms like <code>"foo|"</code>, where the
+	 * right-hand sub-expression matches empty strings.
 	 *
 	 * @return Whether this document range has zero length.
 	 */
 	public boolean isZeroLength() {
 		return startOffs == endOffs;
 	}
-	
+
 	/**
 	 * Sets the document range.
 	 *
-	 * @param start
-	 *            The new start value, inclusive.
-	 * @param end
-	 *            The new end value, exclusive.
-	 * @throws IllegalArgumentException
-	 *             If <code>end</code> is less than
-	 *             <code>start</code>, or either argument is less than zero.
+	 * @param start The new start value, inclusive.
+	 * @param end   The new end value, exclusive.
+	 * @throws IllegalArgumentException If <code>end</code> is less than
+	 *                                  <code>start</code>, or either argument is
+	 *                                  less than zero.
 	 */
 	public void set(int start, int end) {
 		if (start < 0 || end < 0) {
@@ -134,7 +127,7 @@ public class DocumentRange implements Comparable<DocumentRange> {
 		this.startOffs = start;
 		this.endOffs = end;
 	}
-	
+
 	/**
 	 * Returns a string representation of this object.
 	 *
@@ -144,12 +137,11 @@ public class DocumentRange implements Comparable<DocumentRange> {
 	public String toString() {
 		return "[DocumentRange: " + startOffs + "-" + endOffs + "]";
 	}
-	
+
 	/**
 	 * Translates this document range by a given amount.
 	 *
-	 * @param amount
-	 *            The amount to translate this range by.
+	 * @param amount The amount to translate this range by.
 	 * @return This (modified) range.
 	 */
 	public DocumentRange translate(int amount) {

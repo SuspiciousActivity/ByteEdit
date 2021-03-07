@@ -13,26 +13,22 @@ package org.fife.ui.rtextarea;
  * @version 1.0
  */
 class RegExReplaceInfo {
-	
+
 	private String matchedText;
 	private int startIndex;
 	private int endIndex;
 	private String replacement;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param matchedText
-	 *            The text that matched the regular expression.
-	 * @param start
-	 *            The start index of the matched text in the
-	 *            <code>CharSequence</code> searched.
-	 * @param end
-	 *            The end index of the matched text in the
-	 *            <code>CharSequence</code> searched.
-	 * @param replacement
-	 *            The text to replace the matched text with. This
-	 *            string has any matched groups and character escapes replaced.
+	 * @param matchedText The text that matched the regular expression.
+	 * @param start       The start index of the matched text in the
+	 *                    <code>CharSequence</code> searched.
+	 * @param end         The end index of the matched text in the
+	 *                    <code>CharSequence</code> searched.
+	 * @param replacement The text to replace the matched text with. This string has
+	 *                    any matched groups and character escapes replaced.
 	 */
 	RegExReplaceInfo(String matchedText, int start, int end, String replacement) {
 		this.matchedText = matchedText;
@@ -40,7 +36,7 @@ class RegExReplaceInfo {
 		this.endIndex = end;
 		this.replacement = replacement;
 	}
-	
+
 	/**
 	 * Returns the end index of the matched text.
 	 *
@@ -51,7 +47,7 @@ class RegExReplaceInfo {
 	public int getEndIndex() {
 		return endIndex;
 	}
-	
+
 	/**
 	 * Returns the text that matched the regular expression.
 	 *
@@ -60,7 +56,7 @@ class RegExReplaceInfo {
 	public String getMatchedText() {
 		return matchedText;
 	}
-	
+
 	/**
 	 * Returns the string to replaced the matched text with.
 	 *
@@ -69,7 +65,7 @@ class RegExReplaceInfo {
 	public String getReplacement() {
 		return replacement;
 	}
-	
+
 	/**
 	 * Returns the start index of the matched text.
 	 *

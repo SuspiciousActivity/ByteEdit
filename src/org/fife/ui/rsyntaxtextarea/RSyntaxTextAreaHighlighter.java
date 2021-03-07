@@ -27,8 +27,8 @@ import org.fife.ui.rtextarea.SmartHighlightPainter;
 
 /**
  * The highlighter implementation used by {@link RSyntaxTextArea}s. It knows to
- * always paint "marked occurrences" highlights below selection highlights,
- * and squiggle underline highlights above all other highlights.
+ * always paint "marked occurrences" highlights below selection highlights, and
+ * squiggle underline highlights above all other highlights.
  * <p>
  *
  * Most of this code is copied from javax.swing.text.DefaultHighlighter;
@@ -38,22 +38,22 @@ import org.fife.ui.rtextarea.SmartHighlightPainter;
  * @version 1.0
  */
 public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
-	
+
 	/**
-	 * Marked occurrences in the document (to be painted separately from
-	 * other highlights).
+	 * Marked occurrences in the document (to be painted separately from other
+	 * highlights).
 	 */
 	private List<SyntaxLayeredHighlightInfoImpl> markedOccurrences;
 	/**
-	 * Highlights from document parsers. These should be painted "on top of"
-	 * all other highlights to ensure they are always above the selection.
+	 * Highlights from document parsers. These should be painted "on top of" all
+	 * other highlights to ensure they are always above the selection.
 	 */
 	private List<SyntaxLayeredHighlightInfoImpl> parserHighlights;
 	/**
 	 * The default color used for parser notices when none is specified.
 	 */
 	private static final Color DEFAULT_PARSER_NOTICE_COLOR = Color.RED;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -62,7 +62,7 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		parserHighlights = new ArrayList<SyntaxLayeredHighlightInfoImpl>(0); // Often
 																				// unused
 	}
-	
+
 	/**
 	 * Adds a special "marked occurrence" highlight.
 	 *
@@ -88,12 +88,11 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		mapper.damageRange(textArea, start, end);
 		return i;
 	}
-	
+
 	/**
 	 * Adds a highlight from a parser.
 	 *
-	 * @param notice
-	 *            The notice from a {@link Parser}.
+	 * @param notice The notice from a {@link Parser}.
 	 * @return A tag with which to reference the highlight.
 	 * @throws BadLocationException
 	 * @see #clearParserHighlights()
@@ -128,7 +127,7 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		mapper.damageRange(textArea, start, end);
 		return i;
 	}
-	
+
 	/**
 	 * Removes all "marked occurrences" highlights from the view.
 	 *
@@ -142,7 +141,7 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		}
 		markedOccurrences.clear();
 	}
-	
+
 	/**
 	 * Removes all parser highlights.
 	 *
@@ -157,12 +156,11 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		}
 		parserHighlights.clear();
 	}
-	
+
 	/**
 	 * Removes all of the highlights for a specific parser.
 	 *
-	 * @param parser
-	 *            The parser.
+	 * @param parser The parser.
 	 */
 	public void clearParserHighlights(Parser parser) {
 		Iterator<SyntaxLayeredHighlightInfoImpl> i = parserHighlights.iterator();
@@ -176,7 +174,7 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -186,10 +184,10 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		markedOccurrences.clear();
 		parserHighlights.clear();
 	}
-	
+
 	/**
-	 * Returns a list of "marked occurrences" in the text area. If there are
-	 * no marked occurrences, this will be an empty list.
+	 * Returns a list of "marked occurrences" in the text area. If there are no
+	 * marked occurrences, this will be an empty list.
 	 *
 	 * @return The list of marked occurrences, or an empty list if none. The
 	 *         contents of this list will be of type {@link DocumentRange}.
@@ -210,19 +208,19 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		}
 		return list;
 	}
-	
+
 	@Override
-	public void paintLayeredHighlights(Graphics g, int lineStart, int lineEnd, Shape viewBounds, JTextComponent editor, View view) {
+	public void paintLayeredHighlights(Graphics g, int lineStart, int lineEnd, Shape viewBounds, JTextComponent editor,
+			View view) {
 		paintListLayered(g, lineStart, lineEnd, viewBounds, editor, view, markedOccurrences);
 		super.paintLayeredHighlights(g, lineStart, lineEnd, viewBounds, editor, view);
 		paintListLayered(g, lineStart, lineEnd, viewBounds, editor, view, parserHighlights);
 	}
-	
+
 	/**
 	 * Removes a parser highlight from this view.
 	 *
-	 * @param tag
-	 *            The reference to the highlight.
+	 * @param tag The reference to the highlight.
 	 * @see #addParserHighlight(ParserNotice,
 	 *      javax.swing.text.Highlighter.HighlightPainter)
 	 */
@@ -230,16 +228,15 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 		repaintListHighlight(tag);
 		parserHighlights.remove(tag);
 	}
-	
+
 	/**
-	 * Highlight info implementation used for parser notices and marked
-	 * occurrences.
+	 * Highlight info implementation used for parser notices and marked occurrences.
 	 */
 	private static class SyntaxLayeredHighlightInfoImpl extends LayeredHighlightInfoImpl {
-		
+
 		private ParserNotice notice;// Color color; // Used only by Parser
 									// highlights.
-		
+
 		@Override
 		public Color getColor() {
 			// return color;
@@ -252,11 +249,11 @@ public class RSyntaxTextAreaHighlighter extends RTextAreaHighlighter {
 			}
 			return color;
 		}
-		
+
 		@Override
 		public String toString() {
-			return "[SyntaxLayeredHighlightInfoImpl: " + "startOffs=" + getStartOffset() + ", endOffs=" + getEndOffset() + ", color="
-					+ getColor() + "]";
+			return "[SyntaxLayeredHighlightInfoImpl: " + "startOffs=" + getStartOffset() + ", endOffs=" + getEndOffset()
+					+ ", color=" + getColor() + "]";
 		}
 	}
 }

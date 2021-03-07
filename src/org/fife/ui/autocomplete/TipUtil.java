@@ -22,17 +22,18 @@ import javax.swing.text.html.HTMLDocument;
  * Static utility methods for homemade tool tips.
  * <p>
  *
- * This is blatantly ripped off from RSyntaxTextArea's "FocusableTips" class
- * of the same name, but isn't re-used to prevent a hard dependency on the
- * RSTA library.
+ * This is blatantly ripped off from RSyntaxTextArea's "FocusableTips" class of
+ * the same name, but isn't re-used to prevent a hard dependency on the RSTA
+ * library.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 class TipUtil {
-	
-	private TipUtil() {}
-	
+
+	private TipUtil() {
+	}
+
 	/**
 	 * Returns the default background color to use for tool tip windows.
 	 *
@@ -55,7 +56,7 @@ class TipUtil {
 		}
 		return c;
 	}
-	
+
 	/**
 	 * Returns the border used by tool tips in this look and feel.
 	 *
@@ -71,21 +72,20 @@ class TipUtil {
 		}
 		return border;
 	}
-	
+
 	/**
-	 * Returns whether a color is a Nimbus DerivedColor, which is troublesome
-	 * in that it doesn't use its RGB values (uses HSB instead?) and so
-	 * querying them is useless.
+	 * Returns whether a color is a Nimbus DerivedColor, which is troublesome in
+	 * that it doesn't use its RGB values (uses HSB instead?) and so querying them
+	 * is useless.
 	 *
-	 * @param c
-	 *            The color to check.
+	 * @param c The color to check.
 	 * @return Whether it is a DerivedColor
 	 */
 	private static final boolean isDerivedColor(Color c) {
-		return c != null
-				&& (c.getClass().getName().endsWith(".DerivedColor") || c.getClass().getName().endsWith(".DerivedColor$UIResource"));
+		return c != null && (c.getClass().getName().endsWith(".DerivedColor")
+				|| c.getClass().getName().endsWith(".DerivedColor$UIResource"));
 	}
-	
+
 	/**
 	 * Returns whether the Nimbus Look and Feel is installed.
 	 *
@@ -94,14 +94,13 @@ class TipUtil {
 	private static final boolean isNimbusLookAndFeel() {
 		return UIManager.getLookAndFeel().getName().equals("Nimbus");
 	}
-	
+
 	/**
-	 * Tweaks a <code>JEditorPane</code> so it can be used to render the
-	 * content in a focusable pseudo-tool tip. It is assumed that the editor
-	 * pane is using an <code>HTMLDocument</code>.
+	 * Tweaks a <code>JEditorPane</code> so it can be used to render the content in
+	 * a focusable pseudo-tool tip. It is assumed that the editor pane is using an
+	 * <code>HTMLDocument</code>.
 	 *
-	 * @param textArea
-	 *            The editor pane to tweak.
+	 * @param textArea The editor pane to tweak.
 	 */
 	public static void tweakTipEditorPane(JEditorPane textArea) {
 		// Jump through a few hoops to get things looking nice in Nimbus
@@ -134,8 +133,8 @@ class TipUtil {
 			font = new Font("SansSerif", Font.PLAIN, 12);
 		}
 		HTMLDocument doc = (HTMLDocument) textArea.getDocument();
-		doc.getStyleSheet().addRule("body { font-family: " + font.getFamily() + "; font-size: " + font.getSize() + "pt" + "; color: "
-				+ Util.getHexString(fg) + "; }");
+		doc.getStyleSheet().addRule("body { font-family: " + font.getFamily() + "; font-size: " + font.getSize() + "pt"
+				+ "; color: " + Util.getHexString(fg) + "; }");
 		// Always add link foreground rule. Unfortunately these CSS rules
 		// stack each time the LaF is changed (how can we overwrite them
 		// without clearing out the important "standard" ones?).

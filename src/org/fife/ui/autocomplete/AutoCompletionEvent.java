@@ -8,34 +8,31 @@ package org.fife.ui.autocomplete;
 import java.util.EventObject;
 
 /**
- * An event fired by an instance of {@link AutoCompletion}. This can be
- * used by applications that wish to be notified of the auto-complete popup
- * window showing and hiding.
+ * An event fired by an instance of {@link AutoCompletion}. This can be used by
+ * applications that wish to be notified of the auto-complete popup window
+ * showing and hiding.
  *
  * @author Robert Futrell
  * @version 1.0
  */
 public class AutoCompletionEvent extends EventObject {
-	
+
 	/**
 	 * The type of this event.
 	 */
 	private Type type;
-	
+
 	/**
 	 * Constructor.
 	 *
-	 * @param source
-	 *            The <code>AutoCompletion</code> instance that fired
-	 *            this event.
-	 * @param type
-	 *            The event type.
+	 * @param source The <code>AutoCompletion</code> instance that fired this event.
+	 * @param type   The event type.
 	 */
 	public AutoCompletionEvent(AutoCompletion source, Type type) {
 		super(source);
 		this.type = type;
 	}
-	
+
 	/**
 	 * Returns the source <code>AutoCompletion</code> instance. This is just
 	 * shorthand for <code>return (AutoCompletion)getSource();</code>.
@@ -45,7 +42,7 @@ public class AutoCompletionEvent extends EventObject {
 	public AutoCompletion getAutoCompletion() {
 		return (AutoCompletion) getSource();
 	}
-	
+
 	/**
 	 * Returns the type of this event.
 	 *
@@ -54,7 +51,7 @@ public class AutoCompletionEvent extends EventObject {
 	public Type getEventType() {
 		return type;
 	}
-	
+
 	/**
 	 * Enumeration of the various types of this event.
 	 */
