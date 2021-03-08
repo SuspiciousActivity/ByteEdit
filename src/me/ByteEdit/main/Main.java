@@ -1000,7 +1000,6 @@ public class Main extends JFrame {
 				int dialogResult = JOptionPane.showConfirmDialog(null, "This file already exists! Overwrite it?",
 						"Warning", JOptionPane.YES_NO_OPTION);
 				if (dialogResult == JOptionPane.YES_OPTION) {
-					save(file, classNodes.values());
 					shouldSave = true;
 				}
 			} else {

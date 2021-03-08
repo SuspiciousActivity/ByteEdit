@@ -111,7 +111,7 @@ public interface SyntaxConstants {
 	 */
 	String SYNTAX_STYLE_JAVA = "text/java";
 	/**
-	 * Style for highlighting Java.
+	 * Style for highlighting Java Disassembly.
 	 */
 	String SYNTAX_STYLE_JAVA_DISASSEMBLE = "text/javaassembly";
 	/**
