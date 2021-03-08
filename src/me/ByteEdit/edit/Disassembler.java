@@ -29,10 +29,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import com.strobel.decompiler.Decompiler;
+import me.ByteEdit.decompiler.CFRDecompiler;
+import me.ByteEdit.decompiler.FernflowerDecompiler;
+import me.ByteEdit.decompiler.JDDecompiler;
+import me.ByteEdit.decompiler.ProcyonDecompiler;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -98,10 +100,34 @@ public class Disassembler {
 	}
 
 	public static DisassembleTuple disassemble(ClassNode classNode, Object nodeToFind) {
+
 		if (classNode == null) {
 			return new DisassembleTuple("ClassNode is null! This is not a valid java class file!");
 		}
+
+
+
+
 		try {
+			System.out.println(Main.decompiler);
+			ClassWriter classWriter = new ClassWriter(0);
+			switch (Main.decompiler){
+				case PROCYON:
+					classNode.accept(classWriter);
+					return new DisassembleTuple(ProcyonDecompiler.decompile(classNode, classWriter.toByteArray(), null));
+				case FERNFLOWER:
+					classNode.accept(classWriter);
+					return new DisassembleTuple(new FernflowerDecompiler().decompile(classNode, classWriter.toByteArray(), null));
+				case JD_GUI:
+					classNode.accept(classWriter);
+					return new DisassembleTuple(new JDDecompiler().decompile(classNode));
+				case CFR:
+					classNode.accept(classWriter);
+					return new DisassembleTuple(CFRDecompiler.decompile(classNode, classWriter.toByteArray(), null));
+				default:
+					break;
+			}
+
 			HugeStrings hs = new HugeStrings();
 			AtomicInteger lineFound = new AtomicInteger(-1);
 			StringContext ctx = new StringContext(18);

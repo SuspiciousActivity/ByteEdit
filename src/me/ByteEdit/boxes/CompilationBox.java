@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -26,6 +27,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
+import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -105,37 +107,48 @@ public class CompilationBox extends JFrame {
 							null, Arrays.asList(new JavaSourceFromString("Compiled", source))).call();
 					String res = out.toString();
 					if (res.isEmpty()) {
-						File clazz = new File(tmpFolder, "Compiled.class");
-						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						InputStream is = new FileInputStream(clazz);
-						byte[] tmp = new byte[1024];
-						int r;
-						while ((r = is.read(tmp)) > 0) {
-							baos.write(tmp, 0, r);
-						}
-						is.close();
-						ClassReader read = new ClassReader(baos.toByteArray());
-						ClassNode node = new ClassNode();
-						read.accept(node, 0);
-						String dis = Disassembler.disassemble(node);
-						File[] files = tmpFolder.listFiles();
-						if (files != null)
-							for (File f : files) {
-								if (f.getName().equals("Compiled.class"))
-									continue;
-								baos = new ByteArrayOutputStream();
-								is = new FileInputStream(f);
+
+
+						SingleThreadedExecutor.execute( () -> {
+							try {
+								File clazz = new File(tmpFolder, "Compiled.class");
+								ByteArrayOutputStream baos = new ByteArrayOutputStream();
+								InputStream is = new FileInputStream(clazz);
+								byte[] tmp = new byte[1024];
+								int r;
 								while ((r = is.read(tmp)) > 0) {
 									baos.write(tmp, 0, r);
 								}
 								is.close();
-								read = new ClassReader(baos.toByteArray());
-								node = new ClassNode();
+
+
+								ClassReader read = new ClassReader(baos.toByteArray());
+								ClassNode node = new ClassNode();
 								read.accept(node, 0);
-								dis += "\n" + Disassembler.disassemble(node);
+								String dis = Disassembler.disassemble(node);
+								File[] files = tmpFolder.listFiles();
+								if (files != null)
+									for (File f : files) {
+										if (f.getName().equals("Compiled.class"))
+											continue;
+										baos = new ByteArrayOutputStream();
+										is = new FileInputStream(f);
+										while ((r = is.read(tmp)) > 0) {
+											baos.write(tmp, 0, r);
+										}
+										is.close();
+										read = new ClassReader(baos.toByteArray());
+										node = new ClassNode();
+										read.accept(node, 0);
+										dis += "\n" + Disassembler.disassemble(node);
+									}
+								compSuccess.textArea.setText(dis);
+								compSuccess.setVisible(true);
+							}catch (IOException e2){
+								e2.printStackTrace();
 							}
-						compSuccess.textArea.setText(dis);
-						compSuccess.setVisible(true);
+						});
+
 					} else {
 						JOptionPane.showMessageDialog(CompilationBox.this, res, "Error!", JOptionPane.ERROR_MESSAGE);
 					}

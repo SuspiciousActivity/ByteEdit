@@ -1,11 +1,6 @@
 package me.ByteEdit.main;
 
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
@@ -13,11 +8,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,14 +16,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,22 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTree;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -69,6 +44,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import me.ByteEdit.decompiler.EnumDecompiler;
+import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -103,6 +80,8 @@ import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
 
 public class Main extends JFrame {
+
+
 
 	public static Main INSTANCE;
 	private JPanel contentPane;
@@ -526,7 +505,8 @@ public class Main extends JFrame {
 			public void valueChanged(TreeSelectionEvent e) {
 				synchronized (treeLock) {
 					if (!isChangingFile) {
-						selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path);
+
+						SingleThreadedExecutor.execute( () -> selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path));
 					}
 				}
 			}
@@ -700,25 +680,30 @@ public class Main extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && currentNodeName != null) { // F5
-					try {
-						ClassNode classNode = classNodes.get(currentNodeName);
-						int prev = txtByteEditView.getCaretPosition();
-						String dis = Disassembler.disassemble(classNode);
-						String substr = currentNodeName.substring(0, currentNodeName.length() - 6);
-						for (String key : Main.classNodes.keySet()) {
-							if (key.contains("$")) {
-								String[] split = key.split("\\$");
-								if (split[0].equals(substr)) {
-									dis += "\n" + Disassembler.disassemble(classNodes.get(key));
+
+					SingleThreadedExecutor.execute( () -> {
+						try {
+							ClassNode classNode = classNodes.get(currentNodeName);
+							int prev = txtByteEditView.getCaretPosition();
+							String dis = Disassembler.disassemble(classNode);
+							String substr = currentNodeName.substring(0, currentNodeName.length() - 6);
+							synchronized (Main.classNodes){
+								for (String key : Main.classNodes.keySet()) {
+									if (key.contains("$")) {
+										String[] split = key.split("\\$");
+										if (split[0].equals(substr)) {
+											dis += "\n" + Disassembler.disassemble(classNodes.get(key));
+										}
+									}
 								}
 							}
+							txtByteEditView.setText(dis);
+							if (dis.length() > prev)
+								txtByteEditView.setCaretPosition(prev);
+						} catch (Exception e2) {
+							e2.printStackTrace();
 						}
-						txtByteEditView.setText(dis);
-						if (dis.length() > prev)
-							txtByteEditView.setCaretPosition(prev);
-					} catch (Exception e2) {
-						e2.printStackTrace();
-					}
+					});
 				}
 			}
 		});
@@ -774,12 +759,65 @@ public class Main extends JFrame {
 		txtByteEditView.setCodeFoldingEnabled(true);
 		scrollPane_ByteEdit = new RTextScrollPane();
 		ThemeManager.registerTextArea(txtByteEditView);
+		JPanel panel = new JPanel(new BorderLayout());
 
-		splitPane.setRightComponent(scrollPane_ByteEdit);
+		panel.add(scrollPane_ByteEdit, BorderLayout.CENTER);
+		final JComboBox<String> decompilerMode = new JComboBox<>();
+		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		Arrays.stream(EnumDecompiler.values()).forEach(model::addElement);
+		decompilerMode.setModel(model);
+		decompilerMode.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+
+				SingleThreadedExecutor.execute( () -> {
+					decompiler = (EnumDecompiler) e.getItem();
+					try {
+						txtByteEditView.setSyntaxEditingStyle(decompiler == EnumDecompiler.BYTEEDIT ? SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE : SyntaxConstants.SYNTAX_STYLE_JAVA);
+					} catch (Throwable t){}
+					txtByteEditView.setEditable(decompiler == EnumDecompiler.BYTEEDIT);
+					if (currentNodeName != null) {
+
+
+						try {
+							ClassNode classNode = classNodes.get(currentNodeName);
+							int prev = txtByteEditView.getCaretPosition();
+							String dis = Disassembler.disassemble(classNode);
+							String substr = currentNodeName.substring(0, currentNodeName.length() - 6);
+							for (String key : Main.classNodes.keySet()) {
+								if (key.contains("$")) {
+									String[] split = key.split("\\$");
+									if (split[0].equals(substr)) {
+										dis += "\n" + Disassembler.disassemble(classNodes.get(key));
+									}
+								}
+							}
+							txtByteEditView.setText(dis);
+							if (dis.length() > prev)
+								txtByteEditView.setCaretPosition(prev);
+						} catch (Exception e2) {
+							e2.printStackTrace();
+						}
+
+
+					}
+
+				});
+			}
+		});
+		panel.add(decompilerMode, BorderLayout.NORTH);
+
+
+
+		splitPane.setRightComponent(panel);
 		scrollPane_ByteEdit.setViewportView(txtByteEditView);
 		scrollPane_ByteEdit.setLineNumbersEnabled(true);
 		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
 	}
+
+
+
+	public static EnumDecompiler decompiler = EnumDecompiler.BYTEEDIT;
 
 	private final Pattern jumpableInstructionPattern = Pattern.compile("^\t\t(?!//|\t+).+ .+");
 
@@ -809,10 +847,20 @@ public class Main extends JFrame {
 					while (classNode.outerClass != null) {
 						classNode = classNodes.get(getFullName(classNode.outerClass));
 					}
-					int lineFound = selectFileWithSearch(getFullName(classNode.name), mn);
-					if (lineFound != -1) {
-						Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
-					}
+
+
+					ClassNode finalClassNode = classNode;
+					SingleThreadedExecutor.execute( () -> {
+						int lineFound = selectFileWithSearch(getFullName(finalClassNode.name), mn);
+						if (lineFound != -1) {
+							try {
+								Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+						}
+					});
+
 					break;
 				}
 			}
@@ -823,7 +871,8 @@ public class Main extends JFrame {
 			if (classNode == null) {
 				return;
 			}
-			selectFile(getFullName(className));
+
+			SingleThreadedExecutor.execute( () -> selectFile(getFullName(className)));
 		} else if (line.startsWith("getstatic ") || line.startsWith("putstatic ") || line.startsWith("getfield ")
 				|| line.startsWith("putfield ")) {
 			String[] split = line.split(" ");
@@ -841,10 +890,20 @@ public class Main extends JFrame {
 					while (classNode.outerClass != null) {
 						classNode = classNodes.get(getFullName(classNode.outerClass));
 					}
-					int lineFound = selectFileWithSearch(getFullName(classNode.name), fn);
-					if (lineFound != -1) {
-						Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
-					}
+
+					ClassNode finalClassNode = classNode;
+					ClassNode finalClassNode1 = classNode;
+					SingleThreadedExecutor.execute( () -> {
+						int lineFound = selectFileWithSearch(getFullName(finalClassNode1.name), fn);
+						if (lineFound != -1) {
+							try {
+								Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+						}
+					});
+
 					break;
 				}
 			}

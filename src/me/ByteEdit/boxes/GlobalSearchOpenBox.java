@@ -1,6 +1,7 @@
 package me.ByteEdit.boxes;
 
 import java.awt.Toolkit;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -13,6 +14,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 
+import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import org.objectweb.asm.tree.MethodNode;
 
 import me.ByteEdit.main.Main;
@@ -38,17 +40,21 @@ public class GlobalSearchOpenBox extends JFrame {
 		list.addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				Info val = list.getSelectedValue();
-				if (val != null && !val.owner.equals(Main.currentNodeName)) {
-					int lineFound = Main.selectFileWithSearch(val.nodePath, val.mn);
-					if (lineFound != -1) {
-						try {
-							Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
-						} catch (BadLocationException e1) {
-							e1.printStackTrace();
+
+				SingleThreadedExecutor.execute( () -> {
+					Info val = list.getSelectedValue();
+					if (val != null && !val.owner.equals(Main.currentNodeName)) {
+						int lineFound = Main.selectFileWithSearch(val.nodePath, val.mn);
+						if (lineFound != -1) {
+							try {
+								Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
+							} catch (BadLocationException e1) {
+								//e1.printStackTrace();
+							}
 						}
 					}
-				}
+				});
+
 			}
 		});
 
