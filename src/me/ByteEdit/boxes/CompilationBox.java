@@ -160,7 +160,7 @@ public class CompilationBox extends JFrame {
 		}, ctrlS, JComponent.WHEN_FOCUSED);
 	}
 
-	class JavaSourceFromString extends SimpleJavaFileObject {
+	private static class JavaSourceFromString extends SimpleJavaFileObject {
 		final String code;
 
 		public JavaSourceFromString(String name, String code) {

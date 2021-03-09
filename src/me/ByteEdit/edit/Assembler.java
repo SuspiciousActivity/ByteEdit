@@ -494,11 +494,13 @@ public class Assembler {
 			}
 			return clazz;
 		} catch (Throwable e) {
-			System.err.println("Error at line: " + read.currentLine);
-			try {
-				Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(read.currentLine));
-			} catch (BadLocationException e1) {
-				System.err.println("Can't show line!");
+			if (read != null) {
+				System.err.println("Error at line: " + read.currentLine);
+				try {
+					Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(read.currentLine));
+				} catch (BadLocationException e1) {
+					System.err.println("Can't show line!");
+				}
 			}
 			Main.showError(e.getMessage());
 			e.printStackTrace();
@@ -599,26 +601,28 @@ public class Assembler {
 		if (args.length == 0) {
 			return null;
 		}
-		String ret = args[start];
+		StringBuilder sb = new StringBuilder(args[start]);
 		if (args.length > start + 1) {
 			for (int i = start + 1; i < args.length; i++) {
-				ret = ret + " " + args[i];
+				sb.append(' ');
+				sb.append(args[i]);
 			}
 		}
-		return ret;
+		return sb.toString();
 	}
 
 	private static String consolidateStrings(String[] args, int start, int end) {
 		if (end == 0) {
 			return null;
 		}
-		String ret = args[start];
+		StringBuilder sb = new StringBuilder(args[start]);
 		if (end > start + 1) {
 			for (int i = start + 1; i < end; i++) {
-				ret = ret + " " + args[i];
+				sb.append(' ');
+				sb.append(args[i]);
 			}
 		}
-		return ret;
+		return sb.toString();
 	}
 
 	private static Object getValue(HugeStringsRev hsr, String s, String to) {
@@ -1567,7 +1571,7 @@ public class Assembler {
 				if (!asd.startsWith("(")) {
 					int frameType = ClassUtil.getFrameTypeByName(asd);
 					if (frameType != -1)
-						list.add(new Integer(frameType));
+						list.add(Integer.valueOf(frameType));
 					else
 						list.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
 				} else {
@@ -1590,13 +1594,7 @@ public class Assembler {
 					}
 				}
 			}
-			Object[] arr = new Object[list.size()];
-			int c = 0;
-			for (Object o : list) {
-				arr[c] = o;
-				c++;
-			}
-			return arr;
+			return list.toArray(new Object[list.size()]);
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.jar.Manifest;
 
 import org.jetbrains.java.decompiler.main.Fernflower;
@@ -60,8 +61,8 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, ID
 			// TODO decompile method only
 			this.bytes = b;
 			HashMap<String, Object> map = new HashMap<>();
-			for (String key : options.keySet()) {
-				map.put(key, options.get(key) ? "1" : "0");
+			for (Entry<String, Boolean> entry : options.entrySet()) {
+				map.put(entry.getKey(), entry.getValue() ? "1" : "0");
 			}
 			Fernflower f = new Fernflower(this, this, map, new IFernflowerLogger() {
 				@Override

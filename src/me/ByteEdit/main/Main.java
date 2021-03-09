@@ -20,26 +20,17 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -63,16 +54,12 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.fife.ui.autocomplete.AutoCompletion;
@@ -84,10 +71,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.folding.CurlyFoldParser;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
-import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.fife.ui.rtextarea.ToolTipSupplier;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -110,11 +94,18 @@ import me.ByteEdit.utils.UnicodeUtils;
 public class Main extends JFrame {
 
 	public static Main INSTANCE;
+
+	public static final Pattern patternSlash = Pattern.compile("/");
+	private static final Pattern patternRenameableField = Pattern
+			.compile("^\t(?:[a-z]+ |0x[0-9a-fA-F]+ )*?(\\[*(?:V|Z|C|B|S|I|F|J|D|L.+?;)) ([^ ]+) ?.*");
+	private static final Pattern patternRenameableMethod = Pattern
+			.compile("^\t(?:[a-z]+ |0x[0-9a-fA-F]+ )*?([^ ]+) (\\((?:\\[*(?:V|Z|C|B|S|I|F|J|D|L.+?;))*\\)[^ ]+) .*\\{");
+
 	private JPanel contentPane;
 	private volatile boolean isChangingFile;
 	public static File jarFile;
-	public static HashMap<String, byte[]> OTHER_FILES = new HashMap<>();
-	public static HashMap<String, ClassNode> classNodes = new HashMap<>();
+	public static final HashMap<String, ClassNode> classNodes = new HashMap<>();
+	public static final HashMap<String, byte[]> otherFiles = new HashMap<>();
 	public static String currentNodeName;
 	public static RSyntaxTextArea txtByteEditView;
 	public static GlobalSearchBox globalSearchBox;
@@ -128,7 +119,6 @@ public class Main extends JFrame {
 	public static RTextScrollPane scrollPane_ByteEdit;
 	public static File saveFolder;
 
-	private static final Pattern SLASH = Pattern.compile("/");
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenuItem mntmOpenJar;
@@ -157,6 +147,8 @@ public class Main extends JFrame {
 	public JCheckBoxMenuItem mntmNumbers;
 
 	public static final Object treeLock = new Object();
+
+	public static EnumDecompiler decompiler = EnumDecompiler.BYTEEDIT;
 
 	/**
 	 * Launch the application.
@@ -312,7 +304,8 @@ public class Main extends JFrame {
 							new Thread(new Runnable() {
 								public void run() {
 									try {
-										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile));
+										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile), classNodes,
+												otherFiles);
 										EventQueue.invokeLater(new Runnable() {
 											public void run() {
 												synchronized (treeLock) {
@@ -451,7 +444,7 @@ public class Main extends JFrame {
 				new CurlyFoldParser(false, true));
 		tree = new JTree(new DefaultTreeModel(null));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeExpansionListener(new FurtherExpandingTreeExpansionListener());
+		tree.addTreeExpansionListener(new FurtherExpandingTreeExpansionListener(tree));
 		tree.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -466,7 +459,8 @@ public class Main extends JFrame {
 							new Thread(new Runnable() {
 								public void run() {
 									try {
-										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile));
+										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile), classNodes,
+												otherFiles);
 										EventQueue.invokeLater(new Runnable() {
 											public void run() {
 												synchronized (treeLock) {
@@ -561,7 +555,8 @@ public class Main extends JFrame {
 									new Thread(new Runnable() {
 										public void run() {
 											try {
-												ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile));
+												ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile),
+														classNodes, otherFiles);
 												EventQueue.invokeLater(new Runnable() {
 													public void run() {
 														synchronized (treeLock) {
@@ -618,84 +613,7 @@ public class Main extends JFrame {
 		txtByteEditView = new RSyntaxTextArea();
 		ac.install(txtByteEditView);
 		txtByteEditView.setCodeFoldingEnabled(true);
-		// ToolTips for HugeStrings
-		txtByteEditView.setToolTipSupplier(new ToolTipSupplier() {
-
-			@Override
-			public String getToolTipText(RTextArea textArea, MouseEvent e) {
-				int idx = textArea.viewToModel(e.getPoint());
-				if (idx < 0)
-					return null;
-				int subIdx = Math.max(idx - 15, 0);
-				int subLen = Math.min(30, textArea.getDocument().getLength() - subIdx);
-				if (subLen <= 0)
-					return null;
-				try {
-					String cut = textArea.getText(subIdx, subLen);
-					int hashIdx = -1;
-					for (int off = idx - subIdx; off >= 0; off--) {
-						if (cut.charAt(off) == '#') {
-							hashIdx = off;
-							break;
-						}
-					}
-					if (hashIdx < 0) {
-						for (int off = idx - subIdx; off < cut.length(); off++) {
-							if (cut.charAt(off) == '#') {
-								hashIdx = off;
-								break;
-							}
-						}
-					}
-					if (hashIdx < 0)
-						return null;
-					if (hashIdx >= 5 && cut.substring(hashIdx - 5, hashIdx).equals("ldc \"")) // ldc "#..."
-						return null;
-					int numLen = 1;
-					for (int i = hashIdx + 1; i < cut.length(); i++) {
-						if (!(cut.charAt(i) - '0' >= 0 && cut.charAt(i) - '0' <= 9)) {
-							break;
-						}
-						numLen++;
-					}
-					if (numLen < 2 || hashIdx > idx - subIdx || idx - subIdx - numLen >= hashIdx)
-						return null;
-					String hashNum = cut.substring(hashIdx, hashIdx + numLen);
-
-					String txt = txtByteEditView.getText();
-					int len = 0;
-					for (String asm : txt.split("\\/\\/ #Annotations:\n")) {
-						len += 19; // "\\/\\/ #Annotations:\n".length()
-						if (asm.isEmpty())
-							continue;
-						if (idx >= len && idx < len + asm.length()) {
-							try (BufferedReader reader = new BufferedReader(new StringReader(asm))) {
-								String s;
-								while (!(s = reader.readLine()).startsWith("// #SourceFile: ")) {
-								}
-								while (!(s = reader.readLine()).equals("// #Fields")) {
-									if (s.startsWith("#")) {
-										String[] split = Assembler.SPACE.split(s, 2);
-										if (hashNum.equals(split[0].substring(0, split[0].length() - 1))) {
-											String toolTip = split[1];
-											if (toolTip.length() > 500)
-												toolTip = toolTip.substring(0, 500) + "...";
-											return toolTip;
-										}
-									}
-								}
-							} catch (IOException e1) {
-							}
-							break;
-						} else {
-							len += asm.length();
-						}
-					}
-				} catch (Exception e1) {
-				}
-				return null;
-			}
-		});
+		txtByteEditView.setToolTipSupplier(new HugeStringsToolTips(txtByteEditView));
 		txtByteEditView.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -737,24 +655,18 @@ public class Main extends JFrame {
 		// specific
 		tree.registerKeyboardAction(e -> save(), ctrlS, JComponent.WHEN_FOCUSED);
 		txtByteEditView.registerKeyboardAction(e -> saveCurrentClassNode(), ctrlS, JComponent.WHEN_FOCUSED);
-		txtByteEditView.registerKeyboardAction(e -> {
-			try {
-				renameSelected();
-			} catch (BadLocationException e1) {
-				e1.printStackTrace();
-			}
-		}, ctrlR, JComponent.WHEN_FOCUSED);
+		txtByteEditView.registerKeyboardAction(e -> renameSelected(), ctrlR, JComponent.WHEN_FOCUSED);
 		txtByteEditView.setEditable(true);
 		txtByteEditView.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA_DISASSEMBLE);
 		txtByteEditView.setCodeFoldingEnabled(true);
 		scrollPane_ByteEdit = new RTextScrollPane();
 		ThemeManager.registerTextArea(txtByteEditView);
-		JPanel panel = new JPanel(new BorderLayout());
 
+		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(scrollPane_ByteEdit, BorderLayout.CENTER);
 		final JComboBox<String> decompilerMode = new JComboBox<>();
 		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		Arrays.stream(EnumDecompiler.values()).forEach(model::addElement);
+		Stream.of(EnumDecompiler.values()).forEach(model::addElement);
 		decompilerMode.setModel(model);
 		decompilerMode.addItemListener(new ItemListener() {
 			@Override
@@ -790,30 +702,27 @@ public class Main extends JFrame {
 		scrollPane_ByteEdit.setFoldIndicatorEnabled(true);
 	}
 
-	public static EnumDecompiler decompiler = EnumDecompiler.BYTEEDIT;
-
-	private final Pattern renameableFieldPattern = Pattern
-			.compile("^\t(?:[a-z]+ |0x[0-9a-fA-F]+ )*?(\\[*(?:V|Z|C|B|S|I|F|J|D|L.+?;)) ([^ ]+) ?.*");
-	private final Pattern renameableMethodPattern = Pattern
-			.compile("^\t(?:[a-z]+ |0x[0-9a-fA-F]+ )*?([^ ]+) (\\((?:\\[*(?:V|Z|C|B|S|I|F|J|D|L.+?;))*\\)[^ ]+) .*\\{");
-
-	public void renameSelected() throws BadLocationException {
-		int lineStart = txtByteEditView.getLineStartOffsetOfCurrentLine();
-		int lineEnd = txtByteEditView.getLineEndOffsetOfCurrentLine() - 1;
-		String line = txtByteEditView.getText(lineStart, lineEnd - lineStart);
-		Matcher m = renameableFieldPattern.matcher(line);
-		if (m.find()) {
-			setRenameInfo(m, lineEnd);
-		} else {
-			m = renameableMethodPattern.matcher(line);
+	public void renameSelected() {
+		try {
+			int lineStart = txtByteEditView.getLineStartOffsetOfCurrentLine();
+			int lineEnd = txtByteEditView.getLineEndOffsetOfCurrentLine() - 1;
+			String line = txtByteEditView.getText(lineStart, lineEnd - lineStart);
+			Matcher m = patternRenameableField.matcher(line);
 			if (m.find()) {
-				if (ClassUtil.isObjectClassMethod(m.group(1), m.group(2), false)) {
-					JOptionPane.showMessageDialog(null, "This method can not be renamed!", "Error!",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
 				setRenameInfo(m, lineEnd);
+			} else {
+				m = patternRenameableMethod.matcher(line);
+				if (m.find()) {
+					if (ClassUtil.isObjectClassMethod(m.group(1), m.group(2), false)) {
+						JOptionPane.showMessageDialog(null, "This method can not be renamed!", "Error!",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					setRenameInfo(m, lineEnd);
+				}
 			}
+		} catch (BadLocationException ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -838,9 +747,9 @@ public class Main extends JFrame {
 			String[] split = s.split(" ");
 			String className = UnicodeUtils.unescape(null, split[split.length - 1], true);
 			renameBox.className = className;
-			String name = UnicodeUtils.unescape(null, m.pattern() == renameableFieldPattern ? m.group(2) : m.group(1),
+			String name = UnicodeUtils.unescape(null, m.pattern() == patternRenameableField ? m.group(2) : m.group(1),
 					true);
-			String desc = UnicodeUtils.unescape(null, m.pattern() == renameableFieldPattern ? m.group(1) : m.group(2),
+			String desc = UnicodeUtils.unescape(null, m.pattern() == patternRenameableField ? m.group(1) : m.group(2),
 					true);
 			renameBox.name = name;
 			renameBox.desc = desc;
@@ -864,7 +773,7 @@ public class Main extends JFrame {
 				classNodes.put(getFullName(node.name), node);
 				ArchiveTreeModel model;
 				if (tree.getModel().getClass().equals(DefaultTreeModel.class)) {
-					tree.setModel(model = new ArchiveTreeModel());
+					tree.setModel(model = new ArchiveTreeModel(classNodes, otherFiles));
 				} else {
 					model = (ArchiveTreeModel) tree.getModel();
 				}
@@ -890,11 +799,11 @@ public class Main extends JFrame {
 			String dis = decompiler.getDecompiler().decompile(classNode);
 			String substr = current.substring(0, current.length() - 6);
 			synchronized (Main.classNodes) {
-				for (String key : Main.classNodes.keySet()) {
-					if (key.contains("$")) {
-						String[] split = key.split("\\$");
+				for (Entry<String, ClassNode> entry : Main.classNodes.entrySet()) {
+					if (entry.getKey().contains("$")) {
+						String[] split = entry.getKey().split("\\$");
 						if (split[0].equals(substr)) {
-							dis += "\n" + decompiler.getDecompiler().decompile(classNodes.get(key));
+							dis += "\n" + decompiler.getDecompiler().decompile(entry.getValue());
 						}
 					}
 				}
@@ -1000,12 +909,12 @@ public class Main extends JFrame {
 				if (name != null && !name.isEmpty()) {
 					String val = "Manifest-Version: 1.0\n" + "Class-Path: .\n" + "Main-Class: " + name.replace('/', '.')
 							+ "\n\n";
-					OTHER_FILES.put("META-INF/MANIFEST.MF", val.getBytes());
+					otherFiles.put("META-INF/MANIFEST.MF", val.getBytes());
 				}
 				if (tree.getModel() instanceof ArchiveTreeModel)
 					((ArchiveTreeModel) tree.getModel()).newCreated = false;
 			}
-			for (Entry<String, byte[]> entry : OTHER_FILES.entrySet()) {
+			for (Entry<String, byte[]> entry : otherFiles.entrySet()) {
 				ZipEntry ent = new ZipEntry(entry.getKey());
 				output.putNextEntry(ent);
 				output.write(entry.getValue());
@@ -1050,188 +959,5 @@ public class Main extends JFrame {
 
 	public static String getFullName(String s) {
 		return s + ".class";
-	}
-
-	class ArchiveTreeModel extends DefaultTreeModel {
-
-		public ArrayList<String> paths = new ArrayList<>();
-		public boolean newCreated = false;
-
-		public ArchiveTreeModel() {
-			super(new ByteEditTreeNode("New"));
-			newCreated = true;
-		}
-
-		public ArchiveTreeModel(ZipFile jar) {
-			super(new ByteEditTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
-					: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
-							- 1]));
-			try {
-				classNodes.clear();
-				OTHER_FILES.clear();
-				Enumeration<? extends ZipEntry> enumeration = jar.entries();
-				while (enumeration.hasMoreElements()) {
-					ZipEntry next = enumeration.nextElement();
-					byte[] data = toByteArray(jar.getInputStream(next));
-					if (next.getSize() != 0 && !next.getName().startsWith("META-INF")
-							&& (next.getName().endsWith(".class") || next.getName().endsWith(".class/"))) {
-						try {
-							ClassReader reader = new ClassReader(data);
-							ClassNode node = new ClassNode();
-							reader.accept(node, 0);
-							classNodes.put(getFullName(node.name), node);
-
-							if ((next.getName().contains("/")
-									? (!SLASH.split(next.getName())[SLASH.split(next.getName()).length - 1]
-											.contains("$"))
-									: (!next.getName().contains("$")))
-									|| (next.getName().startsWith("$") || next.getName().contains("$$")
-											|| next.getName().endsWith("$"))) {
-								paths.add(getFullName(node.name));
-							}
-						} catch (Exception e) {
-							OTHER_FILES.put(next.getName(), data);
-						}
-					} else {
-						OTHER_FILES.put(next.getName(), data);
-					}
-				}
-				jar.close();
-				refresh();
-			} catch (Throwable e) {
-				classNodes.clear();
-				OTHER_FILES.clear();
-				e.printStackTrace();
-				showError(e);
-			}
-		}
-
-		private int getSlashCount(String s) {
-			int count = 0;
-			for (char c : s.toCharArray()) {
-				if (c == '/')
-					count++;
-			}
-			return count;
-		}
-
-		public void refresh() {
-			setRoot(new ByteEditTreeNode(((ByteEditTreeNode) getRoot()).toString()));
-			Collections.sort(paths, String.CASE_INSENSITIVE_ORDER);
-			Collections.sort(paths, new Comparator<String>() {
-				public int compare(String s1, String s2) {
-					return getSlashCount(s2) - getSlashCount(s1);
-				}
-			});
-
-			// Windows-like sorting (like file explorer)
-			List<String> tmp = new ArrayList<>(paths);
-
-			List<String> folders = tmp.stream().filter(s -> {
-				int c = countSlashes(s, 50);
-				return c > 0 && c < 50;
-			}).map(s -> {
-				int idx = s.lastIndexOf('/');
-				if (idx == s.length() - 1)
-					idx = s.lastIndexOf('/', idx - 1);
-				if (idx == -1)
-					return s;
-				return s.substring(0, idx);
-			}).distinct().sorted(new Comparator<String>() {
-				@Override
-				public int compare(String s, String s2) {
-					// From String#compareToIgnoreCase(String)
-					int n = s.length();
-					int n2 = s2.length();
-					int n3 = Math.min(n, n2);
-					for (int i = 0; i < n3; ++i) {
-						char c;
-						char c2 = s.charAt(i);
-						if (c2 == (c = s2.charAt(i))
-								|| (c2 = Character.toUpperCase(c2)) == (c = Character.toUpperCase(c))
-								|| (c2 = Character.toLowerCase(c2)) == (c = Character.toLowerCase(c)))
-							continue;
-						return c2 - c;
-					}
-					// Other way around
-					return n2 - n;
-				}
-			}).collect(Collectors.toList());
-
-			tmp.removeAll(folders);
-			tmp.addAll(0, folders);
-
-			for (String s : tmp) {
-				String[] elements = SLASH.split(s, 50);
-				if (elements.length >= 50) {
-					((ByteEditTreeNode) getRoot()).add(new ByteEditTreeNode(s, s));
-				} else {
-					ByteEditTreeNode currentNode = (ByteEditTreeNode) getRoot();
-					for (int i = 0; i < elements.length; i++) {
-						String token = elements[i];
-						ByteEditTreeNode nextNode = findNode(currentNode, token);
-						if (nextNode == null) {
-							nextNode = new ByteEditTreeNode(token, s);
-							currentNode.add(nextNode);
-						}
-						currentNode = nextNode;
-					}
-				}
-			}
-		}
-
-		private ByteEditTreeNode findNode(ByteEditTreeNode parent, String name) {
-			Enumeration<?> e = parent.children();
-			while (e.hasMoreElements()) {
-				ByteEditTreeNode element = (ByteEditTreeNode) e.nextElement();
-				if (element.getUserObject().equals(name)) {
-					return element;
-				}
-			}
-			return null;
-		}
-
-		private int countSlashes(String s, int max) {
-			int count = 0;
-			for (char c : s.toCharArray()) {
-				if (c == '/') {
-					count++;
-					if (count == max)
-						break;
-				}
-			}
-			return count;
-		}
-	}
-
-	private static class FurtherExpandingTreeExpansionListener implements TreeExpansionListener {
-		public void treeExpanded(TreeExpansionEvent event) {
-			TreePath treePath = event.getPath();
-			Object expandedTreePathObject = treePath.getLastPathComponent();
-			if (!(expandedTreePathObject instanceof TreeNode))
-				return;
-			TreeNode expandedTreeNode = (TreeNode) expandedTreePathObject;
-			if (expandedTreeNode.getChildCount() == 1) {
-				TreeNode descendantTreeNode = expandedTreeNode.getChildAt(0);
-				if (descendantTreeNode.isLeaf())
-					return;
-				TreePath nextTreePath = treePath.pathByAddingChild(descendantTreeNode);
-				tree.expandPath(nextTreePath);
-			}
-		}
-
-		public void treeCollapsed(TreeExpansionEvent event) {
-		}
-	}
-
-	public static byte[] toByteArray(final InputStream input) throws IOException {
-		try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-			byte[] buffer = new byte[4096];
-			int read;
-			while ((read = input.read(buffer)) != -1) {
-				output.write(buffer, 0, read);
-			}
-			return output.toByteArray();
-		}
 	}
 }
