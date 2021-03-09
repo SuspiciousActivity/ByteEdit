@@ -17,6 +17,7 @@ public class SingleThreadedExecutor {
 	}, "SingleThreadedExecutor");
 
 	static {
+		thread.setPriority(Thread.MAX_PRIORITY);
 		thread.start();
 	}
 

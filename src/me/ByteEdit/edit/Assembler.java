@@ -54,6 +54,7 @@ import me.ByteEdit.utils.UnicodeUtils;
 public class Assembler {
 
 	public static final Pattern SPACE = Pattern.compile(" ");
+	private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
 	public static ClassNode assemble(String input) {
 		Main.txtByteEditView.removeAllLineHighlights();
@@ -1488,12 +1489,6 @@ public class Assembler {
 						}
 					}
 				}
-				Object[] _args = new Object[args.size()];
-				stage = 0;
-				for (Object o : args) {
-					_args[stage] = o;
-					stage++;
-				}
 				return new InvokeDynamicInsnNode(UnicodeUtils.unescape(hsr, sp[0].substring(7)),
 						UnicodeUtils.unescape(hsr, sp[1].substring(6)),
 						new Handle(OpcodesReverse.getHandleOpcode(sp[7].substring(6)),
@@ -1501,7 +1496,7 @@ public class Assembler {
 								UnicodeUtils.unescape(hsr, sp[3].substring(7)),
 								UnicodeUtils.unescape(hsr, sp[5].substring(7)),
 								Boolean.parseBoolean(sp[6].substring(14))),
-						_args);
+						args.toArray(new Object[args.size()]));
 			}
 			case "new": {
 				return new TypeInsnNode(187, UnicodeUtils.unescape(hsr, split[1]));
@@ -1565,7 +1560,7 @@ public class Assembler {
 		ArrayList<Object> list = new ArrayList<>();
 		String l = str.substring(1, str.length() - 1);
 		if (l.isEmpty()) {
-			return new Object[0];
+			return EMPTY_OBJECT_ARRAY;
 		} else {
 			for (String asd : l.split(", ")) {
 				if (!asd.startsWith("(")) {
