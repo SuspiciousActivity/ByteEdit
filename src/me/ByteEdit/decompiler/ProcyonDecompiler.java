@@ -17,9 +17,14 @@ import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 
-public class ProcyonDecompiler {
+public class ProcyonDecompiler implements IDecompiler {
 
-	public static String decompile(ClassNode cn, byte[] b, MethodNode mn) {
+	@Override
+	public String decompile(ClassNode cn) {
+		return doDecompilation(cn, getBytes(cn), null);
+	}
+
+	private static String doDecompilation(ClassNode cn, byte[] b, MethodNode mn) {
 		try {
 			// TODO decompile method only
 			DecompilerSettings settings = new DecompilerSettings();

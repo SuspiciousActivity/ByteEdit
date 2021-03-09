@@ -1,7 +1,6 @@
 package me.ByteEdit.boxes;
 
 import java.awt.Toolkit;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -12,11 +11,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.BadLocationException;
 
-import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import org.objectweb.asm.tree.MethodNode;
 
+import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import me.ByteEdit.main.Main;
 
 public class GlobalSearchOpenBox extends JFrame {
@@ -38,23 +36,13 @@ public class GlobalSearchOpenBox extends JFrame {
 		model = new DefaultListModel<>();
 		JList<Info> list = new JList(model);
 		list.addListSelectionListener(new ListSelectionListener() {
-
 			public void valueChanged(ListSelectionEvent e) {
-
-				SingleThreadedExecutor.execute( () -> {
+				SingleThreadedExecutor.execute(() -> {
 					Info val = list.getSelectedValue();
 					if (val != null && !val.owner.equals(Main.currentNodeName)) {
-						int lineFound = Main.selectFileWithSearch(val.nodePath, val.mn);
-						if (lineFound != -1) {
-							try {
-								Main.txtByteEditView.setCaretPosition(Main.txtByteEditView.getLineStartOffset(lineFound));
-							} catch (BadLocationException e1) {
-								//e1.printStackTrace();
-							}
-						}
+						Main.selectFile(val.nodePath);
 					}
 				});
-
 			}
 		});
 

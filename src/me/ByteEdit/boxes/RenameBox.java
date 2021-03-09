@@ -4,7 +4,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -22,7 +20,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import me.ByteEdit.edit.Disassembler;
+import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import me.ByteEdit.main.Main;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.UnicodeUtils;
@@ -213,30 +211,13 @@ public class RenameBox extends JFrame {
 					}
 				}
 
-				SingleThreadedExecutor.execute( () -> {
-					try { // refresh
-						ClassNode classNode = Main.classNodes.get(Main.currentNodeName);
-						int prev = Main.txtByteEditView.getCaretPosition();
-						String dis = Disassembler.disassemble(classNode);
-						String substr = Main.currentNodeName.substring(0, Main.currentNodeName.length() - 6);
-						for (String key : Main.classNodes.keySet()) {
-							if (key.contains("$")) {
-								String[] split = key.split("\\$");
-								if (split[0].equals(substr)) {
-									dis += "\n" + Disassembler.disassemble(Main.classNodes.get(key));
-								}
-							}
-						}
-						Main.txtByteEditView.setText(dis);
-						Main.txtByteEditView.setCaretPosition(prev);
-					} catch (Exception e2) {
-						e2.printStackTrace();
-					}
+				SingleThreadedExecutor.execute(() -> {
+					// refresh
+					Main.decompileCurrentNode();
 					name = newName;
 					desc = newDesc;
 					RenameBox.this.setVisible(false);
 				});
-
 			}
 		});
 		btnRename.setBounds(345, 237, 89, 23);

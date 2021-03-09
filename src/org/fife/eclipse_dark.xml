@@ -14,7 +14,7 @@
    <!--  General editor colors. -->
    <background color="2f2f2f"/>
    <caret color="eeeeee"/>
-   <selection bg="111111" fg="eeeeee"/>
+   <selection bg="555555" fg="eeeeee"/>
    <currentLineHighlight color="111111" fade="false"/>
    <marginLine fg="4f4b46"/>
    <markAllHighlight color="947e76"/> <!-- TODO: Fix me -->

@@ -15,7 +15,6 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -27,14 +26,14 @@ import javax.tools.JavaCompiler;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
-import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
-import me.ByteEdit.edit.Disassembler;
+import me.ByteEdit.decompiler.EnumDecompiler;
+import me.ByteEdit.decompiler.SingleThreadedExecutor;
 import me.ByteEdit.main.Main;
 import me.ByteEdit.main.ThemeManager;
 
@@ -107,9 +106,7 @@ public class CompilationBox extends JFrame {
 							null, Arrays.asList(new JavaSourceFromString("Compiled", source))).call();
 					String res = out.toString();
 					if (res.isEmpty()) {
-
-
-						SingleThreadedExecutor.execute( () -> {
+						SingleThreadedExecutor.execute(() -> {
 							try {
 								File clazz = new File(tmpFolder, "Compiled.class");
 								ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -121,11 +118,11 @@ public class CompilationBox extends JFrame {
 								}
 								is.close();
 
-
 								ClassReader read = new ClassReader(baos.toByteArray());
 								ClassNode node = new ClassNode();
 								read.accept(node, 0);
-								String dis = Disassembler.disassemble(node);
+								EnumDecompiler decompiler = EnumDecompiler.BYTEEDIT;
+								String dis = decompiler.getDecompiler().decompile(node);
 								File[] files = tmpFolder.listFiles();
 								if (files != null)
 									for (File f : files) {
@@ -140,11 +137,11 @@ public class CompilationBox extends JFrame {
 										read = new ClassReader(baos.toByteArray());
 										node = new ClassNode();
 										read.accept(node, 0);
-										dis += "\n" + Disassembler.disassemble(node);
+										dis += "\n" + decompiler.getDecompiler().decompile(node);
 									}
 								compSuccess.textArea.setText(dis);
 								compSuccess.setVisible(true);
-							}catch (IOException e2){
+							} catch (IOException e2) {
 								e2.printStackTrace();
 							}
 						});

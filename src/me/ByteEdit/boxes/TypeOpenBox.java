@@ -3,7 +3,6 @@ package me.ByteEdit.boxes;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -46,7 +45,7 @@ public class TypeOpenBox extends JFrame {
 				String val = list.getSelectedValue();
 				if (val != null && !val.equals(Main.currentNodeName)) {
 
-					SingleThreadedExecutor.execute( () -> Main.selectFile(val));
+					SingleThreadedExecutor.execute(() -> Main.selectFile(val));
 				}
 			}
 		});

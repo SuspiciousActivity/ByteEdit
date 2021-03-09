@@ -1,6 +1,5 @@
 package me.ByteEdit.decompiler;
 
-import me.ByteEdit.main.Main;
 import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
 import org.jd.core.v1.api.loader.Loader;
 import org.jd.core.v1.api.loader.LoaderException;
@@ -8,24 +7,29 @@ import org.jd.core.v1.api.printer.Printer;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
+import me.ByteEdit.main.Main;
 
-public class JDDecompiler implements Loader, Printer {
-	
-	public String decompile(ClassNode cl) {
+public class JDDecompiler implements Loader, Printer, IDecompiler {
+
+	@Override
+	public String decompile(ClassNode cn) {
 		ClassFileToJavaSourceDecompiler decompiler = new ClassFileToJavaSourceDecompiler();
 		try {
-			decompiler.decompile(this, this, cl.name);
+			decompiler.decompile(this, this, cn.name);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			String str = e.getClass().getName() + " - " + e.getMessage() + System.lineSeparator();
-			for(int i = 0; i < e.getStackTrace().length; i++) {
+			for (int i = 0; i < e.getStackTrace().length; i++) {
 				str += e.getStackTrace()[i].toString() + System.lineSeparator();
 			}
 			return str;
 		}
-		return toString();
+		String decomp = toString();
+		indentationCount = 0;
+		sb = new StringBuilder();
+		return decomp;
 	}
-	
+
 	@Override
 	public boolean canLoad(String internalName) {
 		return Main.classNodes.containsKey(internalName + ".class");

@@ -27,14 +27,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.strobel.decompiler.Decompiler;
-import me.ByteEdit.decompiler.CFRDecompiler;
-import me.ByteEdit.decompiler.FernflowerDecompiler;
-import me.ByteEdit.decompiler.JDDecompiler;
-import me.ByteEdit.decompiler.ProcyonDecompiler;
-import org.objectweb.asm.*;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -60,76 +57,29 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import me.ByteEdit.decompiler.IDecompiler;
 import me.ByteEdit.main.Main;
 import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
 
-public class Disassembler {
+public class Disassembler implements IDecompiler {
 
 	private static final ExecutorService exec = Executors
 			.newFixedThreadPool((Runtime.getRuntime().availableProcessors() + 1) / 2);
 
-	public static String disassemble(ClassNode classNode) {
-		return disassemble(classNode, null).getDisassembly();
+	@Override
+	public String decompile(ClassNode cn) {
+		return disassemble(cn);
 	}
 
-	public static class DisassembleTuple {
-
-		private final String dis;
-		private final int line;
-
-		public DisassembleTuple(String dis) {
-			this.dis = dis;
-			this.line = -1;
-		}
-
-		public DisassembleTuple(String dis, int line) {
-			this.dis = dis;
-			this.line = line;
-		}
-
-		public String getDisassembly() {
-			return dis;
-		}
-
-		public int getLine() {
-			return line;
-		}
-
-	}
-
-	public static DisassembleTuple disassemble(ClassNode classNode, Object nodeToFind) {
-
+	private static String disassemble(ClassNode classNode) {
 		if (classNode == null) {
-			return new DisassembleTuple("ClassNode is null! This is not a valid java class file!");
+			return "ClassNode is null! This is not a valid java class file!";
 		}
-
-
-
 
 		try {
-			System.out.println(Main.decompiler);
-			ClassWriter classWriter = new ClassWriter(0);
-			switch (Main.decompiler){
-				case PROCYON:
-					classNode.accept(classWriter);
-					return new DisassembleTuple(ProcyonDecompiler.decompile(classNode, classWriter.toByteArray(), null));
-				case FERNFLOWER:
-					classNode.accept(classWriter);
-					return new DisassembleTuple(new FernflowerDecompiler().decompile(classNode, classWriter.toByteArray(), null));
-				case JD_GUI:
-					classNode.accept(classWriter);
-					return new DisassembleTuple(new JDDecompiler().decompile(classNode));
-				case CFR:
-					classNode.accept(classWriter);
-					return new DisassembleTuple(CFRDecompiler.decompile(classNode, classWriter.toByteArray(), null));
-				default:
-					break;
-			}
-
 			HugeStrings hs = new HugeStrings();
-			AtomicInteger lineFound = new AtomicInteger(-1);
 			StringContext ctx = new StringContext(18);
 			ctx.next("// #Annotations:\n");
 			ctx.next(doAnnotations(classNode.visibleAnnotations, hs, ""));
@@ -175,19 +125,18 @@ public class Disassembler {
 					+ (classNode.sourceFile == null ? "null" : UnicodeUtils.escape(hs, classNode.sourceFile)) + "\n");
 			int hugeIdx = ctx.next("");
 			ctx.next("\n// #Fields\n");
-			ctx.next(doFields(classNode.fields, nodeToFind, lineFound, hs));
+			ctx.next(doFields(classNode.fields, hs));
 			ctx.next("\n// #Methods\n");
-			ctx.next(doMethods(classNode.methods, classNode.name, nodeToFind, lineFound, hs));
+			ctx.next(doMethods(classNode.methods, classNode.name, hs));
 			ctx.next("}\n");
 
 			if (!hs.isEmpty())
 				ctx.set(hugeIdx, hs.makeStringsList());
-			return new DisassembleTuple(ctx.finish(), lineFound.get());
+			return ctx.finish();
 		} catch (Throwable e) {
-			return new DisassembleTuple("Class couldn't be decompiled:\n" + e.getClass().getName() + ": "
-					+ e.getMessage() + "\n"
+			return "Class couldn't be decompiled:\n" + e.getClass().getName() + ": " + e.getMessage() + "\n"
 					+ Arrays.toString(e.getStackTrace()).replace(", ", "\n\tat ").replace("[", "\tat ").replace("]", "")
-					+ "\n");
+					+ "\n";
 		}
 	}
 
@@ -258,8 +207,8 @@ public class Disassembler {
 		return ctx.finish();
 	}
 
-	private static String doMethods(List<MethodNode> methods, String className, Object nodeToFind,
-			AtomicInteger lineFound, HugeStrings hs) throws InterruptedException, ExecutionException {
+	private static String doMethods(List<MethodNode> methods, String className, HugeStrings hs)
+			throws InterruptedException, ExecutionException {
 		boolean multithreaded = Main.INSTANCE.mntmMultithreaded.isSelected();
 		Future<String>[] futures = new Future[methods.size()];
 		for (int i = 0; i < futures.length; i++) {
@@ -277,9 +226,6 @@ public class Disassembler {
 						ms += dis[1];
 						if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty())
 							ms += doAnnotations(mn.visibleAnnotations, hs, "\t");
-						if (mn.equals(nodeToFind)) {
-							lineFound.set(ms.split("\\n").length);
-						}
 						ms += "\t" + ClassUtil.getAccessFlagsFull(mn.access)
 								+ UnicodeUtils.escapeWithSpaces(hs, mn.name) + " "
 								+ UnicodeUtils.escapeWithSpaces(hs, mn.desc) + " ";
@@ -321,7 +267,7 @@ public class Disassembler {
 		return s;
 	}
 
-	private static String doFields(List<FieldNode> fields, Object nodeToFind, AtomicInteger lineFound, HugeStrings hs) {
+	private static String doFields(List<FieldNode> fields, HugeStrings hs) {
 		StringContext ctx = new StringContext(fields.size());
 		for (FieldNode fn : fields) {
 			String s = "";
@@ -329,9 +275,6 @@ public class Disassembler {
 				s += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, fn.signature) + "\n";
 			if (fn.visibleAnnotations != null && !fn.visibleAnnotations.isEmpty())
 				s += doAnnotations(fn.visibleAnnotations, hs, "\t");
-			if (fn.equals(nodeToFind)) {
-				lineFound.set(s.split("\\n").length);
-			}
 			s += "\t" + ClassUtil.getAccessFlagsFull(fn.access).replace("varargs", "transient")
 					+ UnicodeUtils.escapeWithSpaces(hs, fn.desc) + " " + UnicodeUtils.escapeWithSpaces(hs, fn.name);
 			if (fn.value != null) {
@@ -604,5 +547,4 @@ public class Disassembler {
 		}
 		return "null";
 	}
-
 }

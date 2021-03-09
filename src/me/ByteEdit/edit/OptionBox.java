@@ -10,17 +10,17 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 public class OptionBox extends JFrame {
-	
+
 	private JPanel contentPane;
 	public JCheckBox chckbxComputeFrames;
 	public JCheckBox chckbxComputeMax;
-	
+
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
-			
+
 			public void run() {
 				try {
 					OptionBox frame = new OptionBox();
@@ -31,7 +31,7 @@ public class OptionBox extends JFrame {
 			}
 		});
 	}
-	
+
 	/**
 	 * Create the frame.
 	 */

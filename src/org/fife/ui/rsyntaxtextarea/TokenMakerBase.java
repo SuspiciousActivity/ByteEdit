@@ -108,7 +108,8 @@ public abstract class TokenMakerBase implements TokenMaker {
 			currentToken = firstToken; // previous token is still null.
 		} else {
 			TokenImpl next = tokenFactory.createToken(array, start, end, startOffset, tokenType);
-			if(currentToken == null || next == null ) return;
+			if (currentToken == null || next == null)
+				return;
 			currentToken.setNextToken(next);
 			previousToken = currentToken;
 			currentToken = next;

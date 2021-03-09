@@ -20,12 +20,12 @@ import javax.swing.border.EmptyBorder;
 import me.ByteEdit.main.Main;
 
 public class SearchBox extends JFrame {
-	
+
 	public JPanel contentPane;
 	public JTextField txtFind;
 	public JTextField txtReplace;
 	public JCheckBox chckbxCaseSensitive;
-	
+
 	/**
 	 * Create the frame.
 	 */
@@ -50,7 +50,7 @@ public class SearchBox extends JFrame {
 		txtFind = new JTextField();
 		KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
 		txtFind.registerKeyboardAction(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				find();
@@ -71,7 +71,7 @@ public class SearchBox extends JFrame {
 		contentPane.add(chckbxCaseSensitive);
 		JButton btnFind = new JButton("Find");
 		btnFind.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				find();
 			}
@@ -80,7 +80,7 @@ public class SearchBox extends JFrame {
 		contentPane.add(btnFind);
 		JButton btnReplacefind = new JButton("Replace/Find");
 		btnReplacefind.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				replaceFind();
 			}
@@ -89,7 +89,7 @@ public class SearchBox extends JFrame {
 		contentPane.add(btnReplacefind);
 		JButton btnReplace = new JButton("Replace");
 		btnReplace.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				replace();
 			}
@@ -98,7 +98,7 @@ public class SearchBox extends JFrame {
 		contentPane.add(btnReplace);
 		JButton btnReplaceAll = new JButton("Replace All");
 		btnReplaceAll.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				replaceAll();
 			}
@@ -106,7 +106,7 @@ public class SearchBox extends JFrame {
 		btnReplaceAll.setBounds(130, 184, 110, 23);
 		contentPane.add(btnReplaceAll);
 	}
-	
+
 	public void find() {
 		int startPos = Main.txtByteEditView.getCaretPosition();
 		String toFind = txtFind.getText();
@@ -114,7 +114,8 @@ public class SearchBox extends JFrame {
 				: Main.txtByteEditView.getText().substring(startPos).toLowerCase();
 		int index = txt.indexOf(chckbxCaseSensitive.isSelected() ? toFind : toFind.toLowerCase());
 		if (index == -1) {
-			txt = chckbxCaseSensitive.isSelected() ? Main.txtByteEditView.getText() : Main.txtByteEditView.getText().toLowerCase();
+			txt = chckbxCaseSensitive.isSelected() ? Main.txtByteEditView.getText()
+					: Main.txtByteEditView.getText().toLowerCase();
 			index = txt.indexOf(chckbxCaseSensitive.isSelected() ? toFind : toFind.toLowerCase());
 			startPos = 0;
 			if (index == -1) {
@@ -123,19 +124,19 @@ public class SearchBox extends JFrame {
 		}
 		Main.txtByteEditView.select(startPos + index, startPos + index + toFind.length());
 	}
-	
+
 	public void replaceFind() {
 		replace();
 		find();
 	}
-	
+
 	public void replace() {
 		String txt = Main.txtByteEditView.getText();
 		int startPos = Main.txtByteEditView.getSelectionStart();
 		Main.txtByteEditView.replaceSelection(txtReplace.getText());
 		Main.txtByteEditView.select(startPos, startPos + txtReplace.getText().length());
 	}
-	
+
 	public void replaceAll() {
 		String toFind = txtFind.getText();
 		String toReplace = txtReplace.getText();
@@ -144,7 +145,8 @@ public class SearchBox extends JFrame {
 		if (chckbxCaseSensitive.isSelected()) {
 			Main.txtByteEditView.replaceRange(txt.replace(toFind, toReplace), 0, txt.length());
 		} else {
-			Main.txtByteEditView.replaceRange(txt.replaceAll("(?i)" + Pattern.quote(toFind), toReplace), 0, txt.length());
+			Main.txtByteEditView.replaceRange(txt.replaceAll("(?i)" + Pattern.quote(toFind), toReplace), 0,
+					txt.length());
 		}
 		Main.txtByteEditView.setCaretPosition(prev);
 	}

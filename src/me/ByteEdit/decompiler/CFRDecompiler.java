@@ -1,8 +1,6 @@
 package me.ByteEdit.decompiler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -24,8 +22,7 @@ import org.benf.cfr.reader.util.output.ToStringDumper;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-@SuppressWarnings("deprecation")
-public class CFRDecompiler {
+public class CFRDecompiler implements IDecompiler {
 
 	public static final HashMap<String, String> options = new HashMap<>();
 
@@ -84,7 +81,12 @@ public class CFRDecompiler {
 		options.put("usenametable", "true");
 	}
 
-	public static String decompile(ClassNode cn, byte[] b, MethodNode mn) {
+	@Override
+	public String decompile(ClassNode cn) {
+		return doDecompilation(cn, getBytes(cn), null);
+	}
+
+	private static String doDecompilation(ClassNode cn, byte[] b, MethodNode mn) {
 		try {
 			HashMap<String, String> ops = options;
 			ClassFileSource cfs = new ClassFileSource() {
@@ -131,7 +133,7 @@ public class CFRDecompiler {
 			}
 			String decompilation = runner.getDecompilationFor(cn.name);
 			System.gc(); // cfr has a performance bug
-			return decompilation.substring(37); // small hack to remove watermark
+			return decompilation;
 		} catch (Exception e) {
 			e.printStackTrace();
 			StringWriter sw = new StringWriter();
@@ -147,19 +149,5 @@ public class CFRDecompiler {
 			classFileSource = new ClassFileSourceImpl(options);
 		DCCommonState dcCommonState = new DCCommonState(options, classFileSource);
 		return dcCommonState;
-	}
-
-	protected Pair<byte[], String> getSystemClass(String name, String path) throws IOException {
-		InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
-		if (is != null) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			byte[] buffer = new byte[4096];
-			int n;
-			while ((n = is.read(buffer)) > 0) {
-				baos.write(buffer, 0, n);
-			}
-			return Pair.make(baos.toByteArray(), name);
-		}
-		return null;
 	}
 }

@@ -102,7 +102,8 @@ class DefaultTokenFactory implements TokenFactory {
 	@Override
 	public TokenImpl createToken(final char[] line, final int beg, final int end, final int startOffset,
 			final int type) {
-	//	if(tokenList.length - 1 > currentFreeToken) return null;
+//		if (tokenList.length - 1 > currentFreeToken)
+//			return null;
 		TokenImpl token = tokenList[currentFreeToken];
 		token.set(line, beg, end, startOffset, type);
 		currentFreeToken++;

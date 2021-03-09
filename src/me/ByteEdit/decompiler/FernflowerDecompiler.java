@@ -18,7 +18,7 @@ import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver {
+public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, IDecompiler {
 
 	private byte[] bytes;
 	private String returned;
@@ -50,7 +50,12 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver {
 		options.put("lac", false);
 	}
 
-	public String decompile(ClassNode cn, byte[] b, MethodNode mn) {
+	@Override
+	public String decompile(ClassNode cn) {
+		return doDecompilation(cn, getBytes(cn), null);
+	}
+
+	public String doDecompilation(ClassNode cn, byte[] b, MethodNode mn) {
 		try {
 			// TODO decompile method only
 			this.bytes = b;
@@ -65,6 +70,11 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver {
 
 				@Override
 				public void writeMessage(String message, Severity severity) {
+				}
+
+				@Override
+				public boolean accepts(Severity severity) {
+					return false;
 				}
 			});
 			StructContext sc = f.getStructContext();

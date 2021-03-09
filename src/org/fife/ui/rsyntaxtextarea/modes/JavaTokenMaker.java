@@ -3184,9 +3184,8 @@ public class JavaTokenMaker extends AbstractJFlexCTokenMaker {
 						return null;
 					}
 				} else {
-					//zzScanError(ZZ_NO_MATCH);
+					// zzScanError(ZZ_NO_MATCH);
 					return null;
-
 				}
 			}
 		}
