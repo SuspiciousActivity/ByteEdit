@@ -123,6 +123,8 @@ public class SearchBox extends JFrame {
 	}
 
 	public void replace() {
+		if (!Main.decompiler.isEditable())
+			return;
 		String txt = Main.txtByteEditView.getText();
 		int startPos = Main.txtByteEditView.getSelectionStart();
 		Main.txtByteEditView.replaceSelection(txtReplace.getText());
@@ -130,6 +132,8 @@ public class SearchBox extends JFrame {
 	}
 
 	public void replaceAll() {
+		if (!Main.decompiler.isEditable())
+			return;
 		String toFind = txtFind.getText();
 		String toReplace = txtReplace.getText();
 		String txt = Main.txtByteEditView.getText();
