@@ -3,24 +3,13 @@ package me.ByteEdit.decompiler;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.benf.cfr.reader.PluginRunner;
 import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
-import org.benf.cfr.reader.entities.ClassFile;
-import org.benf.cfr.reader.entities.Method;
-import org.benf.cfr.reader.entities.constantpool.ConstantPool;
-import org.benf.cfr.reader.state.ClassFileSourceImpl;
-import org.benf.cfr.reader.state.DCCommonState;
-import org.benf.cfr.reader.util.bytestream.BaseByteData;
-import org.benf.cfr.reader.util.getopt.OptionsImpl;
-import org.benf.cfr.reader.util.output.ToStringDumper;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class CFRDecompiler implements IDecompiler {
 
@@ -83,10 +72,10 @@ public class CFRDecompiler implements IDecompiler {
 
 	@Override
 	public String decompile(ClassNode cn) {
-		return doDecompilation(cn, getBytes(cn), null);
+		return doDecompilation(cn, getBytes(cn));
 	}
 
-	private static String doDecompilation(ClassNode cn, byte[] b, MethodNode mn) {
+	private static String doDecompilation(ClassNode cn, byte[] b) {
 		try {
 			HashMap<String, String> ops = options;
 			ClassFileSource cfs = new ClassFileSource() {
@@ -114,24 +103,7 @@ public class CFRDecompiler implements IDecompiler {
 					throw new RuntimeException();
 				}
 			};
-			PluginRunner runner = new PluginRunner(ops, cfs);
-			if (mn != null) {
-				BaseByteData data = new BaseByteData(b);
-				ClassFile cf = new ClassFile(data, "", initDCState(ops, cfs));
-				Field cpf = Method.class.getDeclaredField("cp");
-				Field descI = Method.class.getDeclaredField("descriptorIndex");
-				descI.setAccessible(true);
-				cpf.setAccessible(true);
-				for (Method m : cf.getMethodByName(mn.name)) {
-					ConstantPool cp = (ConstantPool) cpf.get(m);
-					if (cp.getUTF8Entry(descI.getInt(m)).getValue().equals(mn.desc)) {
-						ToStringDumper tsd = new ToStringDumper();
-						m.dump(tsd, true);
-						return tsd.toString();
-					}
-				}
-			}
-			String decompilation = runner.getDecompilationFor(cn.name);
+			String decompilation = new PluginRunner(ops, cfs).getDecompilationFor(cn.name);
 			System.gc(); // cfr has a performance bug
 			return decompilation;
 		} catch (Exception e) {
@@ -141,13 +113,5 @@ public class CFRDecompiler implements IDecompiler {
 			e.printStackTrace(pw);
 			return sw.toString();
 		}
-	}
-
-	private static DCCommonState initDCState(Map<String, String> optionsMap, ClassFileSource classFileSource) {
-		OptionsImpl options = new OptionsImpl(optionsMap);
-		if (classFileSource == null)
-			classFileSource = new ClassFileSourceImpl(options);
-		DCCommonState dcCommonState = new DCCommonState(options, classFileSource);
-		return dcCommonState;
 	}
 }

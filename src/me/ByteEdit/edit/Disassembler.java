@@ -127,7 +127,7 @@ public class Disassembler implements IDecompiler {
 			ctx.next("\n// #Fields\n");
 			ctx.next(doFields(classNode.fields, hs));
 			ctx.next("\n// #Methods\n");
-			ctx.next(doMethods(classNode.methods, classNode.name, hs));
+			ctx.next(doMethods(classNode.methods, hs));
 			ctx.next("}\n");
 
 			if (!hs.isEmpty())
@@ -154,48 +154,47 @@ public class Disassembler implements IDecompiler {
 						s += o + " = [";
 						valBefore = false;
 						continue;
-					} else {
-						if (o instanceof String[]) {
-							String[] arr = (String[]) o;
-							boolean w8ing = false;
-							for (String rofl : arr) {
-								if (!w8ing) {
-									s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
-									w8ing = true;
-								} else {
-									s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
+					}
+					if (o instanceof String[]) {
+						String[] arr = (String[]) o;
+						boolean w8ing = false;
+						for (String rofl : arr) {
+							if (!w8ing) {
+								s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
+								w8ing = true;
+							} else {
+								s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "]";
+							}
+						}
+						s += ", ";
+					} else if (o instanceof List) {
+						List list = (List) o;
+						s += "{ ";
+						for (Object obj : list) {
+							if (obj instanceof String[]) {
+								String[] arr = (String[]) obj;
+								boolean w8ing = false;
+								for (String rofl : arr) {
+									if (!w8ing) {
+										s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
+										w8ing = true;
+									} else {
+										s += UnicodeUtils.escapeWithSpaces(hs, rofl);
+									}
 								}
+							} else {
+								s += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj)) + "\"";
 							}
 							s += ", ";
-						} else if (o instanceof List) {
-							List list = (List) o;
-							s += "{ ";
-							for (Object obj : list) {
-								if (obj instanceof String[]) {
-									String[] arr = (String[]) obj;
-									boolean w8ing = false;
-									for (String rofl : arr) {
-										if (!w8ing) {
-											s += UnicodeUtils.escapeWithSpaces(hs, rofl) + "/";
-											w8ing = true;
-										} else {
-											s += UnicodeUtils.escapeWithSpaces(hs, rofl);
-										}
-									}
-								} else {
-									s += "\"" + UnicodeUtils.escape(hs, String.valueOf(obj)) + "\"";
-								}
-								s += ", ";
-							}
-							s = s.substring(0, s.length() - 2);
-							s += " }], ";
-						} else if (o instanceof String) {
-							s += "\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"], ";
-						} else {
-							s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
 						}
-						valBefore = true;
+						s = s.substring(0, s.length() - 2);
+						s += " }], ";
+					} else if (o instanceof String) {
+						s += "\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"], ";
+					} else {
+						s += "(" + o.getClass().getName().replace(".", "/") + ") " + o + "], ";
 					}
+					valBefore = true;
 				}
 				if (s.endsWith(", "))
 					s = s.substring(0, s.length() - 2);
@@ -207,7 +206,7 @@ public class Disassembler implements IDecompiler {
 		return ctx.finish();
 	}
 
-	private static String doMethods(List<MethodNode> methods, String className, HugeStrings hs)
+	private static String doMethods(List<MethodNode> methods, HugeStrings hs)
 			throws InterruptedException, ExecutionException {
 		boolean multithreaded = Main.INSTANCE.mntmMultithreaded.isSelected();
 		Future<String>[] futures = new Future[methods.size()];
@@ -221,7 +220,7 @@ public class Disassembler implements IDecompiler {
 						ms += "\t// #Max: l:" + mn.maxLocals + " s:" + mn.maxStack + "\n";
 						if (mn.signature != null)
 							ms += "\t// #Signature: " + UnicodeUtils.escapeWithSpaces(hs, mn.signature) + "\n";
-						String[] dis = disassembleMethod(className, mn, hs);
+						String[] dis = disassembleMethod(mn, hs);
 						ms += dis[2];
 						ms += dis[1];
 						if (mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty())
@@ -286,7 +285,7 @@ public class Disassembler implements IDecompiler {
 		return ctx.finish();
 	}
 
-	private static String[] disassembleMethod(String className, MethodNode mn, HugeStrings hs) {
+	private static String[] disassembleMethod(MethodNode mn, HugeStrings hs) {
 		HashMap<Label, Integer> labels = new HashMap<Label, Integer>();
 		String localVarTable;
 		String tryCatchTable;
@@ -299,7 +298,7 @@ public class Disassembler implements IDecompiler {
 		for (AbstractInsnNode n = insnList.getFirst(); n != null; n = n.getNext()) {
 			if (n instanceof LabelNode) {
 				int id = labels.size() + 1;
-				if (deobfNumbers)
+				if (deobfNumbers && labelsReversed != null)
 					labelsReversed.add(((LabelNode) n).getLabel());
 				labels.put(((LabelNode) n).getLabel(), id);
 			}
@@ -336,7 +335,7 @@ public class Disassembler implements IDecompiler {
 			insnList = calc.get();
 			int i = 0;
 			for (AbstractInsnNode n = insnList.getFirst(); n != null; n = n.getNext()) {
-				if (n instanceof LabelNode) {
+				if (n instanceof LabelNode && labelsReversed != null) {
 					((LabelNode) n).setLabel(labelsReversed.get(i++));
 				}
 			}
@@ -359,9 +358,8 @@ public class Disassembler implements IDecompiler {
 			if (n.getOpcode() == Opcodes.NEWARRAY) {
 				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " "
 						+ ClassUtil.getArrayTypeByID(node.operand) + "\n";
-			} else {
-				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
 			}
+			return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " " + node.operand + "\n";
 		}
 		case VAR_INSN: {
 			VarInsnNode node = (VarInsnNode) n;
@@ -443,16 +441,15 @@ public class Disassembler implements IDecompiler {
 						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "", hs);
 				s += "\n\t\t]\n";
 				return s;
-			} else {
-				String decomp = ClassUtil.getDecompiledValue(node.cst, "", hs);
-				if (node.cst instanceof String) {
-					if (decomp.startsWith("\"#") && decomp.endsWith("\""))
-						decomp = decomp.substring(1, decomp.length() - 1);
-					else if (decomp.startsWith("\"\\u0023"))
-						decomp = "\"#" + decomp.substring(7);
-				}
-				return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + decomp + "\n";
 			}
+			String decomp = ClassUtil.getDecompiledValue(node.cst, "", hs);
+			if (node.cst instanceof String) {
+				if (decomp.startsWith("\"#") && decomp.endsWith("\""))
+					decomp = decomp.substring(1, decomp.length() - 1);
+				else if (decomp.startsWith("\"\\u0023"))
+					decomp = "\"#" + decomp.substring(7);
+			}
+			return "\t\t" + OpcodesReverse.reverseOpcode(node.getOpcode()) + " " + decomp + "\n";
 		}
 		case IINC_INSN: {
 			IincInsnNode node = (IincInsnNode) n;

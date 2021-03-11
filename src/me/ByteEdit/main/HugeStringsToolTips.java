@@ -85,9 +85,8 @@ public class HugeStringsToolTips implements ToolTipSupplier {
 					} catch (IOException e1) {
 					}
 					break;
-				} else {
-					len += asm.length();
 				}
+				len += asm.length();
 			}
 		} catch (Exception e1) {
 		}

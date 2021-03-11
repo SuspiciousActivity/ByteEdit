@@ -84,11 +84,9 @@ public class UnicodeUtils {
 			sb.append(c);
 		}
 		if (stage != 0) {
-			if (unicodeBuffer != 0) {
+			if (unicodeBuffer != 0)
 				throw new IllegalArgumentException("The unicode at the end is incomplete.");
-			} else {
-				throw new IllegalArgumentException("'\\' at the end is invalid.");
-			}
+			throw new IllegalArgumentException("'\\' at the end is invalid.");
 		}
 		return sb.toString();
 	}

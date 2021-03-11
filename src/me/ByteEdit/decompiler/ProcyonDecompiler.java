@@ -5,7 +5,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import com.strobel.assembler.InputTypeLoader;
 import com.strobel.assembler.metadata.Buffer;
@@ -21,10 +20,10 @@ public class ProcyonDecompiler implements IDecompiler {
 
 	@Override
 	public String decompile(ClassNode cn) {
-		return doDecompilation(cn, getBytes(cn), null);
+		return doDecompilation(cn, getBytes(cn));
 	}
 
-	private static String doDecompilation(ClassNode cn, byte[] b, MethodNode mn) {
+	private static String doDecompilation(ClassNode cn, byte[] b) {
 		try {
 			// TODO decompile method only
 			DecompilerSettings settings = new DecompilerSettings();
@@ -48,9 +47,8 @@ public class ProcyonDecompiler implements IDecompiler {
 						buffer.putByteArray(b, 0, b.length);
 						buffer.position(0);
 						return true;
-					} else {
-						return backLoader.tryLoadType(s, buffer);
 					}
+					return backLoader.tryLoadType(s, buffer);
 				}
 			});
 			TypeReference type = metadataSystem.lookupType(cn.name);

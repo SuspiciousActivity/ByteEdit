@@ -125,7 +125,6 @@ public class SearchBox extends JFrame {
 	public void replace() {
 		if (!Main.decompiler.isEditable())
 			return;
-		String txt = Main.txtByteEditView.getText();
 		int startPos = Main.txtByteEditView.getSelectionStart();
 		Main.txtByteEditView.replaceSelection(txtReplace.getText());
 		Main.txtByteEditView.select(startPos, startPos + txtReplace.getText().length());

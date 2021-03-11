@@ -339,6 +339,8 @@ public class Assembler {
 						tryCatchBlocksToParse.clear();
 						stage = 0;
 					} else if (s.startsWith("// #Signature: ")) {
+						if (node == null)
+							throw new IllegalStateException("node is null");
 						node.signature = UnicodeUtils.unescape(hsr, s.substring(15));
 					} else if (s.equals("// #TryCatch:")) {
 						stage = 1;
@@ -352,6 +354,8 @@ public class Assembler {
 							localVarsToParse.add(s);
 						}
 					} else if (s.equals("}")) {
+						if (node == null)
+							throw new IllegalStateException("node is null");
 						if (!annotationsForNext.isEmpty()) {
 							if (node.visibleAnnotations == null) {
 								node.visibleAnnotations = new ArrayList<>();
@@ -404,6 +408,8 @@ public class Assembler {
 						}
 						clazz.methods.add(node);
 					} else if (!s.startsWith("\t")) {
+						if (node == null)
+							throw new IllegalStateException("node is null");
 						s = s.substring(0, s.length() - 2);
 						if (s.contains(" throws ")) {
 							String exceptions = s.substring(s.lastIndexOf(" throws ") + 8);
@@ -477,6 +483,8 @@ public class Assembler {
 						s = s.substring(1);
 						if (!temp.isEmpty()) {
 							if (s.equals("]")) {
+								if (node == null)
+									throw new IllegalStateException("node is null");
 								temp += s;
 								node.instructions.add(getNode(hsr, temp, methodLabelMap));
 								temp = "";
@@ -487,6 +495,8 @@ public class Assembler {
 							if (s.endsWith("[")) {
 								temp += s + "\n";
 							} else {
+								if (node == null)
+									throw new IllegalStateException("node is null");
 								node.instructions.add(getNode(hsr, s, methodLabelMap));
 							}
 						}
@@ -508,7 +518,8 @@ public class Assembler {
 			return null;
 		} finally {
 			try {
-				read.close();
+				if (read != null)
+					read.close();
 			} catch (Exception e) {
 			}
 		}
@@ -1559,38 +1570,37 @@ public class Assembler {
 	private static Object[] parseFrameList(HugeStringsRev hsr, String str, HashMap<LabelNode, Integer> labels) {
 		ArrayList<Object> list = new ArrayList<>();
 		String l = str.substring(1, str.length() - 1);
-		if (l.isEmpty()) {
+		if (l.isEmpty())
 			return EMPTY_OBJECT_ARRAY;
-		} else {
-			for (String asd : l.split(", ")) {
-				if (!asd.startsWith("(")) {
-					int frameType = ClassUtil.getFrameTypeByName(asd);
-					if (frameType != -1)
-						list.add(Integer.valueOf(frameType));
-					else
-						list.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
-				} else {
-					if (asd.startsWith("(label) ")) {
-						int labelNr = Integer.parseInt(asd.split(" ")[1]);
-						boolean found = false;
-						for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
-							if (entry.getValue() == labelNr) {
-								list.add(entry.getKey());
-								found = true;
-							}
+
+		for (String asd : l.split(", ")) {
+			if (!asd.startsWith("(")) {
+				int frameType = ClassUtil.getFrameTypeByName(asd);
+				if (frameType != -1)
+					list.add(Integer.valueOf(frameType));
+				else
+					list.add(UnicodeUtils.unescape(hsr, asd.substring(1, asd.length() - 1)));
+			} else {
+				if (asd.startsWith("(label) ")) {
+					int labelNr = Integer.parseInt(asd.split(" ")[1]);
+					boolean found = false;
+					for (Map.Entry<LabelNode, Integer> entry : labels.entrySet()) {
+						if (entry.getValue() == labelNr) {
+							list.add(entry.getKey());
+							found = true;
 						}
-						if (!found) {
-							LabelNode ln = new LabelNode(new Label());
-							labels.put(ln, labelNr);
-							list.add(ln);
-						}
-					} else {
-						list.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
 					}
+					if (!found) {
+						LabelNode ln = new LabelNode(new Label());
+						labels.put(ln, labelNr);
+						list.add(ln);
+					}
+				} else {
+					list.add(ClassUtil.getCastedValue(asd.split(" ")[1], asd.split("\\) ")[0].substring(1)));
 				}
 			}
-			return list.toArray(new Object[list.size()]);
 		}
+		return list.toArray(new Object[list.size()]);
 	}
 
 }

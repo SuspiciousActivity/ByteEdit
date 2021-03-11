@@ -17,7 +17,6 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, IDecompiler {
 
@@ -53,10 +52,10 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, ID
 
 	@Override
 	public String decompile(ClassNode cn) {
-		return doDecompilation(cn, getBytes(cn), null);
+		return doDecompilation(cn, getBytes(cn));
 	}
 
-	public String doDecompilation(ClassNode cn, byte[] b, MethodNode mn) {
+	public String doDecompilation(ClassNode cn, byte[] b) {
 		try {
 			// TODO decompile method only
 			this.bytes = b;

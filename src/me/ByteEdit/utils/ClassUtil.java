@@ -320,11 +320,9 @@ public class ClassUtil {
 			s += "enum ";
 			acc ^= ACC_ENUM;
 		}
-		if (acc == access) {
+		if (acc == access)
 			return s;
-		} else {
-			return "0x" + Integer.toHexString(access) + " ";
-		}
+		return "0x" + Integer.toHexString(access) + " ";
 	}
 
 	/**
@@ -544,8 +542,7 @@ public class ClassUtil {
 		DecompilationInterface di = diMap.get(o.getClass());
 		if (di != null)
 			return di.apply(o, desc, escapeSpaces, hs);
-		else
-			return o.toString();
+		return o.toString();
 	}
 
 	public static String getDecompiledValue(Object o, String desc, HugeStrings hs) {

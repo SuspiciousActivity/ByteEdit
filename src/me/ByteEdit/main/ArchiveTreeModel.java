@@ -89,7 +89,7 @@ public class ArchiveTreeModel extends DefaultTreeModel {
 		}
 	}
 
-	private int getSlashCount(String s) {
+	private static int getSlashCount(String s) {
 		int count = 0;
 		for (char c : s.toCharArray()) {
 			if (c == '/')

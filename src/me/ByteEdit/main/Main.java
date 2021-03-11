@@ -54,8 +54,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -168,7 +166,7 @@ public class Main extends JFrame {
 	/**
 	 * Create a simple provider that adds some Java-related completions.
 	 */
-	private CompletionProvider createCompletionProvider() {
+	private static CompletionProvider createCompletionProvider() {
 		DefaultCompletionProvider provider = new DefaultCompletionProvider();
 		for (int i = 0; i < 200; i++) {
 			String s = OpcodesReverse.reverseOpcode(i);
@@ -290,7 +288,6 @@ public class Main extends JFrame {
 				if (action == 0) {
 					final File file = fileChooser.getSelectedFile();
 					saveFolder = file.getParentFile();
-					boolean shouldSave = false;
 					if (file.exists()) {
 						synchronized (treeLock) {
 							jarFile = file;
@@ -515,17 +512,8 @@ public class Main extends JFrame {
 			}
 		});
 		scrollPane.setViewportView(tree);
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-
-			public void valueChanged(TreeSelectionEvent e) {
-				synchronized (treeLock) {
-					if (!isChangingFile) {
-						SingleThreadedExecutor.execute(
-								() -> selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path));
-					}
-				}
-			}
-		});
+		tree.addTreeSelectionListener(e -> SingleThreadedExecutor
+				.execute(() -> selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path)));
 		new DropTarget(tree, new DropTargetListener() {
 
 			@Override
@@ -760,7 +748,7 @@ public class Main extends JFrame {
 		}
 	}
 
-	private void saveCurrentClassNode() {
+	private static void saveCurrentClassNode() {
 		String txt = txtByteEditView.getText();
 		for (String s : txt.split("\\/\\/ #Annotations:\n")) {
 			if (s.isEmpty())
