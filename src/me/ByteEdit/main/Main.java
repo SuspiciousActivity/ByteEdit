@@ -303,7 +303,7 @@ public class Main extends JFrame {
 									try {
 										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile), classNodes,
 												otherFiles);
-										EventQueue.invokeLater(new Runnable() {
+										EventQueue.invokeAndWait(new Runnable() {
 											public void run() {
 												synchronized (treeLock) {
 													tree.setModel(model);
@@ -320,7 +320,7 @@ public class Main extends JFrame {
 												}
 											}
 										});
-									} catch (IOException e) {
+									} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}
@@ -458,7 +458,7 @@ public class Main extends JFrame {
 									try {
 										ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile), classNodes,
 												otherFiles);
-										EventQueue.invokeLater(new Runnable() {
+										EventQueue.invokeAndWait(new Runnable() {
 											public void run() {
 												synchronized (treeLock) {
 													tree.setModel(model);
@@ -467,7 +467,7 @@ public class Main extends JFrame {
 												}
 											}
 										});
-									} catch (IOException e) {
+									} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}
@@ -545,7 +545,7 @@ public class Main extends JFrame {
 											try {
 												ArchiveTreeModel model = new ArchiveTreeModel(new ZipFile(jarFile),
 														classNodes, otherFiles);
-												EventQueue.invokeLater(new Runnable() {
+												EventQueue.invokeAndWait(new Runnable() {
 													public void run() {
 														synchronized (treeLock) {
 															tree.setModel(model);
@@ -562,7 +562,7 @@ public class Main extends JFrame {
 														}
 													}
 												});
-											} catch (IOException e) {
+											} catch (Exception e) {
 												e.printStackTrace();
 											}
 										}
@@ -667,12 +667,14 @@ public class Main extends JFrame {
 							decompileCurrentNode();
 							try {
 								EventQueue.invokeAndWait(() -> {
-									txtByteEditView.setCaretPosition(0);
-									try {
-										txtByteEditView.setSyntaxEditingStyle(decompiler.getSyntaxStyle());
-									} catch (Throwable t) {
+									synchronized (treeLock) {
+										txtByteEditView.setCaretPosition(0);
+										try {
+											txtByteEditView.setSyntaxEditingStyle(decompiler.getSyntaxStyle());
+										} catch (Throwable t) {
+										}
+										txtByteEditView.setEditable(decompiler.isEditable());
 									}
-									txtByteEditView.setEditable(decompiler.isEditable());
 								});
 							} catch (Exception e1) {
 								e1.printStackTrace();
@@ -796,9 +798,14 @@ public class Main extends JFrame {
 					}
 				}
 			}
-			txtByteEditView.setText(dis);
-			if (dis.length() > prev)
-				txtByteEditView.setCaretPosition(prev);
+			String fdis = dis;
+			EventQueue.invokeAndWait(() -> {
+				synchronized (treeLock) {
+					txtByteEditView.setText(fdis);
+					if (fdis.length() > prev)
+						txtByteEditView.setCaretPosition(prev);
+				}
+			});
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
@@ -857,14 +864,18 @@ public class Main extends JFrame {
 							public void run() {
 								synchronized (treeLock) {
 									save(file, classNodes.values());
-									EventQueue.invokeLater(new Runnable() {
-										public void run() {
-											synchronized (treeLock) {
-												isChangingFile = false;
-												Main.this.setTitle("ByteEdit");
+									try {
+										EventQueue.invokeAndWait(new Runnable() {
+											public void run() {
+												synchronized (treeLock) {
+													isChangingFile = false;
+													Main.this.setTitle("ByteEdit");
+												}
 											}
-										}
-									});
+										});
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 								}
 							}
 						}).start();

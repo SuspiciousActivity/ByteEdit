@@ -63,6 +63,7 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, ID
 			for (Entry<String, Boolean> entry : options.entrySet()) {
 				map.put(entry.getKey(), entry.getValue() ? "1" : "0");
 			}
+			map.put("ind", "    ");
 			Fernflower f = new Fernflower(this, this, map, new IFernflowerLogger() {
 				@Override
 				public void writeMessage(String message, Throwable t) {

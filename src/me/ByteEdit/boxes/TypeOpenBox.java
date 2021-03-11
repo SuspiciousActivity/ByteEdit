@@ -40,11 +40,10 @@ public class TypeOpenBox extends JFrame {
 		DefaultListModel<String> model = new DefaultListModel<>();
 		JList<String> list = new JList(model);
 		list.addListSelectionListener(new ListSelectionListener() {
-
+			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				String val = list.getSelectedValue();
 				if (val != null && !val.equals(Main.currentNodeName)) {
-
 					SingleThreadedExecutor.execute(() -> Main.selectFile(val));
 				}
 			}

@@ -43,7 +43,7 @@ public class JDDecompiler implements Loader, Printer, IDecompiler {
 		return cw.toByteArray();
 	}
 
-	protected static final String TAB = "  ";
+	protected static final String TAB = "    ";
 	protected static final String NEWLINE = "\n";
 
 	protected int indentationCount = 0;
