@@ -6,8 +6,7 @@ import me.ByteEdit.edit.Disassembler;
 
 public enum EnumDecompiler {
 	BYTEEDIT("ByteEdit", new Disassembler(), false), PROCYON("Procyon", new ProcyonDecompiler()),
-	FERNFLOWER("FernFlower", new FernflowerDecompiler()), JD_GUI("JD-GUI", new JDDecompiler()),
-	CFR("CFR", new CFRDecompiler());
+	JD_GUI("JD-GUI", new JDDecompiler()), CFR("CFR", new CFRDecompiler());
 
 	private final String name;
 	private final IDecompiler decompiler;
