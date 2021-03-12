@@ -130,7 +130,7 @@ public class CompilationBox extends JFrame {
 								synchronized (Main.classNodes) {
 									classNodes = new HashMap<>(Main.classNodes);
 								}
-								classNodes.put("Compiled.class", node);
+								classNodes.put("Compiled", node);
 								File[] files = tmpFolder.listFiles();
 								if (files != null)
 									for (File f : files) {
@@ -145,7 +145,7 @@ public class CompilationBox extends JFrame {
 										read = new ClassReader(baos.toByteArray());
 										node = new ClassNode();
 										read.accept(node, 0);
-										classNodes.put(f.getName(), node);
+										classNodes.put(node.name, node);
 									}
 								compSuccess.textArea
 										.setText(decompiler.getDecompiler().decompile(mainNode, classNodes));

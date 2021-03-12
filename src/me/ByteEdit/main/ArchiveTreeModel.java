@@ -61,7 +61,7 @@ public class ArchiveTreeModel extends DefaultTreeModel {
 						ClassReader reader = new ClassReader(data);
 						ClassNode node = new ClassNode();
 						reader.accept(node, 0);
-						classNodes.put(Main.getFullName(node.name), node);
+						classNodes.put(node.name, node);
 
 						if ((next.getName().contains("/")
 								? (!Main.patternSlash
@@ -70,7 +70,7 @@ public class ArchiveTreeModel extends DefaultTreeModel {
 								: (!next.getName().contains("$")))
 								|| (next.getName().startsWith("$") || next.getName().contains("$$")
 										|| next.getName().endsWith("$"))) {
-							paths.add(Main.getFullName(node.name));
+							paths.add(node.name + ".class");
 						}
 					} catch (Exception e) {
 						otherFiles.put(next.getName(), data);

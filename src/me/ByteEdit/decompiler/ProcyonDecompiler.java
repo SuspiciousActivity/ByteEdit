@@ -51,7 +51,7 @@ public class ProcyonDecompiler implements IDecompiler {
 					}
 					ClassNode node;
 					synchronized (classNodes) {
-						node = classNodes.get(s + ".class");
+						node = classNodes.get(s);
 					}
 					if (node != null) {
 						byte[] data = IDecompiler.getBytes(node);

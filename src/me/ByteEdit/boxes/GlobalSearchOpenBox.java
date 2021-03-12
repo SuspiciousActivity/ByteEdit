@@ -40,7 +40,7 @@ public class GlobalSearchOpenBox extends JFrame {
 				SingleThreadedExecutor.submit(() -> {
 					Info val = list.getSelectedValue();
 					if (val != null && !val.owner.equals(Main.currentNodeName)) {
-						Main.selectFile(val.nodePath);
+						Main.selectFile(val.owner);
 					}
 				});
 			}
@@ -59,14 +59,12 @@ public class GlobalSearchOpenBox extends JFrame {
 		String name;
 		String desc;
 		MethodNode mn;
-		String nodePath;
 
 		public Info(String owner, String name, String desc, MethodNode mn) {
 			this.owner = owner;
 			this.name = name;
 			this.desc = desc;
 			this.mn = mn;
-			nodePath = Main.getFullName(owner);
 		}
 
 		@Override

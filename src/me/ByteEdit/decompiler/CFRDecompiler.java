@@ -110,7 +110,7 @@ public class CFRDecompiler implements IDecompiler {
 					// try loading other classes from jar
 					ClassNode node;
 					synchronized (classNodes) {
-						node = classNodes.get(name + ".class");
+						node = classNodes.get(name);
 					}
 					if (node != null)
 						return Pair.make(IDecompiler.getBytes(node), name);

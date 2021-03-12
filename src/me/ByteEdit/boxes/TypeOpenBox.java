@@ -79,19 +79,17 @@ public class TypeOpenBox extends JFrame {
 				}
 				String search = UnicodeUtils.unescape(null, txtSearch.getText(), true).toLowerCase();
 				if (search.contains("/")) {
-					for (String s : Main.classNodes.keySet()) {
-						String className = s.substring(0, s.length() - 6);
+					for (String className : Main.classNodes.keySet()) {
 						if (!className.contains("$") && className.toLowerCase().startsWith(search)) {
-							model.addElement(s);
+							model.addElement(className);
 						}
 					}
 				} else {
-					for (String s : Main.classNodes.keySet()) {
-						String[] split = s.split("/");
-						String className = split[split.length - 1];
-						className = className.substring(0, className.length() - 6);
+					for (String className : Main.classNodes.keySet()) {
+						String[] split = className.split("/");
+						className = split[split.length - 1];
 						if (!className.contains("$") && className.toLowerCase().startsWith(search)) {
-							model.addElement(s);
+							model.addElement(className);
 						}
 					}
 				}

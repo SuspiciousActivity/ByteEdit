@@ -483,12 +483,11 @@ public class Main extends JFrame {
 					String s = ((ByteEditTreeNode) tree.getSelectionPath().getLastPathComponent()).path;
 					if (JOptionPane.showConfirmDialog(INSTANCE, "Do you want to delete\n\"" + s + "\"?", "Delete",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						String substr = s.substring(0, s.length() - 6);
 						ArrayList<String> toRemove = new ArrayList<>();
 						for (String key : Main.classNodes.keySet()) {
 							if (key.contains("$")) {
 								String[] split = key.split("\\$");
-								if (split[0].equals(substr)) {
+								if (split[0].equals(s)) {
 									toRemove.add(key);
 								}
 							}
@@ -757,15 +756,15 @@ public class Main extends JFrame {
 			if (node == null) {
 				continue;
 			}
-			if (classNodes.replace(getFullName(node.name), node) == null) {
-				classNodes.put(getFullName(node.name), node);
+			if (classNodes.replace(node.name, node) == null) {
+				classNodes.put(node.name, node);
 				ArchiveTreeModel model;
 				if (tree.getModel().getClass().equals(DefaultTreeModel.class)) {
 					tree.setModel(model = new ArchiveTreeModel(classNodes, otherFiles));
 				} else {
 					model = (ArchiveTreeModel) tree.getModel();
 				}
-				String name = getFullName(node.name);
+				String name = node.name + ".class";
 				if (name.contains("/") ? (!name.split("/")[name.split("/").length - 1].contains("$"))
 						: (!name.contains("$"))) {
 					model.paths.add(name);
@@ -801,6 +800,7 @@ public class Main extends JFrame {
 
 	public static void selectFile(String s) {
 		if (s != null && s.endsWith(".class")) {
+			s = s.substring(0, s.length() - 6);
 			currentNodeName = s;
 			decompileCurrentNode();
 			txtByteEditView.setCaretPosition(0);
@@ -855,10 +855,8 @@ public class Main extends JFrame {
 									try {
 										EventQueue.invokeAndWait(new Runnable() {
 											public void run() {
-												synchronized (treeLock) {
-													isChangingFile = false;
-													Main.this.setTitle("ByteEdit");
-												}
+												isChangingFile = false;
+												Main.this.setTitle("ByteEdit");
 											}
 										});
 									} catch (Exception e) {
@@ -917,7 +915,7 @@ public class Main extends JFrame {
 			for (ClassNode node : classes) {
 				ClassWriter writer = new ClassWriter(computeFlags);
 				node.accept(writer);
-				output.putNextEntry(new ZipEntry(getFullName(node.name)));
+				output.putNextEntry(new ZipEntry(node.name + ".class"));
 				output.write(writer.toByteArray());
 				output.closeEntry();
 			}
@@ -942,9 +940,5 @@ public class Main extends JFrame {
 
 	public static void showError(String s) {
 		JOptionPane.showMessageDialog(INSTANCE, s, "Error!", JOptionPane.ERROR_MESSAGE);
-	}
-
-	public static String getFullName(String s) {
-		return s + ".class";
 	}
 }

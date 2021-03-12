@@ -42,7 +42,7 @@ public class JDDecompiler implements Loader, Printer, IDecompiler {
 	@Override
 	public boolean canLoad(String internalName) {
 		synchronized (classNodes) {
-			return classNodes.containsKey(internalName + ".class");
+			return classNodes.containsKey(internalName);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class JDDecompiler implements Loader, Printer, IDecompiler {
 	public byte[] load(String internalName) throws LoaderException {
 		ClassNode node;
 		synchronized (classNodes) {
-			node = classNodes.get(internalName + ".class");
+			node = classNodes.get(internalName);
 		}
 		if (node != null)
 			return IDecompiler.getBytes(node);
