@@ -663,22 +663,20 @@ public class Main extends JFrame {
 					EnumDecompiler selected = (EnumDecompiler) e.getItem();
 					SingleThreadedExecutor.submit(() -> {
 						decompiler = selected;
-						if (currentNodeName != null) {
-							decompileCurrentNode();
-							try {
-								EventQueue.invokeAndWait(() -> {
-									synchronized (treeLock) {
-										txtByteEditView.setCaretPosition(0);
-										try {
-											txtByteEditView.setSyntaxEditingStyle(decompiler.getSyntaxStyle());
-										} catch (Throwable t) {
-										}
-										txtByteEditView.setEditable(decompiler.isEditable());
+						decompileCurrentNode();
+						try {
+							EventQueue.invokeAndWait(() -> {
+								synchronized (treeLock) {
+									txtByteEditView.setCaretPosition(0);
+									try {
+										txtByteEditView.setSyntaxEditingStyle(decompiler.getSyntaxStyle());
+									} catch (Throwable t) {
 									}
-								});
-							} catch (Exception e1) {
-								e1.printStackTrace();
-							}
+									txtByteEditView.setEditable(decompiler.isEditable());
+								}
+							});
+						} catch (Exception e1) {
+							e1.printStackTrace();
 						}
 					});
 				}
@@ -781,6 +779,8 @@ public class Main extends JFrame {
 	}
 
 	public static void decompileCurrentNode() {
+		if (currentNodeName == null)
+			return;
 		try {
 			EnumDecompiler decompiler = Main.decompiler;
 			String current = currentNodeName;
