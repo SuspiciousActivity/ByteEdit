@@ -37,7 +37,7 @@ public class GlobalSearchOpenBox extends JFrame {
 		JList<Info> list = new JList(model);
 		list.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
-				SingleThreadedExecutor.execute(() -> {
+				SingleThreadedExecutor.submit(() -> {
 					Info val = list.getSelectedValue();
 					if (val != null && !val.owner.equals(Main.currentNodeName)) {
 						Main.selectFile(val.nodePath);

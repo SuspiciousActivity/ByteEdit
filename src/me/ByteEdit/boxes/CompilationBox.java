@@ -106,7 +106,7 @@ public class CompilationBox extends JFrame {
 							null, Arrays.asList(new JavaSourceFromString("Compiled", source))).call();
 					String res = out.toString();
 					if (res.isEmpty()) {
-						SingleThreadedExecutor.execute(() -> {
+						SingleThreadedExecutor.submit(() -> {
 							try {
 								File clazz = new File(tmpFolder, "Compiled.class");
 								ByteArrayOutputStream baos = new ByteArrayOutputStream();

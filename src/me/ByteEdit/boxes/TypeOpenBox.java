@@ -44,7 +44,7 @@ public class TypeOpenBox extends JFrame {
 			public void valueChanged(ListSelectionEvent e) {
 				String val = list.getSelectedValue();
 				if (val != null && !val.equals(Main.currentNodeName)) {
-					SingleThreadedExecutor.execute(() -> Main.selectFile(val));
+					SingleThreadedExecutor.submit(() -> Main.selectFile(val));
 				}
 			}
 		});

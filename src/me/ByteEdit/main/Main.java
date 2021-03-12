@@ -513,7 +513,7 @@ public class Main extends JFrame {
 		});
 		scrollPane.setViewportView(tree);
 		tree.addTreeSelectionListener(e -> SingleThreadedExecutor
-				.execute(() -> selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path)));
+				.submit(() -> selectFile(((ByteEditTreeNode) e.getPath().getLastPathComponent()).path)));
 		new DropTarget(tree, new DropTargetListener() {
 
 			@Override
@@ -606,7 +606,7 @@ public class Main extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 116 && currentNodeName != null) { // F5
-					SingleThreadedExecutor.execute(Main::decompileCurrentNode);
+					SingleThreadedExecutor.submit(Main::decompileCurrentNode);
 				}
 			}
 		});
@@ -661,7 +661,7 @@ public class Main extends JFrame {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					EnumDecompiler selected = (EnumDecompiler) e.getItem();
-					SingleThreadedExecutor.execute(() -> {
+					SingleThreadedExecutor.submit(() -> {
 						decompiler = selected;
 						if (currentNodeName != null) {
 							decompileCurrentNode();

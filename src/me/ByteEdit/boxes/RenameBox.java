@@ -211,7 +211,7 @@ public class RenameBox extends JFrame {
 					}
 				}
 
-				SingleThreadedExecutor.execute(() -> {
+				SingleThreadedExecutor.submit(() -> {
 					// refresh
 					Main.decompileCurrentNode();
 					name = newName;
