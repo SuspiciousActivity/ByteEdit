@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.jar.Manifest;
 
@@ -51,11 +52,11 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, ID
 	}
 
 	@Override
-	public String decompile(ClassNode cn) {
-		return doDecompilation(cn, getBytes(cn));
+	public String decompile(ClassNode cn, Map<String, ClassNode> classNodes) {
+		return doDecompilation(cn, IDecompiler.getBytes(cn), classNodes);
 	}
 
-	public String doDecompilation(ClassNode cn, byte[] b) {
+	public String doDecompilation(ClassNode cn, byte[] b, Map<String, ClassNode> classNodes) {
 		try {
 			// TODO decompile method only
 			this.bytes = b;
@@ -87,7 +88,7 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver, ID
 					sc.getDecompiledData());
 			sc.getUnits().put(fakePath, unit);
 			unit.addClass(cl, "none.class");
-			sc.getLoader().addClassLink(cn.name, new LazyLoader.Link(LazyLoader.Link.CLASS, fakePath, null));
+			sc.getLoader().addClassLink(cn.name, new LazyLoader.Link(LazyLoader.Link.CLASS, fakePath, cn.name));
 
 			f.decompileContext();
 			return returned;

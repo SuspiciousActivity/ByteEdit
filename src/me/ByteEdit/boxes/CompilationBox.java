@@ -15,6 +15,8 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -122,7 +124,13 @@ public class CompilationBox extends JFrame {
 								ClassNode node = new ClassNode();
 								read.accept(node, 0);
 								EnumDecompiler decompiler = EnumDecompiler.BYTEEDIT;
-								String dis = decompiler.getDecompiler().decompile(node);
+								ClassNode mainNode = node;
+
+								Map<String, ClassNode> classNodes;
+								synchronized (Main.classNodes) {
+									classNodes = new HashMap<>(Main.classNodes);
+								}
+								classNodes.put("Compiled.class", node);
 								File[] files = tmpFolder.listFiles();
 								if (files != null)
 									for (File f : files) {
@@ -137,10 +145,19 @@ public class CompilationBox extends JFrame {
 										read = new ClassReader(baos.toByteArray());
 										node = new ClassNode();
 										read.accept(node, 0);
-										dis += "\n" + decompiler.getDecompiler().decompile(node);
+										classNodes.put(f.getName(), node);
 									}
-								compSuccess.textArea.setText(dis);
+								compSuccess.textArea
+										.setText(decompiler.getDecompiler().decompile(mainNode, classNodes));
 								compSuccess.setVisible(true);
+							} catch (IOException e2) {
+								e2.printStackTrace();
+							}
+							try {
+								for (File f : tmpFolder.listFiles()) {
+									Files.delete(f.toPath());
+								}
+								Files.delete(tmpFolder.toPath());
 							} catch (IOException e2) {
 								e2.printStackTrace();
 							}
@@ -148,10 +165,6 @@ public class CompilationBox extends JFrame {
 					} else {
 						JOptionPane.showMessageDialog(CompilationBox.this, res, "Error!", JOptionPane.ERROR_MESSAGE);
 					}
-					for (File f : tmpFolder.listFiles()) {
-						Files.delete(f.toPath());
-					}
-					Files.delete(tmpFolder.toPath());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

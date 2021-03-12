@@ -1,5 +1,7 @@
 package me.ByteEdit.decompiler;
 
+import java.util.Map;
+
 import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
 import org.jd.core.v1.api.loader.Loader;
 import org.jd.core.v1.api.loader.LoaderException;
@@ -7,12 +9,19 @@ import org.jd.core.v1.api.printer.Printer;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-import me.ByteEdit.main.Main;
-
 public class JDDecompiler implements Loader, Printer, IDecompiler {
 
+	protected static final String TAB = "    ";
+	protected static final String NEWLINE = "\n";
+
+	protected int indentationCount = 0;
+	protected StringBuilder sb = new StringBuilder();
+
+	private Map<String, ClassNode> classNodes;
+
 	@Override
-	public String decompile(ClassNode cn) {
+	public String decompile(ClassNode cn, Map<String, ClassNode> classNodes) {
+		this.classNodes = classNodes;
 		ClassFileToJavaSourceDecompiler decompiler = new ClassFileToJavaSourceDecompiler();
 		try {
 			decompiler.decompile(this, this, cn.name);
@@ -32,22 +41,21 @@ public class JDDecompiler implements Loader, Printer, IDecompiler {
 
 	@Override
 	public boolean canLoad(String internalName) {
-		return Main.classNodes.containsKey(internalName + ".class");
+		synchronized (classNodes) {
+			return classNodes.containsKey(internalName + ".class");
+		}
 	}
 
 	@Override
 	public byte[] load(String internalName) throws LoaderException {
-		ClassNode cl = Main.classNodes.get(internalName + ".class");
-		ClassWriter cw = new ClassWriter(0);
-		cl.accept(cw);
-		return cw.toByteArray();
+		ClassNode node;
+		synchronized (classNodes) {
+			node = classNodes.get(internalName + ".class");
+		}
+		if (node != null)
+			return IDecompiler.getBytes(node);
+		throw new LoaderException("Failed to load '" + internalName + "'");
 	}
-
-	protected static final String TAB = "    ";
-	protected static final String NEWLINE = "\n";
-
-	protected int indentationCount = 0;
-	protected StringBuilder sb = new StringBuilder();
 
 	@Override
 	public String toString() {

@@ -786,23 +786,11 @@ public class Main extends JFrame {
 			String current = currentNodeName;
 			ClassNode classNode = classNodes.get(current);
 			int prev = txtByteEditView.getCaretPosition();
-			String dis = decompiler.getDecompiler().decompile(classNode);
-			String substr = current.substring(0, current.length() - 6);
-			synchronized (Main.classNodes) {
-				for (Entry<String, ClassNode> entry : Main.classNodes.entrySet()) {
-					if (entry.getKey().contains("$")) {
-						String[] split = entry.getKey().split("\\$");
-						if (split[0].equals(substr)) {
-							dis += "\n" + decompiler.getDecompiler().decompile(entry.getValue());
-						}
-					}
-				}
-			}
-			String fdis = dis;
+			String dis = decompiler.getDecompiler().decompile(classNode, Main.classNodes);
 			EventQueue.invokeAndWait(() -> {
 				synchronized (treeLock) {
-					txtByteEditView.setText(fdis);
-					if (fdis.length() > prev)
+					txtByteEditView.setText(dis);
+					if (dis.length() > prev)
 						txtByteEditView.setCaretPosition(prev);
 				}
 			});

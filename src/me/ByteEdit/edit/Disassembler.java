@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -69,8 +71,21 @@ public class Disassembler implements IDecompiler {
 			.newFixedThreadPool((Runtime.getRuntime().availableProcessors() + 1) / 2);
 
 	@Override
-	public String decompile(ClassNode cn) {
-		return disassemble(cn);
+	public String decompile(ClassNode cn, Map<String, ClassNode> classNodes) {
+		String name = cn.name;
+		StringBuilder dis = new StringBuilder(disassemble(cn));
+		synchronized (classNodes) {
+			for (Entry<String, ClassNode> entry : classNodes.entrySet()) {
+				if (entry.getKey().contains("$")) {
+					String[] split = entry.getKey().split("\\$");
+					if (split[0].equals(name)) {
+						dis.append('\n');
+						dis.append(disassemble(entry.getValue()));
+					}
+				}
+			}
+		}
+		return dis.toString();
 	}
 
 	private static String disassemble(ClassNode classNode) {

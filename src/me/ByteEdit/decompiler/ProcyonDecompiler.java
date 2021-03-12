@@ -3,6 +3,7 @@ package me.ByteEdit.decompiler;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import org.objectweb.asm.tree.ClassNode;
 
@@ -19,11 +20,11 @@ import com.strobel.decompiler.PlainTextOutput;
 public class ProcyonDecompiler implements IDecompiler {
 
 	@Override
-	public String decompile(ClassNode cn) {
-		return doDecompilation(cn, getBytes(cn));
+	public String decompile(ClassNode cn, Map<String, ClassNode> classNodes) {
+		return doDecompilation(cn, IDecompiler.getBytes(cn), classNodes);
 	}
 
-	private static String doDecompilation(ClassNode cn, byte[] b) {
+	private static String doDecompilation(ClassNode cn, byte[] b, Map<String, ClassNode> classNodes) {
 		try {
 			// TODO decompile method only
 			DecompilerSettings settings = new DecompilerSettings();
@@ -45,6 +46,16 @@ public class ProcyonDecompiler implements IDecompiler {
 				public boolean tryLoadType(String s, Buffer buffer) {
 					if (s.equals(cn.name)) {
 						buffer.putByteArray(b, 0, b.length);
+						buffer.position(0);
+						return true;
+					}
+					ClassNode node;
+					synchronized (classNodes) {
+						node = classNodes.get(s + ".class");
+					}
+					if (node != null) {
+						byte[] data = IDecompiler.getBytes(node);
+						buffer.putByteArray(data, 0, data.length);
 						buffer.position(0);
 						return true;
 					}

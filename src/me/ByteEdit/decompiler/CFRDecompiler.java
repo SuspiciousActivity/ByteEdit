@@ -3,12 +3,18 @@ package me.ByteEdit.decompiler;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.benf.cfr.reader.PluginRunner;
 import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
+import org.benf.cfr.reader.state.ClassFileSourceImpl;
+import org.benf.cfr.reader.util.MiscConstants.Version;
+import org.benf.cfr.reader.util.getopt.OptionsImpl;
 import org.objectweb.asm.tree.ClassNode;
 
 public class CFRDecompiler implements IDecompiler {
@@ -68,17 +74,24 @@ public class CFRDecompiler implements IDecompiler {
 		options.put("sugarenums", "true");
 		options.put("tidymonitors", "true");
 		options.put("usenametable", "true");
+
+		try {
+			Field f = Version.class.getDeclaredField("version");
+			f.setAccessible(true);
+			f.set(null, "ByteEdit");
+		} catch (Exception ex) {
+		}
 	}
 
 	@Override
-	public String decompile(ClassNode cn) {
-		return doDecompilation(cn, getBytes(cn));
+	public String decompile(ClassNode cn, Map<String, ClassNode> classNodes) {
+		return doDecompilation(cn, IDecompiler.getBytes(cn), classNodes);
 	}
 
-	private static String doDecompilation(ClassNode cn, byte[] b) {
+	private static String doDecompilation(ClassNode cn, byte[] b, Map<String, ClassNode> classNodes) {
 		try {
 			HashMap<String, String> ops = options;
-			ClassFileSource cfs = new ClassFileSource() {
+			ClassFileSource cfs = new ClassFileSourceImpl(new OptionsImpl(Collections.EMPTY_MAP)) {
 
 				@Override
 				public void informAnalysisRelativePathDetail(String a, String b) {
@@ -92,10 +105,16 @@ public class CFRDecompiler implements IDecompiler {
 				@Override
 				public Pair<byte[], String> getClassFileContent(String path) throws IOException {
 					String name = path.substring(0, path.length() - 6);
-					if (name.equals(cn.name)) {
+					if (name.equals(cn.name))
 						return Pair.make(b, name);
+					// try loading other classes from jar
+					ClassNode node;
+					synchronized (classNodes) {
+						node = classNodes.get(name + ".class");
 					}
-					return null; // cfr loads unnecessary classes
+					if (node != null)
+						return Pair.make(IDecompiler.getBytes(node), name);
+					return super.getClassFileContent(path);
 				}
 
 				@Override
