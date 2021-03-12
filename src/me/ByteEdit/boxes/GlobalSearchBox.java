@@ -60,13 +60,7 @@ public class GlobalSearchBox extends JFrame {
 		contentPane.add(lblFind);
 		txtString = new JTextField();
 		KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-		txtString.registerKeyboardAction(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				find();
-			}
-		}, enter, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		txtString.registerKeyboardAction(e -> find(), enter, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		txtString.setBounds(91, 22, 149, 20);
 		contentPane.add(txtString);
 		txtString.setColumns(10);
@@ -74,12 +68,7 @@ public class GlobalSearchBox extends JFrame {
 		chckbxCaseSensitive.setBounds(10, 199, 114, 23);
 		contentPane.add(chckbxCaseSensitive);
 		JButton btnFind = new JButton("Find");
-		btnFind.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				find();
-			}
-		});
+		btnFind.addActionListener(e -> find());
 		btnFind.setBounds(130, 199, 110, 23);
 		contentPane.add(btnFind);
 
@@ -92,12 +81,7 @@ public class GlobalSearchBox extends JFrame {
 		contentPane.add(lblOwner);
 
 		txtOwner = new JTextField();
-		txtOwner.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				find();
-			}
-		});
+		txtOwner.addActionListener(e -> find());
 		txtOwner.setColumns(10);
 		txtOwner.setBounds(91, 78, 149, 20);
 		contentPane.add(txtOwner);
@@ -107,12 +91,7 @@ public class GlobalSearchBox extends JFrame {
 		contentPane.add(lblName);
 
 		txtName = new JTextField();
-		txtName.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				find();
-			}
-		});
+		txtName.addActionListener(e -> find());
 		txtName.setColumns(10);
 		txtName.setBounds(91, 106, 149, 20);
 		contentPane.add(txtName);
@@ -122,12 +101,7 @@ public class GlobalSearchBox extends JFrame {
 		contentPane.add(lblDesc);
 
 		txtDesc = new JTextField();
-		txtDesc.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				find();
-			}
-		});
+		txtDesc.addActionListener(e -> find());
 		txtDesc.setColumns(10);
 		txtDesc.setBounds(91, 134, 149, 20);
 		contentPane.add(txtDesc);
@@ -194,9 +168,7 @@ public class GlobalSearchBox extends JFrame {
 				}
 			}
 		}
-		for (Info s : set) {
-			openBox.model.addElement(s);
-		}
+		set.forEach(openBox.model::addElement);
 		openBox.setVisible(true);
 	}
 }

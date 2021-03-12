@@ -145,7 +145,6 @@ public class CompilationBox extends JFrame {
 								e2.printStackTrace();
 							}
 						});
-
 					} else {
 						JOptionPane.showMessageDialog(CompilationBox.this, res, "Error!", JOptionPane.ERROR_MESSAGE);
 					}
