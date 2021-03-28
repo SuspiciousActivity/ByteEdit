@@ -40,7 +40,7 @@ public class ArchiveTreeModel extends DefaultTreeModel {
 		super(new ByteEditTreeNode(jar.getName().split(File.separator.equals("\\") ? "\\\\"
 				: File.separator)[jar.getName().split(File.separator.equals("\\") ? "\\\\" : File.separator).length
 						- 1]));
-		this.newCreated = true;
+		this.newCreated = false;
 		this.jar = jar;
 		this.classNodes = classNodes;
 		this.otherFiles = otherFiles;

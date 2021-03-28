@@ -43,8 +43,8 @@ public class TypeOpenBox extends JFrame {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				String val = list.getSelectedValue();
-				if (val != null && !val.equals(Main.currentNodeName)) {
-					SingleThreadedExecutor.submit(() -> Main.selectFile(val));
+				if (!e.getValueIsAdjusting() && val != null && !val.equals(Main.currentNodeName)) {
+					SingleThreadedExecutor.submit(() -> Main.selectFile(val + ".class"));
 				}
 			}
 		});
@@ -79,17 +79,17 @@ public class TypeOpenBox extends JFrame {
 				}
 				String search = UnicodeUtils.unescape(null, txtSearch.getText(), true).toLowerCase();
 				if (search.contains("/")) {
-					for (String className : Main.classNodes.keySet()) {
-						if (!className.contains("$") && className.toLowerCase().startsWith(search)) {
-							model.addElement(className);
+					for (String fullName : Main.classNodes.keySet()) {
+						if (!fullName.contains("$") && fullName.toLowerCase().startsWith(search)) {
+							model.addElement(fullName);
 						}
 					}
 				} else {
-					for (String className : Main.classNodes.keySet()) {
-						String[] split = className.split("/");
-						className = split[split.length - 1];
+					for (String fullName : Main.classNodes.keySet()) {
+						String[] split = fullName.split("/");
+						String className = split[split.length - 1];
 						if (!className.contains("$") && className.toLowerCase().startsWith(search)) {
-							model.addElement(className);
+							model.addElement(fullName);
 						}
 					}
 				}
