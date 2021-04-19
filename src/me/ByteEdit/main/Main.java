@@ -483,6 +483,7 @@ public class Main extends JFrame {
 					String s = ((ByteEditTreeNode) tree.getSelectionPath().getLastPathComponent()).path;
 					if (JOptionPane.showConfirmDialog(INSTANCE, "Do you want to delete\n\"" + s + "\"?", "Delete",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						s = s.substring(0, s.length() - 6);
 						ArrayList<String> toRemove = new ArrayList<>();
 						for (String key : Main.classNodes.keySet()) {
 							if (key.contains("$")) {
@@ -494,7 +495,7 @@ public class Main extends JFrame {
 						}
 						ArchiveTreeModel model = (ArchiveTreeModel) tree.getModel();
 						classNodes.remove(s);
-						model.paths.remove(s);
+						model.paths.remove(s + ".class");
 						for (String rem : toRemove) {
 							classNodes.remove(rem);
 						}
