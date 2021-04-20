@@ -409,15 +409,7 @@ public class Disassembler implements IDecompiler {
 					+ "\n\t\t\t]\n\t\t\targs: [\n";
 			for (Object l : node.bsmArgs) {
 				if (l instanceof Type) {
-					Type type = (Type) l;
-					int valueBegin = type.valueBegin;
-					int valueEnd = type.valueEnd;
-					String buf = type.valueBuffer;
-					// Reflection
-					s += "\t\t\t\tType: [\n\t\t\t\t\ttype: " + ClassUtil.getClassNameFromType(type)
-							+ "\n\t\t\t\t\tstart: " + valueBegin + "\n\t\t\t\t\tend: " + valueEnd + "\n\t\t\t\t\tbuf: "
-							+ ClassUtil.getDecompiledValue(buf, "", hs);
-					s += "\n\t\t\t\t]\n";
+					s += "\t\t\t\tType " + ClassUtil.getDecompiledValue(((Type) l).getDescriptor(), "", hs) + "\n";
 				} else if (l instanceof Handle) {
 					Handle h = (Handle) l;
 					s += "\t\t\t\tHandle: [\n\t\t\t\t\tname: "
@@ -446,16 +438,8 @@ public class Disassembler implements IDecompiler {
 		case LDC_INSN: {
 			LdcInsnNode node = (LdcInsnNode) n;
 			if (node.cst instanceof Type) {
-				Type type = (Type) node.cst;
-				int valueBegin = type.valueBegin;
-				int valueEnd = type.valueEnd;
-				String buf = type.valueBuffer;
-				// Reflection
-				String s = "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type: [\n\t\t\ttype: "
-						+ ClassUtil.getClassNameFromType(type) + "\n\t\t\tstart: " + valueBegin + "\n\t\t\tend: "
-						+ valueEnd + "\n\t\t\tbuf: " + ClassUtil.getDecompiledValue(buf, "", hs);
-				s += "\n\t\t]\n";
-				return s;
+				return "\t\t" + OpcodesReverse.reverseOpcode(n.getOpcode()) + " Type "
+						+ ClassUtil.getDecompiledValue(((Type) node.cst).getDescriptor(), "", hs) + "\n";
 			}
 			String decomp = ClassUtil.getDecompiledValue(node.cst, "", hs);
 			if (node.cst instanceof String) {

@@ -771,14 +771,8 @@ public class Assembler {
 				String str = consolidateStrings(split, 1);
 				Object val;
 				try {
-					if (str.startsWith("Type: ")) {
-						str = str.substring(8, str.length() - 2);
-						String[] split2 = str.split("\n\t");
-						String type = split2[0].substring(7);
-						// Reflection
-						val = new Type(ClassUtil.getIDFromClassNameForType(type),
-								UnicodeUtils.unescape(hsr, split2[3].substring(6, split2[3].length() - 1)),
-								Integer.parseInt(split2[1].substring(7)), Integer.parseInt(split2[2].substring(5)));
+					if (str.startsWith("Type ")) {
+						val = Type.getType(UnicodeUtils.unescape(hsr, str.substring(6, str.length() - 1), true));
 					} else if (str.startsWith("\"") && str.endsWith("\"")) {
 						val = UnicodeUtils.unescape(hsr, str.substring(1, str.length() - 1), true);
 					} else if (str.startsWith("#")) {
@@ -1456,17 +1450,7 @@ public class Assembler {
 				for (int i = 10; i < sp.length - 1; i++) {
 					String st = sp[i].substring(1);
 					if (st.equals("]")) {
-						if (stage == 1) {
-							try {
-								// Reflection
-								args.add(new Type(ClassUtil.getIDFromClassNameForType(vals.get(0).substring(6)),
-										UnicodeUtils.unescape(hsr, vals.get(3).substring(6, vals.get(3).length() - 1)),
-										Integer.parseInt(vals.get(1).substring(7)),
-										Integer.parseInt(vals.get(2).substring(5))));
-							} catch (Exception e) {
-								throw e;
-							}
-						} else if (stage == 2) {
+						if (stage == 2) {
 							args.add(new Handle(OpcodesReverse.getHandleOpcode(vals.get(4).substring(5)),
 									UnicodeUtils.unescape(hsr, vals.get(1).substring(7)),
 									UnicodeUtils.unescape(hsr, vals.get(0).substring(6)),
@@ -1475,11 +1459,8 @@ public class Assembler {
 							vals.clear();
 						}
 						stage = 0;
-					} else if (st.equals("Type: [")) {
-						stage = 1;
-					} else if (stage == 1) {
-						st = st.substring(1);
-						vals.add(st);
+					} else if (st.startsWith("Type ")) {
+						args.add(Type.getType(UnicodeUtils.unescape(hsr, st.substring(6, st.length() - 1), true)));
 					} else if (st.equals("Handle: [")) {
 						vals.clear();
 						stage = 2;
