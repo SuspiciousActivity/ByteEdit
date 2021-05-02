@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -573,7 +574,9 @@ public class Assembler {
 				String value = split2[1];
 				if (value.endsWith("]"))
 					value = value.substring(0, value.length() - 1);
-				if (value.startsWith("{ ")) {
+				if (value.equals("{ }")) {
+					node.values.add(Collections.EMPTY_LIST);
+				} else if (value.startsWith("{ ")) {
 					String split3[] = splitWithStrings(value.substring(2, value.length() - 2));
 					List<Object> list = new ArrayList<>();
 					for (String rofl : split3) {

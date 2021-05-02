@@ -202,8 +202,12 @@ public class Disassembler implements IDecompiler {
 							}
 							s += ", ";
 						}
-						s = s.substring(0, s.length() - 2);
-						s += " }], ";
+						if (s.endsWith(", ")) {
+							s = s.substring(0, s.length() - 2);
+							s += " }], ";
+						} else {
+							s += "}], ";
+						}
 					} else if (o instanceof String) {
 						s += "\"" + UnicodeUtils.escapeWithSpaces(hs, (String) o) + "\"], ";
 					} else {
