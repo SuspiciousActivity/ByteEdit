@@ -311,6 +311,7 @@ public class Disassembler implements IDecompiler {
 
 		InsnList insnList = mn.instructions;
 		boolean deobfNumbers = Main.INSTANCE.mntmNumbers.isSelected();
+		boolean deobfNops = Main.INSTANCE.mntmNops.isSelected();
 
 		ArrayList<Label> labelsReversed = deobfNumbers ? new ArrayList<>() : null;
 
@@ -362,6 +363,8 @@ public class Disassembler implements IDecompiler {
 
 		StringContext ctx = new StringContext(insnList.size());
 		for (AbstractInsnNode n = insnList.getFirst(); n != null; n = n.getNext()) {
+			if (deobfNops && n.getOpcode() == Opcodes.NOP)
+				continue;
 			ctx.next(disassembleInstruction(n, labels, hs));
 		}
 		return new String[] { ctx.finish(), localVarTable, tryCatchTable };
