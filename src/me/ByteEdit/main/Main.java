@@ -89,6 +89,7 @@ import me.ByteEdit.utils.ClassUtil;
 import me.ByteEdit.utils.OpcodesReverse;
 import me.ByteEdit.utils.UnicodeUtils;
 
+// ASM 9.2
 public class Main extends JFrame {
 
 	public static Main INSTANCE;
@@ -424,7 +425,7 @@ public class Main extends JFrame {
 
 		mntmNumbers = new JCheckBoxMenuItem("Numbers");
 		mnDeobfuscation.add(mntmNumbers);
-		
+
 		mntmNops = new JCheckBoxMenuItem("Nops");
 		mnDeobfuscation.add(mntmNops);
 

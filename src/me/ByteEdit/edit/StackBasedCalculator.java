@@ -581,7 +581,7 @@ public class StackBasedCalculator implements Opcodes, Runnable {
 				return false;
 			case POP2:
 				Number val = stack.pop();
-				if(!(val instanceof Long) && !(val instanceof Double)) {
+				if (!(val instanceof Long) && !(val instanceof Double)) {
 					stack.pop();
 				}
 				change(node);
